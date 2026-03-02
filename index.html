@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Word Quest - מסע המילים</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <canvas id="particle-canvas"></canvas>
+
+  <!-- ===== WELCOME SCREEN ===== -->
+  <div class="screen" id="screen-welcome">
+    <div class="welcome-container">
+      <div class="welcome-icon">✨</div>
+      <h1 class="welcome-title">Word Quest</h1>
+      <h2 class="welcome-subtitle">מסע המילים</h2>
+      <p class="welcome-text" data-t="welcomeMessage">Ready to master 83 English words? Let's play!</p>
+      <button class="btn btn-primary btn-large pulse-glow" id="btn-start" data-t="startButton">Start!</button>
+    </div>
+  </div>
+
+  <!-- ===== HOME SCREEN ===== -->
+  <div class="screen hidden" id="screen-home">
+    <header class="top-bar">
+      <div class="level-badge" id="level-badge">
+        <span class="level-number" id="level-number">1</span>
+      </div>
+      <div class="xp-bar-container">
+        <div class="xp-bar" id="xp-bar"></div>
+        <span class="xp-text" id="xp-text">0 / 100 XP</span>
+      </div>
+      <div class="header-controls">
+        <button class="icon-btn" id="btn-sound" title="Sound">🔇</button>
+        <button class="lang-toggle" id="btn-lang">עברית</button>
+      </div>
+      <div class="streak-badge" id="streak-badge">
+        <span class="streak-icon">🔥</span>
+        <span class="streak-count" id="streak-count">0</span>
+      </div>
+    </header>
+
+    <div class="home-content">
+      <div class="daily-challenge-card" id="daily-challenge">
+        <div class="daily-label" data-t="dailyChallenge">Daily Challenge</div>
+        <div class="daily-text" id="daily-text"></div>
+        <div class="daily-progress-bar">
+          <div class="daily-progress-fill" id="daily-progress"></div>
+        </div>
+        <div class="daily-reward">+50 XP</div>
+      </div>
+
+      <div class="game-grid">
+        <button class="game-card" data-game="bubble">
+          <div class="game-card-icon">🫧</div>
+          <div class="game-card-name" data-t="gameBubble">Bubble Pop</div>
+          <div class="game-card-name-he">בועות קסם</div>
+        </button>
+        <button class="game-card" data-game="memory">
+          <div class="game-card-icon">🃏</div>
+          <div class="game-card-name" data-t="gameMemory">Memory Match</div>
+          <div class="game-card-name-he">זיכרון</div>
+        </button>
+        <button class="game-card" data-game="lightning">
+          <div class="game-card-icon">⚡</div>
+          <div class="game-card-name" data-t="gameLightning">Lightning Quiz</div>
+          <div class="game-card-name-he">ברק</div>
+        </button>
+        <button class="game-card" data-game="scramble">
+          <div class="game-card-icon">🧩</div>
+          <div class="game-card-name" data-t="gameScramble">Word Scramble</div>
+          <div class="game-card-name-he">פאזל מילים</div>
+        </button>
+        <button class="game-card" data-game="falling">
+          <div class="game-card-icon">🌧️</div>
+          <div class="game-card-name" data-t="gameFalling">Falling Words</div>
+          <div class="game-card-name-he">מילים נופלות</div>
+        </button>
+      </div>
+
+      <div class="home-stats">
+        <div class="stat-ring-container">
+          <svg class="progress-ring" viewBox="0 0 100 100">
+            <circle class="progress-ring-bg" cx="50" cy="50" r="42"/>
+            <circle class="progress-ring-fill" id="mastery-ring" cx="50" cy="50" r="42"/>
+          </svg>
+          <div class="stat-ring-text">
+            <span class="stat-ring-number" id="mastery-count">0</span>
+            <span class="stat-ring-label" data-t="mastered">mastered</span>
+          </div>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value" id="total-stars">0</span>
+          <span class="stat-label">⭐</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value" id="total-achievements">0</span>
+          <span class="stat-label">🏆</span>
+        </div>
+      </div>
+    </div>
+
+    <nav class="bottom-nav">
+      <button class="nav-btn active" data-nav="home">
+        <span class="nav-icon">🏠</span>
+        <span data-t="navHome">Home</span>
+      </button>
+      <button class="nav-btn" data-nav="words">
+        <span class="nav-icon">📚</span>
+        <span data-t="navWords">Words</span>
+      </button>
+      <button class="nav-btn" data-nav="achievements">
+        <span class="nav-icon">🏆</span>
+        <span data-t="navAchievements">Trophies</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- ===== BUBBLE POP GAME ===== -->
+  <div class="screen hidden" id="screen-bubble">
+    <div class="game-header">
+      <button class="back-btn" data-back>←</button>
+      <div class="game-title" data-t="gameBubble">Bubble Pop</div>
+      <div class="game-score">
+        <span class="score-label">XP:</span>
+        <span class="score-value" id="bubble-score">0</span>
+      </div>
+    </div>
+    <div class="game-target-bar">
+      <span data-t="findWord">Find:</span>
+      <span class="target-word" id="bubble-target"></span>
+    </div>
+    <div class="combo-display hidden" id="bubble-combo">
+      <span class="combo-text">x<span id="bubble-combo-num">2</span></span>
+    </div>
+    <div class="game-progress-dots" id="bubble-dots"></div>
+    <div class="bubble-container" id="bubble-container"></div>
+  </div>
+
+  <!-- ===== MEMORY MATCH GAME ===== -->
+  <div class="screen hidden" id="screen-memory">
+    <div class="game-header">
+      <button class="back-btn" data-back>←</button>
+      <div class="game-title" data-t="gameMemory">Memory Match</div>
+      <div class="game-stats-bar">
+        <span data-t="moves">Moves</span>: <span id="memory-moves">0</span>
+        <span class="stat-sep">|</span>
+        <span>⏱</span> <span id="memory-time">0:00</span>
+      </div>
+    </div>
+    <div class="memory-grid" id="memory-grid"></div>
+  </div>
+
+  <!-- ===== LIGHTNING QUIZ GAME ===== -->
+  <div class="screen hidden" id="screen-lightning">
+    <div class="game-header">
+      <button class="back-btn" data-back>←</button>
+      <div class="game-title" data-t="gameLightning">Lightning Quiz</div>
+      <div class="game-score">
+        <span id="lightning-progress">1/10</span>
+        <span class="stat-sep">|</span>
+        <span class="score-value" id="lightning-score">0</span> XP
+      </div>
+    </div>
+    <div class="lightning-timer-bar">
+      <div class="lightning-timer-fill" id="lightning-timer"></div>
+    </div>
+    <div class="lightning-streak hidden" id="lightning-streak">
+      <span class="streak-fire">🔥</span>
+      <span id="lightning-streak-num">0</span>
+    </div>
+    <div class="lightning-direction" id="lightning-direction-picker">
+      <button class="dir-btn active" data-dir="en-to-he">English → עברית</button>
+      <button class="dir-btn" data-dir="he-to-en">עברית → English</button>
+      <button class="dir-btn" data-dir="mixed" data-t="mixed">Mixed</button>
+    </div>
+    <div class="lightning-word" id="lightning-word"></div>
+    <div class="lightning-answers" id="lightning-answers"></div>
+  </div>
+
+  <!-- ===== WORD SCRAMBLE GAME ===== -->
+  <div class="screen hidden" id="screen-scramble">
+    <div class="game-header">
+      <button class="back-btn" data-back>←</button>
+      <div class="game-title" data-t="gameScramble">Word Scramble</div>
+      <div class="game-score">
+        <span id="scramble-progress">1/8</span>
+        <span class="stat-sep">|</span>
+        <span class="score-value" id="scramble-score">0</span> XP
+      </div>
+    </div>
+    <div class="scramble-clue">
+      <span data-t="clue">Clue:</span>
+      <span class="scramble-hebrew" id="scramble-hebrew"></span>
+    </div>
+    <div class="scramble-answer-zone" id="scramble-answer"></div>
+    <div class="scramble-tiles" id="scramble-tiles"></div>
+    <div class="scramble-controls">
+      <button class="btn btn-secondary" id="scramble-hint" data-t="hint">Hint (2)</button>
+    </div>
+  </div>
+
+  <!-- ===== FALLING WORDS GAME ===== -->
+  <div class="screen hidden" id="screen-falling">
+    <div class="game-header">
+      <button class="back-btn" data-back>←</button>
+      <div class="game-title" data-t="gameFalling">Falling Words</div>
+      <div class="game-score">
+        <span class="score-value" id="falling-score">0</span> XP
+        <span class="stat-sep">|</span>
+        <span id="falling-lives">❤️❤️❤️</span>
+      </div>
+    </div>
+    <div class="falling-area" id="falling-area"></div>
+    <div class="falling-input-zone">
+      <input type="text" class="falling-input" id="falling-input" placeholder="Type the English word..." data-t-placeholder="fallingPlaceholder" autocomplete="off" autocorrect="off" spellcheck="false">
+    </div>
+  </div>
+
+  <!-- ===== WORD MANAGER ===== -->
+  <div class="screen hidden" id="screen-words">
+    <div class="game-header">
+      <button class="back-btn" data-back>←</button>
+      <div class="game-title" data-t="navWords">My Words</div>
+    </div>
+    <div class="words-controls">
+      <input type="text" class="words-search" id="words-search" data-t-placeholder="searchWords" placeholder="Search words...">
+      <div class="words-filters">
+        <button class="filter-btn active" data-filter="all" data-t="filterAll">All</button>
+        <button class="filter-btn" data-filter="new" data-t="filterNew">New</button>
+        <button class="filter-btn" data-filter="learning" data-t="filterLearning">Learning</button>
+        <button class="filter-btn" data-filter="mastered" data-t="filterMastered">Mastered</button>
+      </div>
+    </div>
+    <div class="words-list" id="words-list"></div>
+    <div class="words-add-form">
+      <input type="text" class="add-input" id="add-english" placeholder="English" data-t-placeholder="addEnglish">
+      <input type="text" class="add-input" id="add-hebrew" placeholder="עברית" data-t-placeholder="addHebrew">
+      <button class="btn btn-primary" id="btn-add-word" data-t="addWord">Add</button>
+    </div>
+  </div>
+
+  <!-- ===== ACHIEVEMENTS ===== -->
+  <div class="screen hidden" id="screen-achievements">
+    <div class="game-header">
+      <button class="back-btn" data-back>←</button>
+      <div class="game-title" data-t="navAchievements">Trophies</div>
+    </div>
+    <div class="achievements-grid" id="achievements-grid"></div>
+  </div>
+
+  <!-- ===== GAME RESULTS OVERLAY ===== -->
+  <div class="overlay hidden" id="results-overlay">
+    <div class="results-card">
+      <div class="results-stars" id="results-stars"></div>
+      <div class="results-title" id="results-title"></div>
+      <div class="results-score" id="results-score"></div>
+      <div class="results-xp" id="results-xp"></div>
+      <div class="results-review hidden" id="results-review">
+        <div class="review-title" data-t="wordsToReview">Words to review:</div>
+        <div class="review-list" id="review-list"></div>
+      </div>
+      <div class="results-buttons">
+        <button class="btn btn-primary" id="btn-play-again" data-t="playAgain">Play Again</button>
+        <button class="btn btn-secondary" id="btn-go-home" data-t="goHome">Home</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== LEVEL UP OVERLAY ===== -->
+  <div class="overlay hidden" id="levelup-overlay">
+    <div class="levelup-content">
+      <div class="levelup-badge" id="levelup-badge"></div>
+      <div class="levelup-text" data-t="levelUp">Level Up!</div>
+      <div class="levelup-number" id="levelup-number"></div>
+    </div>
+  </div>
+
+  <!-- ===== ACHIEVEMENT UNLOCK OVERLAY ===== -->
+  <div class="overlay hidden" id="achievement-overlay">
+    <div class="achievement-unlock-card">
+      <div class="achievement-unlock-icon" id="achievement-unlock-icon"></div>
+      <div class="achievement-unlock-title" id="achievement-unlock-title"></div>
+      <div class="achievement-unlock-desc" id="achievement-unlock-desc"></div>
+    </div>
+  </div>
+
+  <script src="words.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
