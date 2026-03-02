@@ -87,13 +87,16 @@ const DEFAULT_WORDS = [
 const WordManager = {
   STORAGE_KEY: 'wordquest_words',
   MASTERY_KEY: 'wordquest_mastery',
+  SELECTION_KEY: 'wordquest_selection',
 
   _words: null,
   _mastery: null,
+  _selection: null,
 
   init() {
     this._words = this._loadWords();
     this._mastery = this._loadMastery();
+    this._selection = this._loadSelection();
   },
 
   _loadWords() {
@@ -115,6 +118,57 @@ const WordManager = {
       if (saved) return JSON.parse(saved);
     } catch (e) { /* fall through */ }
     return {};
+  },
+
+  _loadSelection() {
+    try {
+      const saved = localStorage.getItem(this.SELECTION_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return new Set(parsed);
+      }
+    } catch (e) { /* fall through */ }
+    return new Set();
+  },
+
+  _saveSelection() {
+    try { localStorage.setItem(this.SELECTION_KEY, JSON.stringify([...this._selection])); } catch (e) {}
+  },
+
+  toggleSelection(wordId) {
+    if (this._selection.has(wordId)) {
+      this._selection.delete(wordId);
+    } else {
+      this._selection.add(wordId);
+    }
+    this._saveSelection();
+  },
+
+  isSelected(wordId) {
+    return this._selection.has(wordId);
+  },
+
+  selectAll() {
+    this._words.forEach(w => this._selection.add(w.id));
+    this._saveSelection();
+  },
+
+  clearSelection() {
+    this._selection.clear();
+    this._saveSelection();
+  },
+
+  getSelectionCount() {
+    return this._selection.size;
+  },
+
+  hasActiveSelection() {
+    return this._selection.size > 0;
+  },
+
+  _getActivePool() {
+    if (this._selection.size === 0) return this._words;
+    return this._words.filter(w => this._selection.has(w.id));
   },
 
   _saveWords(words) {
@@ -179,39 +233,118 @@ const WordManager = {
     else if (m.masteryLevel === 4 && tc >= 19 && modes >= 3) m.masteryLevel = 5;
   },
 
-  getWeightedRandom(count, exclude) {
-    const excludeIds = new Set((exclude || []).map(w => w.id));
-    const pool = this._words.filter(w => !excludeIds.has(w.id));
-    if (pool.length <= count) return [...pool];
+  getActiveCount() {
+    return this._getActivePool().length;
+  },
 
-    const weighted = pool.map(w => {
-      const m = this.getMastery(w.id);
-      let weight = 1;
-      if (m.masteryLevel <= 1) weight = 3;
-      else if (m.masteryLevel <= 3) weight = 2;
-      return { word: w, weight };
+  getWordStrength(wordId) {
+    const m = this.getMastery(wordId);
+    const total = m.timesCorrect + m.timesWrong;
+    if (total === 0) return { score: 0, label: 'unseen', accuracy: 0 };
+    const accuracy = Math.round((m.timesCorrect / total) * 100);
+    const daysSinceSeen = m.lastSeen ? Math.floor((Date.now() - m.lastSeen) / 86400000) : 999;
+    const decayPenalty = Math.min(daysSinceSeen * 3, 20);
+    const score = Math.max(0, Math.min(100, accuracy - decayPenalty + m.masteryLevel * 4));
+    let label = 'struggling';
+    if (score >= 85) label = 'mastered';
+    else if (score >= 65) label = 'good';
+    else if (score >= 40) label = 'learning';
+    return { score, label, accuracy, total, daysSinceSeen };
+  },
+
+  getWeightedRandom(count, exclude) {
+    const excludeIds = new Set((exclude || []).map(e => typeof e === 'object' ? e.id : Number(e)));
+    const pool = this._getActivePool().filter(w => !excludeIds.has(w.id));
+    if (pool.length <= count) return this._shuffleArray([...pool]);
+
+    const now = Date.now();
+    const buckets = { struggling: [], learning: [], unseen: [], good: [], mastered: [] };
+    pool.forEach(w => {
+      const s = this.getWordStrength(w.id);
+      buckets[s.label].push(w);
     });
+    Object.values(buckets).forEach(b => this._shuffleArray(b));
+
+    const challengeRatio = 0.55;
+    const newRatio = 0.15;
+    const easyRatio = 0.30;
+
+    const challengeCount = Math.max(1, Math.round(count * challengeRatio));
+    const newCount = Math.round(count * newRatio);
+    const easyCount = count - challengeCount - newCount;
 
     const selected = [];
-    for (let i = 0; i < count && weighted.length > 0; i++) {
-      const totalWeight = weighted.reduce((sum, item) => sum + item.weight, 0);
-      let rand = Math.random() * totalWeight;
-      let idx = 0;
-      for (let j = 0; j < weighted.length; j++) {
-        rand -= weighted[j].weight;
-        if (rand <= 0) { idx = j; break; }
+
+    const pickFrom = (bucket, n) => {
+      let picked = 0;
+      while (picked < n && bucket.length > 0) {
+        const w = bucket.shift();
+        if (!selected.find(s => s.id === w.id)) { selected.push(w); picked++; }
       }
-      selected.push(weighted[idx].word);
-      weighted.splice(idx, 1);
+      return picked;
+    };
+
+    let remaining = challengeCount;
+    remaining -= pickFrom(buckets.struggling, remaining);
+    remaining -= pickFrom(buckets.learning, remaining);
+
+    let newRemaining = newCount;
+    newRemaining -= pickFrom(buckets.unseen, newRemaining);
+
+    let easyRemaining = easyCount;
+    easyRemaining -= pickFrom(buckets.mastered, easyRemaining);
+    easyRemaining -= pickFrom(buckets.good, easyRemaining);
+
+    const leftover = remaining + newRemaining + easyRemaining;
+    if (leftover > 0) {
+      const allLeft = [...buckets.struggling, ...buckets.learning, ...buckets.unseen,
+        ...buckets.good, ...buckets.mastered].filter(w => !selected.find(s => s.id === w.id));
+      this._shuffleArray(allLeft);
+      pickFrom(allLeft, leftover);
     }
-    return selected;
+
+    return this._shuffleArray(selected);
+  },
+
+  _shuffleArray(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
   },
 
   getRandom(count, exclude) {
-    const excludeIds = new Set((exclude || []).map(w => w.id));
+    const excludeIds = new Set((exclude || []).map(e => typeof e === 'object' ? e.id : Number(e)));
     const pool = this._words.filter(w => !excludeIds.has(w.id));
-    const shuffled = pool.sort(() => Math.random() - 0.5);
-    return shuffled.slice(0, count);
+    if (pool.length <= count) return this._shuffleArray([...pool]);
+
+    const firstExclude = exclude && exclude.length > 0 ? exclude[0] : null;
+    const targetId = firstExclude ? (typeof firstExclude === 'object' ? firstExclude.id : Number(firstExclude)) : null;
+    if (targetId !== null) {
+      const target = this._words.find(w => w.id === targetId);
+      if (target) {
+        const scored = pool.map(w => {
+          let similarity = 0;
+          if (Math.abs(w.english.length - target.english.length) <= 2) similarity += 2;
+          if (w.english[0] === target.english[0]) similarity += 1;
+          similarity += Math.random() * 3;
+          return { word: w, score: similarity };
+        });
+        scored.sort((a, b) => b.score - a.score);
+        return scored.slice(0, count).map(s => s.word);
+      }
+    }
+    return this._shuffleArray(pool).slice(0, count);
+  },
+
+  editWord(wordId, english, hebrew) {
+    const word = this._words.find(w => w.id === wordId);
+    if (!word) return false;
+    word.english = english.trim();
+    word.hebrew = hebrew.trim();
+    this._saveWords();
+    return true;
   },
 
   addWord(english, hebrew) {
@@ -226,8 +359,10 @@ const WordManager = {
     if (this._words.length <= 20) return false;
     this._words = this._words.filter(w => w.id !== wordId);
     delete this._mastery[wordId];
+    this._selection.delete(wordId);
     this._saveWords();
     this._saveMastery();
+    this._saveSelection();
     return true;
   },
 
@@ -239,7 +374,9 @@ const WordManager = {
   resetAll() {
     this._words = DEFAULT_WORDS.map((w, i) => ({ id: i, ...w }));
     this._mastery = {};
+    this._selection = new Set();
     this._saveWords();
     this._saveMastery();
+    this._saveSelection();
   }
 };
