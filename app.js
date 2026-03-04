@@ -4397,9 +4397,6 @@ const Dashboard = {
     const counts = { all: 0, struggling: 0, learning: 0, good: 0, mastered: 0, unseen: 0 };
     this._wordData.forEach(w => { counts.all++; counts[w.label]++; });
 
-    const titleEl = el.closest('.rpt-section')?.querySelector('.rpt-section-title');
-    if (titleEl) titleEl.textContent = T.get('dashAllWords') + ' (' + counts.all + ')';
-
     document.querySelectorAll('#screen-dashboard .rpt-filter').forEach(btn => {
       const f = btn.dataset.wf;
       btn.classList.toggle('active', f === this._wordFilter);
@@ -4412,6 +4409,12 @@ const Dashboard = {
       filtered = filtered.filter(w => w.label === this._wordFilter);
     }
     filtered.sort((a, b) => a.word.english.localeCompare(b.word.english, 'en', { sensitivity: 'base' }));
+
+    const titleEl = el.closest('.rpt-section')?.querySelector('.rpt-section-title');
+    if (titleEl) {
+      const countStr = this._wordFilter === 'all' ? '(' + counts.all + ')' : '(' + filtered.length + '/' + counts.all + ')';
+      titleEl.textContent = T.get('dashAllWords') + ' ' + countStr;
+    }
 
     if (filtered.length === 0) {
       el.innerHTML = '<div class="dash-empty">' + T.get('dashNoCategory') + '</div>';
@@ -4518,20 +4521,6 @@ const CloudSync = {
       latestTest: GameState.getLatestTest(),
       lang: T._lang
     };
-  },
-
-  _compact(snapshot) {
-    snapshot.history = (snapshot.history || []).slice(-60);
-    if (snapshot.wordData) {
-      snapshot.wordData = snapshot.wordData.map(w => ({
-        english: w.english, hebrew: w.hebrew,
-        accuracy: w.accuracy, strengthLabel: w.strengthLabel,
-        confidenceLevel: w.confidenceLevel, pctToMastery: w.pctToMastery,
-        streak: w.streak, modesCount: w.modesCount
-      }));
-    }
-    delete snapshot.testHistory;
-    return snapshot;
   },
 
   async _createBin() {
@@ -4679,14 +4668,21 @@ const ParentView = {
     }
 
     this._data = data;
-    this._wordData = (data.wordData || []).map(w => ({
-      word: { english: w.english, hebrew: w.hebrew },
-      correct: w.correct || 0, wrong: w.wrong || 0,
-      total: (w.correct || 0) + (w.wrong || 0),
-      accuracy: w.accuracy || 0,
-      strength: w.strengthScore || 0, label: w.strengthLabel || 'unseen',
-      lastSeen: w.lastSeen, daysSince: w.daysSince
-    }));
+    this._wordData = (data.wordData || []).map(w => {
+      const label = w.strengthLabel || 'unseen';
+      const hasBeenSeen = label !== 'unseen';
+      const correct = w.correct || 0;
+      const wrong = w.wrong || 0;
+      const total = correct + wrong;
+      const accuracy = w.accuracy || 0;
+      const strength = w.strengthScore || (hasBeenSeen ? Math.max(accuracy, 1) : 0);
+      return {
+        word: { english: w.english, hebrew: w.hebrew },
+        correct, wrong, total, accuracy, strength, label,
+        lastSeen: w.lastSeen, daysSince: w.daysSince,
+        hasBeenSeen
+      };
+    });
     loadingEl.classList.add('hidden');
     contentEl.classList.remove('hidden');
     this._renderAll();
@@ -4921,7 +4917,7 @@ const ParentView = {
     if (!el) return;
     el.innerHTML = '';
     const struggled = this._wordData
-      .filter(w => w.total >= 2 && (w.label === 'struggling' || w.label === 'learning'))
+      .filter(w => w.label === 'struggling' || w.label === 'learning')
       .sort((a, b) => a.strength - b.strength)
       .slice(0, 10);
 
@@ -4937,7 +4933,9 @@ const ParentView = {
         '<span class="dash-hard-eng">' + item.word.english + '</span>' +
         '<span class="dash-hard-heb">' + item.word.hebrew + '</span>' +
         '<span class="dash-hard-acc ' + accClass + '">' + item.accuracy + '%</span>' +
-        '<span class="dash-hard-detail">' + item.correct + '✓ ' + item.wrong + '✗</span>' +
+        (item.total > 0
+          ? '<span class="dash-hard-detail">' + item.correct + '✓ ' + item.wrong + '✗</span>'
+          : '') +
         '<span class="dash-hard-bar"><span class="dash-hard-fill" style="width:' + item.strength + '%"></span></span>';
       el.appendChild(row);
     });
@@ -4950,9 +4948,6 @@ const ParentView = {
 
     const counts = { all: 0, struggling: 0, learning: 0, good: 0, mastered: 0, unseen: 0 };
     this._wordData.forEach(w => { counts.all++; counts[w.label]++; });
-
-    const titleEl = el.closest('.rpt-section')?.querySelector('.rpt-section-title');
-    if (titleEl) titleEl.textContent = T.get('dashAllWords') + ' (' + counts.all + ')';
 
     document.querySelectorAll('#pv-filters .rpt-filter').forEach(btn => {
       const f = btn.dataset.wf;
@@ -4968,6 +4963,12 @@ const ParentView = {
     }
     filtered.sort((a, b) => a.word.english.localeCompare(b.word.english, 'en', { sensitivity: 'base' }));
 
+    const titleEl = el.closest('.rpt-section')?.querySelector('.rpt-section-title');
+    if (titleEl) {
+      const countStr = this._wordFilter === 'all' ? '(' + counts.all + ')' : '(' + filtered.length + '/' + counts.all + ')';
+      titleEl.textContent = T.get('dashAllWords') + ' ' + countStr;
+    }
+
     if (filtered.length === 0) {
       el.innerHTML = '<div class="dash-empty">' + T.get('dashNoCategory') + '</div>';
       return;
@@ -4977,14 +4978,20 @@ const ParentView = {
       const row = document.createElement('div');
       row.className = 'dash-word-row dash-wlabel-' + item.label;
       const statusIcon = { unseen: '⬜', struggling: '🔴', learning: '🟡', good: '🟢', mastered: '⭐' }[item.label];
-      const lastSeenStr = item.lastSeen
-        ? (item.daysSince === 0 ? T.get('dashToday') : item.daysSince === 1 ? T.get('dashYesterday') : item.daysSince + T.get('dashDaysAgo'))
-        : T.get('dashNever');
+      let lastSeenStr;
+      if (item.lastSeen) {
+        lastSeenStr = item.daysSince === 0 ? T.get('dashToday') : item.daysSince === 1 ? T.get('dashYesterday') : item.daysSince + T.get('dashDaysAgo');
+      } else {
+        lastSeenStr = item.hasBeenSeen ? '—' : T.get('dashNever');
+      }
+      const statsStr = item.total > 0
+        ? item.accuracy + '% · ' + item.correct + '✓ ' + item.wrong + '✗'
+        : (item.hasBeenSeen ? item.accuracy + '%' : '—');
       row.innerHTML =
         '<span class="dash-w-status">' + statusIcon + '</span>' +
         '<span class="dash-w-eng">' + item.word.english + '</span>' +
         '<span class="dash-w-heb">' + item.word.hebrew + '</span>' +
-        '<span class="dash-w-stats">' + (item.total > 0 ? item.accuracy + '% · ' + item.correct + '✓ ' + item.wrong + '✗' : '—') + '</span>' +
+        '<span class="dash-w-stats">' + statsStr + '</span>' +
         '<span class="dash-w-seen">' + lastSeenStr + '</span>' +
         '<span class="dash-w-bar"><span class="dash-w-bar-fill dash-wlabel-' + item.label + '" style="width:' + item.strength + '%"></span></span>';
       el.appendChild(row);
@@ -5006,6 +5013,7 @@ const App = {
     Achievements.resetFlags();
     DailyChallenge.generate();
     CloudSync.init();
+    setTimeout(() => CloudSync.push(), 2000);
 
     const savedLang = localStorage.getItem('wordquest_lang') || 'en';
     T.setLang(savedLang);
