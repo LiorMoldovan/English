@@ -41,8 +41,8 @@
         <span class="xp-text" id="xp-text">0 / 100 XP</span>
       </div>
       <div class="header-controls">
-        <button class="icon-btn" id="btn-dashboard" data-t-title="parentDashboard" title="Parent Dashboard">📊</button>
-        <button class="icon-btn" id="btn-sound" title="Sound">🔇</button>
+        <button class="icon-btn" id="btn-dashboard" data-t-title="parentDashboard" title="Progress Report">📊</button>
+        <button class="icon-btn" id="btn-sound" data-t-title="soundToggle" title="Sound">🔇</button>
         <button class="lang-toggle" id="btn-lang">עברית</button>
       </div>
       <div class="streak-badge" id="streak-badge">
@@ -52,6 +52,25 @@
     </header>
 
     <div class="home-content">
+
+      <div class="home-greeting-row">
+        <span class="home-greeting" id="home-greeting">Good morning! ☀️</span>
+        <span class="home-level-title" id="level-title">Beginner</span>
+      </div>
+
+      <div class="home-freeze-row">
+        <div class="freeze-indicator hidden" id="freeze-indicator">
+          <span class="freeze-icon">❄️</span>
+          <span class="freeze-text"></span>
+        </div>
+        <button class="freeze-buy-btn" id="btn-buy-freeze" data-t="buyFreeze">Buy Freeze (50 XP)</button>
+      </div>
+
+      <div class="decay-warning hidden" id="decay-warning">
+        <span class="decay-icon">⏰</span>
+        <span class="decay-text"></span>
+        <button class="decay-btn" id="decay-review-btn" data-t="decayReview">Review Now</button>
+      </div>
 
       <div class="home-top-strip">
         <div class="strip-card strip-daily" id="daily-challenge">
@@ -75,32 +94,37 @@
         <div class="strip-reward bonus-reward-text">+30 XP</div>
       </div>
 
-      <div class="home-mid-row">
-        <div class="wotd-mini" id="wotd-card">
-          <span class="wotd-mini-icon">💡</span>
-          <div class="wotd-mini-body">
-            <span class="wotd-mini-eng" id="wotd-english"></span>
-            <span class="wotd-mini-sep">=</span>
-            <span class="wotd-mini-heb" id="wotd-hebrew"></span>
-          </div>
-          <div class="wotd-hint" id="wotd-hint"></div>
-        </div>
-        <div class="home-mini-stats">
-          <div class="mini-stat"><span class="mini-stat-val" id="total-stars">0</span> <span class="mini-stat-icon">⭐</span></div>
-          <div class="mini-stat"><span class="mini-stat-val" id="total-achievements">0</span> <span class="mini-stat-icon">🏆</span></div>
-        </div>
+      <div class="strip-card strip-time" id="daily-time-card">
+        <div class="strip-label strip-label-time" data-t="dailyTimeGoal">Daily Time Goal</div>
+        <div class="strip-nums"><span id="daily-time-played">0</span>/<span id="daily-time-target">10</span> min</div>
+        <div class="strip-text strip-time-motiv" id="daily-time-motiv"></div>
+        <div class="strip-bar"><div class="strip-fill time-fill-color" id="daily-time-progress"></div></div>
+        <div class="strip-reward strip-reward-time">+30 XP</div>
       </div>
 
-      <div class="motivation-strip" id="motivation-banner">
-        <span class="motivation-icon" id="motivation-icon"></span>
-        <span class="motivation-text" id="motivation-text"></span>
-      </div>
-
-      <button class="quick-practice-btn" id="btn-quick-practice">
-        <span class="qp-icon">🎯</span>
-        <span class="qp-text" id="qp-text" data-t="quickPractice">Quick Practice</span>
-        <span class="qp-arrow">→</span>
+      <button class="sp-badge" id="sp-badge">
+        <span class="sp-badge-icon">📈</span>
+        <span class="sp-badge-text" id="sp-badge-text">0 / 0</span>
+        <span class="sp-badge-label" data-t="spMastered">mastered</span>
+        <span class="sp-badge-arrow">›</span>
       </button>
+
+      <div class="home-actions-row">
+        <button class="home-action-btn action-practice" id="btn-quick-practice">
+          <span class="action-icon">🎯</span>
+          <span class="action-label" data-t="quickPractice">Quick Practice</span>
+        </button>
+        <button class="home-action-btn action-test" id="btn-take-test">
+          <span class="action-icon">📝</span>
+          <span class="action-label" data-t="takeTest">Take a Test</span>
+        </button>
+        <div class="home-action-btn action-stats">
+          <span class="action-stat-val" id="total-stars">0</span><span class="action-stat-emoji">⭐</span>
+          <span class="action-stat-sep">·</span>
+          <span class="action-stat-val" id="total-achievements">0</span><span class="action-stat-emoji">🏆</span>
+        </div>
+      </div>
+
 
       <div class="game-section-label" data-t="sectionTranslation">Translation Games</div>
       <div class="game-grid">
@@ -443,6 +467,19 @@
       <input type="text" class="add-input" id="add-english" placeholder="English" data-t-placeholder="addEnglish">
       <input type="text" class="add-input" id="add-hebrew" placeholder="עברית" data-t-placeholder="addHebrew">
       <button class="btn btn-primary" id="btn-add-word" data-t="addWord">Add</button>
+      <button class="btn btn-secondary btn-bulk" id="btn-bulk-import" data-t="bulkImport">Bulk Import</button>
+    </div>
+  </div>
+
+  <!-- ===== BULK IMPORT MODAL ===== -->
+  <div class="overlay hidden" id="bulk-import-modal">
+    <div class="bulk-import-card">
+      <div class="bulk-import-title" data-t="bulkImportTitle">Bulk Import Words</div>
+      <textarea class="bulk-import-area" id="bulk-import-area" rows="10"></textarea>
+      <div class="bulk-import-actions">
+        <button class="btn btn-primary" id="btn-bulk-do" data-t="bulkImportBtn">Import</button>
+        <button class="btn btn-secondary" id="btn-bulk-close" data-t="bulkImportClose">Close</button>
+      </div>
     </div>
   </div>
 
@@ -583,33 +620,43 @@
     <div class="fi-choices" id="fi-choices"></div>
   </div>
 
-  <!-- ===== WORD REPORT ===== -->
-  <div class="screen hidden" id="screen-report">
+  <!-- ===== TEST MODE ===== -->
+  <div class="screen hidden" id="screen-test">
     <div class="game-header">
       <button class="back-btn" data-back>←</button>
-      <div class="game-title" data-t="wordReport">Word Report</div>
+      <div class="game-title" data-t="testTitle">Test</div>
+      <div class="game-score">
+        <span id="test-progress">1 / 10</span>
+      </div>
     </div>
-    <div class="report-scroll">
-      <div class="report-overview" id="report-overview"></div>
-      <div class="report-section report-focus" id="report-focus">
-        <h3 class="report-section-title" data-t="reportFocus">🔴 Focus on These</h3>
-        <div class="report-word-list" id="report-focus-list"></div>
+    <div class="game-instructions" data-t="instrTest">Choose the correct translation for each word!</div>
+    <div class="test-progress-bar">
+      <div class="test-progress-fill" id="test-progress-fill"></div>
+    </div>
+    <div class="test-body">
+      <div class="test-direction" id="test-direction" data-t="testTranslateToHe">Translate to Hebrew</div>
+      <div class="test-prompt" id="test-prompt"></div>
+      <div class="test-choices" id="test-choices"></div>
+    </div>
+  </div>
+
+  <!-- ===== TEST RESULTS ===== -->
+  <div class="screen hidden" id="screen-test-results">
+    <div class="game-header">
+      <button class="back-btn" data-back>←</button>
+      <div class="game-title" data-t="testResults">Test Results</div>
+    </div>
+    <div class="test-results-scroll">
+      <div class="test-grade-card" id="test-grade-card">
+        <div class="test-grade-letter" id="test-grade-letter">A</div>
+        <div class="test-grade-score" id="test-grade-score">10 / 10</div>
+        <div class="test-grade-pct" id="test-grade-pct">100%</div>
+        <div class="test-grade-rec" id="test-grade-rec"></div>
       </div>
-      <div class="report-section report-learning" id="report-learning-section">
-        <h3 class="report-section-title" data-t="reportLearning">🟡 Still Learning</h3>
-        <div class="report-word-list" id="report-learning-list"></div>
-      </div>
-      <div class="report-section report-good" id="report-good-section">
-        <h3 class="report-section-title" data-t="reportGood">🟢 Almost There</h3>
-        <div class="report-word-list" id="report-good-list"></div>
-      </div>
-      <div class="report-section report-mastered-section" id="report-mastered-section">
-        <h3 class="report-section-title" data-t="reportMastered">⭐ Mastered</h3>
-        <div class="report-word-list" id="report-mastered-list"></div>
-      </div>
-      <div class="report-section report-unseen" id="report-unseen-section">
-        <h3 class="report-section-title" data-t="reportUnseen">⬜ Not Practiced Yet</h3>
-        <div class="report-word-list" id="report-unseen-list"></div>
+      <div class="test-word-list" id="test-word-list"></div>
+      <div class="test-results-actions">
+        <button class="btn btn-primary" id="test-retry-btn" data-t="testRetry">Retry Mistakes</button>
+        <button class="btn btn-secondary" id="test-home-btn" data-t="testBackHome">Back Home</button>
       </div>
     </div>
   </div>
@@ -618,42 +665,83 @@
   <div class="screen hidden" id="screen-dashboard">
     <div class="game-header">
       <button class="back-btn" data-back>←</button>
-      <div class="game-title" data-t="parentDashboard">Parent Dashboard</div>
+      <div class="game-title" data-t="parentDashboard">Progress Report</div>
     </div>
     <div class="dashboard-scroll">
-      <div class="dash-summary" id="dash-summary"></div>
-      <div class="dash-section">
-        <h3 class="dash-section-title" data-t="dashActivity">Activity — Last 14 Days</h3>
-        <div class="dash-chart" id="dash-activity-chart"></div>
+      <!-- Executive Summary -->
+      <div class="rpt-exec" id="rpt-exec"></div>
+
+      <!-- Word Mastery Breakdown -->
+      <div class="rpt-section">
+        <h3 class="rpt-section-title" data-t="rptWordMastery">Word Mastery</h3>
+        <div class="rpt-mastery" id="rpt-mastery"></div>
       </div>
-      <div class="dash-section">
-        <h3 class="dash-section-title" data-t="dashAccuracy">Accuracy Trend</h3>
+
+      <!-- Latest Test -->
+      <div class="rpt-section">
+        <h3 class="rpt-section-title" data-t="testLatest">Latest Test</h3>
+        <div id="dash-test-history"></div>
+      </div>
+
+      <!-- Daily Usage -->
+      <div class="rpt-section">
+        <h3 class="rpt-section-title" data-t="rptDailyUse">Daily Usage — Last 14 Days</h3>
+        <div class="rpt-daily-chart" id="rpt-daily-chart"></div>
+      </div>
+
+      <!-- Accuracy Trend -->
+      <div class="rpt-section">
+        <h3 class="rpt-section-title" data-t="dashAccuracy">Accuracy Trend</h3>
         <div class="dash-chart" id="dash-accuracy-chart"></div>
       </div>
-      <div class="dash-section">
-        <h3 class="dash-section-title" data-t="dashPerGame">Per-Game Breakdown</h3>
-        <div class="dash-games" id="dash-games"></div>
+
+      <!-- Words that Need Work -->
+      <div class="rpt-section">
+        <h3 class="rpt-section-title" data-t="dashNeedsWork">Words That Need Work</h3>
+        <div id="dash-hard-words"></div>
       </div>
-      <div class="dash-section">
-        <h3 class="dash-section-title" data-t="dashNeedsWork">⚠️ Needs Work — Focus On These</h3>
-        <div class="dash-hard-words" id="dash-hard-words"></div>
-      </div>
-      <div class="dash-section">
-        <h3 class="dash-section-title" data-t="dashAllWords">All Words Status</h3>
-        <div class="dash-word-filters">
-          <button class="dash-filter-btn active" data-wf="all" data-t="dashFilterAll">All</button>
-          <button class="dash-filter-btn" data-wf="struggling" data-t="dashStruggling">Struggling</button>
-          <button class="dash-filter-btn" data-wf="learning" data-t="dashLearning">Learning</button>
-          <button class="dash-filter-btn" data-wf="good" data-t="dashGood">Good</button>
-          <button class="dash-filter-btn" data-wf="mastered" data-t="dashMastered">Mastered</button>
-          <button class="dash-filter-btn" data-wf="unseen" data-t="dashUnseen">Not Seen</button>
+
+      <!-- All Words with Filter -->
+      <div class="rpt-section">
+        <h3 class="rpt-section-title" data-t="dashAllWords">All Words</h3>
+        <div class="rpt-word-filters">
+          <button class="rpt-filter active" data-wf="all" data-t="dashFilterAll">All</button>
+          <button class="rpt-filter" data-wf="mastered" data-t="dashMastered">Mastered</button>
+          <button class="rpt-filter" data-wf="good" data-t="dashGood">Good</button>
+          <button class="rpt-filter" data-wf="learning" data-t="dashLearning">Learning</button>
+          <button class="rpt-filter" data-wf="struggling" data-t="dashStruggling">Struggling</button>
+          <button class="rpt-filter" data-wf="unseen" data-t="dashUnseen">Not Seen</button>
         </div>
         <div class="dash-all-words" id="dash-all-words"></div>
       </div>
-      <div class="dash-section">
-        <h3 class="dash-section-title" data-t="dashRecentSessions">Recent Sessions</h3>
-        <div class="dash-sessions" id="dash-sessions"></div>
+    </div>
+  </div>
+
+  <!-- ===== SMART PROGRESS ===== -->
+  <div class="screen hidden" id="screen-smart-progress">
+    <div class="game-header">
+      <button class="back-btn" data-back>←</button>
+      <div class="game-title" data-t="spTitle">Word Progress</div>
+    </div>
+    <div class="sp-scroll">
+      <div class="sp-summary" id="sp-summary">
+        <div class="sp-summary-counts" id="sp-summary-counts"></div>
+        <div class="sp-bar-track"><div class="sp-bar-fill" id="sp-bar-fill"></div></div>
+        <div class="sp-summary-pct" id="sp-summary-pct">0%</div>
       </div>
+      <div class="sp-ready hidden" id="sp-ready">
+        <span class="sp-ready-icon">🎉</span>
+        <span class="sp-ready-text" data-t="spReadyMsg">All words mastered! Ready for new words!</span>
+      </div>
+      <div class="sp-no-selection hidden" id="sp-no-selection" data-t="spNoSelection">Select words from the word bank to track progress.</div>
+      <div class="sp-legend" id="sp-legend">
+        <span class="sp-leg sp-leg-mastered" data-t="spLegMastered">Mastered</span>
+        <span class="sp-leg sp-leg-almost" data-t="spLegAlmost">Almost</span>
+        <span class="sp-leg sp-leg-learning" data-t="spLegLearning">Learning</span>
+        <span class="sp-leg sp-leg-struggling" data-t="spLegStruggling">Struggling</span>
+        <span class="sp-leg sp-leg-new" data-t="spLegNew">New</span>
+      </div>
+      <div class="sp-word-list" id="sp-word-list"></div>
     </div>
   </div>
 
@@ -664,6 +752,7 @@
       <div class="results-title" id="results-title"></div>
       <div class="results-score" id="results-score"></div>
       <div class="results-xp" id="results-xp"></div>
+      <div class="results-almost hidden" id="results-almost"></div>
       <div class="results-review hidden" id="results-review">
         <div class="review-title" data-t="wordsToReview">Words to review:</div>
         <div class="review-list" id="review-list"></div>
@@ -681,6 +770,16 @@
       <div class="levelup-badge" id="levelup-badge"></div>
       <div class="levelup-text" data-t="levelUp">Level Up!</div>
       <div class="levelup-number" id="levelup-number"></div>
+      <div class="levelup-title" id="levelup-title"></div>
+    </div>
+  </div>
+
+  <!-- ===== MILESTONE OVERLAY ===== -->
+  <div class="overlay hidden" id="milestone-overlay">
+    <div class="milestone-content">
+      <div class="milestone-icon">🏅</div>
+      <div class="milestone-label" data-t="milestoneTitle">Milestone!</div>
+      <div class="milestone-text" id="milestone-text"></div>
     </div>
   </div>
 

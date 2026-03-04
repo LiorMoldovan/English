@@ -65,19 +65,28 @@ const T = {
     quickPractice: 'Quick Practice',
     qpNeedAttention: ' words need attention',
     qpReviewAll: 'Quick Practice · Review all words',
-    parentDashboard: 'Parent Dashboard',
-    dashTotalSessions: 'Total Sessions', dashActiveDays: 'Active Days',
-    dashThisWeek: 'This Week', dashAvgAccuracy: 'Avg Accuracy',
-    dashStreak: 'Current Streak', dashWordsMastered: 'Words Mastered',
+    parentDashboard: 'Progress Report',
+    rptSummary: 'Summary',
+    rptWordsMastered: 'Mastered', rptAvgAccuracy: 'Avg Accuracy',
+    rptTotalPractices: 'Practices', rptDayStreak: 'Day Streak',
+    rptThisWeek: 'This Week', rptActiveDays: 'Active Days',
+    rptTimeToday: 'Today', rptTimeTotal: 'Total Time',
+    rptGamesPlayed: 'Games Played', rptWordsKnown: 'Known Words',
+    rptMin: 'min', rptHr: 'hr',
+    rptDailyUse: 'Daily Usage — Last 14 Days',
+    rptDay: 'Day', rptSessions: 'Games', rptTimePlayed: 'Time', rptDayAccuracy: 'Accuracy',
+    rptNoActivity: 'No activity',
+    rptWordMastery: 'Word Mastery',
+    rptVerdictGreat: '🌟 Doing great! Most words are mastered or in good shape.',
+    rptVerdictGood: '👍 Good progress. Some words need more attention.',
+    rptVerdictWork: '📚 Needs more practice. Focus on the words marked below.',
+    rptVerdictStart: '🚀 Just getting started! Keep playing to build progress.',
     dashActivity: 'Activity — Last 14 Days', dashAccuracy: 'Accuracy Trend',
-    dashPerGame: 'Per-Game Breakdown',
-    dashNeedsWork: '⚠️ Needs Work — Focus On These',
-    dashAllWords: 'All Words Status', dashRecentSessions: 'Recent Sessions',
+    dashNeedsWork: 'Words That Need Work',
+    dashAllWords: 'All Words',
     dashNoSessions: 'No sessions yet',
-    dashNoStruggling: 'No struggling words found — great job!',
+    dashNoStruggling: 'No struggling words — great job!',
     dashNoCategory: 'No words in this category',
-    dashNoHistory: 'No sessions recorded yet. Play some games!',
-    dashSessions: 'sessions', dashAvg: 'Avg',
     dashFilterAll: 'All', dashStruggling: 'Struggling', dashLearning: 'Learning',
     dashGood: 'Good', dashMastered: 'Mastered', dashUnseen: 'Not Seen',
     dashToday: 'today', dashYesterday: 'yesterday', dashDaysAgo: 'd ago', dashNever: 'never',
@@ -89,6 +98,7 @@ const T = {
     selWordsSelected: ' words selected',
     selSelectAll: 'Select All', selClear: 'Clear',
     editWord: 'Edit', deleteWord: 'Delete', saveWord: 'Save', cancelWord: 'Cancel',
+    wordExists: 'This word already exists!', wordAdded: 'Word added!',
     practicingXWords: 'Practicing %d selected words',
     xpLabel: 'XP:',
     scoreLabel: 'Score',
@@ -115,6 +125,48 @@ const T = {
     instrCatSort: 'Tap the correct translation from the 3 options!',
     instrFillIn: 'Read the Hebrew hint and pick the missing English word!',
     labelStars: 'Stars', labelAchievements: 'Achievements',
+    xpUnit: 'XP', speakListen: 'Listen', soundToggle: 'Sound',
+    instrTest: 'Choose the correct translation for each word!',
+    takeTest: 'Take a Test', testTitle: 'Test',
+    greetMorning: 'Good morning! ☀️', greetAfternoon: 'Good afternoon! 🌤️',
+    greetEvening: 'Good evening! 🌙', greetNight: 'Good night! 🌟',
+    streakFreezeLabel: 'Streak Freeze', streakFreezeOwned: 'freeze available',
+    buyFreeze: 'Buy Freeze (50 XP)', freezeActive: '❄️ Freeze active!',
+    freezeBought: 'Streak Freeze purchased!', notEnoughXP: 'Not enough XP!',
+    freezeAlready: 'You already have a freeze!',
+    almostStars: '%d more for 3 stars!', almostPerfect: 'Almost perfect! Keep going!',
+    milestoneTitle: 'Milestone!',
+    milestone10: '10 words mastered! 🎉', milestone25: '25 words mastered! 🌟',
+    milestone50: '50 words mastered! 💫', milestone75: '75 words mastered! 🔥',
+    milestoneAll: 'ALL words mastered! 🏆👑',
+    decayWarning: '%d words need a refresher!', decayReview: 'Review Now',
+    wordsDueReview: 'words due for review',
+    bulkImport: 'Bulk Import', bulkImportHint: 'Paste words, one per line:\napple = תפוח\ndog = כלב',
+    bulkImportBtn: 'Import', bulkImportDone: '%d words imported!',
+    bulkImportClose: 'Close', bulkImportTitle: 'Bulk Import Words',
+    dailyTimeGoal: 'Daily Time Goal',
+    dailyTimeProgress: '%played / %target min',
+    dailyTimeReached: '⏱️ Time goal reached!',
+    dailyTimeReachedToast: '⏱️ Time goal reached! +30 XP',
+    dailyTimeMsg5: 'Start small — 5 min of focus!',
+    dailyTimeMsg10: 'Aim for 10 min today!',
+    dailyTimeMsg15: 'Great pace — 15 min target!',
+    dailyTimeMsg20: 'You\'re on fire — 20 min!',
+    dailyTimeMsg25: 'Power learner — 25 min!',
+    dailyTimeMsg30: 'Champion mode — 30 min!',
+    testQuestion: 'Question', testOf: 'of',
+    testTranslateToHe: 'Translate to Hebrew', testTranslateToEn: 'Translate to English',
+    testResults: 'Test Results', testScore: 'Score',
+    testCorrect: 'Correct', testWrong: 'Wrong',
+    testGradeA: 'Excellent! Ready for new words!',
+    testGradeB: 'Great job! A few more practice rounds to master them all',
+    testGradeC: 'Good progress! Focus on the marked words before moving on',
+    testGradeD: 'Needs more practice. Play a few more games with these words',
+    testGradeF: 'Keep practicing! These words need more time',
+    testMinWords: 'Need at least 4 words for a test',
+    testRetry: 'Retry Mistakes', testBackHome: 'Back Home',
+    testYourAnswer: 'Your answer', testCorrectAnswer: 'Correct answer',
+    testLatest: 'Latest Test', testNoTests: 'No tests taken yet',
     wordProgress: 'Word Progress', wordReport: 'Word Report',
     reportFocus: '🔴 Focus on These', reportLearning: '🟡 Still Learning',
     reportGood: '🟢 Almost There', reportMastered: '⭐ Mastered',
@@ -127,6 +179,22 @@ const T = {
     legMastered: 'Mastered', legGood: 'Good', legLearning: 'Learning',
     legStruggling: 'Struggling', legUnseen: 'Unseen',
     reportTimes: 'times',
+    lvlTitle1: 'Beginner', lvlTitle2: 'Explorer', lvlTitle3: 'Learner',
+    lvlTitle4: 'Adventurer', lvlTitle5: 'Silver Scholar',
+    lvlTitle6: 'Word Warrior', lvlTitle7: 'Smart Cookie',
+    lvlTitle8: 'Knowledge Seeker', lvlTitle9: 'Rising Star',
+    lvlTitle10: 'Gold Master', lvlTitle11: 'Word Wizard',
+    lvlTitle12: 'Brain Power', lvlTitle13: 'Superstar',
+    lvlTitle14: 'Language Hero', lvlTitle15: 'Diamond Legend',
+    spTitle: 'Word Progress', spMastered: 'mastered',
+    spSummary: '%m / %t words mastered',
+    spReadyMsg: 'All words mastered! Ready for new words!',
+    spNoSelection: 'Select words from the word bank to track progress.',
+    spLegMastered: 'Mastered', spLegAlmost: 'Almost', spLegLearning: 'Learning',
+    spLegStruggling: 'Struggling', spLegNew: 'New',
+    spStreak: 'Streak', spModes: 'Modes', spAccuracy: 'Accuracy',
+    spLvlMastered: 'Mastered', spLvlAlmost: 'Almost there',
+    spLvlLearning: 'Learning', spLvlStruggling: 'Struggling', spLvlNew: 'New',
   },
   he: {
     welcomeMessage: '!מוכנה לשלוט ב-83 מילים באנגלית? בואי נשחק',
@@ -186,21 +254,30 @@ const T = {
     quickPractice: 'תרגול מהיר',
     qpNeedAttention: ' מילים דורשות תשומת לב',
     qpReviewAll: 'תרגול מהיר · חזרו על הכל',
-    parentDashboard: 'לוח בקרה להורים',
-    dashTotalSessions: 'סה"כ משחקים', dashActiveDays: 'ימים פעילים',
-    dashThisWeek: 'השבוע', dashAvgAccuracy: 'דיוק ממוצע',
-    dashStreak: 'רצף נוכחי', dashWordsMastered: 'מילים נשלטו',
+    parentDashboard: 'דוח התקדמות',
+    rptSummary: 'סיכום',
+    rptWordsMastered: 'שולטת', rptAvgAccuracy: 'דיוק ממוצע',
+    rptTotalPractices: 'תרגולים', rptDayStreak: 'ימים ברצף',
+    rptThisWeek: 'השבוע', rptActiveDays: 'ימים פעילים',
+    rptTimeToday: 'היום', rptTimeTotal: 'זמן כולל',
+    rptGamesPlayed: 'משחקים', rptWordsKnown: 'מילים שיודעת',
+    rptMin: 'דק׳', rptHr: 'שע׳',
+    rptDailyUse: 'שימוש יומי — 14 ימים אחרונים',
+    rptDay: 'יום', rptSessions: 'משחקים', rptTimePlayed: 'זמן', rptDayAccuracy: 'דיוק',
+    rptNoActivity: 'אין פעילות',
+    rptWordMastery: 'שליטה במילים',
+    rptVerdictGreat: '🌟 מצוין! רוב המילים נשלטות או במצב טוב.',
+    rptVerdictGood: '👍 התקדמות טובה. חלק מהמילים דורשות עוד תשומת לב.',
+    rptVerdictWork: '📚 צריך עוד תרגול. התמקדי במילים המסומנות למטה.',
+    rptVerdictStart: '🚀 רק מתחילים! המשיכי לשחק כדי להתקדם.',
     dashActivity: 'פעילות — 14 הימים האחרונים', dashAccuracy: 'מגמת דיוק',
-    dashPerGame: 'פירוט לפי משחק',
-    dashNeedsWork: '⚠️ דורש תרגול — התמקדי באלה',
-    dashAllWords: 'סטטוס כל המילים', dashRecentSessions: 'משחקים אחרונים',
+    dashNeedsWork: 'מילים שדורשות עבודה',
+    dashAllWords: 'כל המילים',
     dashNoSessions: 'אין משחקים עדיין',
     dashNoStruggling: '!אין מילים קשות — כל הכבוד',
     dashNoCategory: 'אין מילים בקטגוריה זו',
-    dashNoHistory: '!עוד לא שיחקת. בואי נשחק',
-    dashSessions: 'משחקים', dashAvg: 'ממוצע',
-    dashFilterAll: 'הכל', dashStruggling: 'מתקשה', dashLearning: 'בלמידה',
-    dashGood: 'טוב', dashMastered: 'נשלטו', dashUnseen: 'לא נראה',
+    dashFilterAll: 'הכל', dashStruggling: 'מתקשה', dashLearning: 'לומדת',
+    dashGood: 'יודעת', dashMastered: 'שולטת', dashUnseen: 'לא נראה',
     dashToday: 'היום', dashYesterday: 'אתמול', dashDaysAgo: ' ימים', dashNever: 'אף פעם',
     levelPrefix: 'רמה ',
     deleteConfirm: 'למחוק מילה זו?', minWords: 'צריך לפחות 20 מילים',
@@ -210,6 +287,7 @@ const T = {
     selWordsSelected: ' מילים נבחרו',
     selSelectAll: 'בחר הכל', selClear: 'נקה',
     editWord: 'עריכה', deleteWord: 'מחיקה', saveWord: 'שמירה', cancelWord: 'ביטול',
+    wordExists: '!מילה זו כבר קיימת', wordAdded: '!מילה נוספה',
     practicingXWords: 'מתרגלים %d מילים נבחרות',
     xpLabel: ':נקודות',
     scoreLabel: 'ניקוד',
@@ -236,18 +314,76 @@ const T = {
     instrCatSort: '!לחצי על התרגום הנכון מבין 3 האפשרויות',
     instrFillIn: '!קראי את הרמז בעברית ובחרי את המילה החסרה',
     labelStars: 'כוכבים', labelAchievements: 'הישגים',
+    xpUnit: 'נק׳', speakListen: 'השמע', soundToggle: 'צליל',
+    instrTest: '!בחרי את התרגום הנכון לכל מילה',
+    takeTest: 'מבחן', testTitle: 'מבחן',
+    greetMorning: '!בוקר טוב ☀️', greetAfternoon: '!צהריים טובים 🌤️',
+    greetEvening: '!ערב טוב 🌙', greetNight: '!לילה טוב 🌟',
+    streakFreezeLabel: 'הקפאת רצף', streakFreezeOwned: 'הקפאה זמינה',
+    buyFreeze: 'קני הקפאה (50 נק׳)', freezeActive: '!❄️ הקפאה פעילה',
+    freezeBought: '!הקפאת רצף נרכשה', notEnoughXP: '!אין מספיק נקודות',
+    freezeAlready: '!כבר יש לך הקפאה',
+    almostStars: '!עוד %d ל-3 כוכבים', almostPerfect: '!כמעט מושלם! המשיכי',
+    milestoneTitle: '!אבן דרך',
+    milestone10: '!10 מילים נשלטו 🎉', milestone25: '!25 מילים נשלטו 🌟',
+    milestone50: '!50 מילים נשלטו 💫', milestone75: '!75 מילים נשלטו 🔥',
+    milestoneAll: '!כל המילים נשלטו 🏆👑',
+    decayWarning: '!%d מילים צריכות רענון', decayReview: 'תרגול עכשיו',
+    wordsDueReview: 'מילים לחזרה',
+    bulkImport: 'ייבוא מילים', bulkImportHint: ':הדביקי מילים, אחת בכל שורה\napple = תפוח\ndog = כלב',
+    bulkImportBtn: 'ייבוא', bulkImportDone: '!מילים יובאו %d',
+    bulkImportClose: 'סגירה', bulkImportTitle: 'ייבוא מילים',
+    dailyTimeGoal: 'יעד זמן יומי',
+    dailyTimeProgress: '%target / %played דק׳',
+    dailyTimeReached: '!⏱️ יעד הזמן הושג',
+    dailyTimeReachedToast: '!⏱️ יעד הזמן הושג! +30 נק׳',
+    dailyTimeMsg5: '!התחילי בקטן — 5 דקות של ריכוז',
+    dailyTimeMsg10: '!כווני ל-10 דקות היום',
+    dailyTimeMsg15: '!קצב מעולה — יעד 15 דקות',
+    dailyTimeMsg20: '!את על אש — 20 דקות',
+    dailyTimeMsg25: '!לומדת על — 25 דקות',
+    dailyTimeMsg30: '!מצב אלופות — 30 דקות',
+    testQuestion: 'שאלה', testOf: 'מתוך',
+    testTranslateToHe: 'תרגמי לעברית', testTranslateToEn: 'תרגמי לאנגלית',
+    testResults: 'תוצאות המבחן', testScore: 'ציון',
+    testCorrect: 'נכון', testWrong: 'לא נכון',
+    testGradeA: '!מצוין! מוכנה למילים חדשות',
+    testGradeB: 'כל הכבוד! עוד קצת תרגול ותשלטי בהכל',
+    testGradeC: 'התקדמות יפה! התמקדי במילים המסומנות לפני שממשיכים',
+    testGradeD: 'צריך עוד תרגול. שחקי עוד כמה משחקים עם המילים האלה',
+    testGradeF: '!המשיכי לתרגל! המילים האלה צריכות עוד זמן',
+    testMinWords: 'צריך לפחות 4 מילים למבחן',
+    testRetry: 'נסי שוב את הטעויות', testBackHome: 'חזרה הביתה',
+    testYourAnswer: 'התשובה שלך', testCorrectAnswer: 'תשובה נכונה',
+    testLatest: 'מבחן אחרון', testNoTests: 'עוד לא נעשו מבחנים',
     wordProgress: 'התקדמות מילים', wordReport: 'דוח מילים',
-    reportFocus: '🔴 להתמקד באלה', reportLearning: '🟡 עדיין בלמידה',
-    reportGood: '🟢 כמעט שם', reportMastered: '⭐ נשלטו',
+    reportFocus: '🔴 להתמקד באלה', reportLearning: '🟡 לומדת',
+    reportGood: '🟢 יודעת', reportMastered: '⭐ שולטת',
     reportUnseen: '⬜ עוד לא תורגלו',
     reportOverall: 'התקדמות כללית', reportPracticed: 'תורגלו',
     reportAccAvg: 'דיוק ממוצע', reportTotalPractice: 'סה"כ תרגולים',
     reportLastActive: 'פעילות אחרונה',
     reportNone: 'אין מילים בחלק זה',
     reportPracticeTip: 'תרגול',
-    legMastered: 'נשלטו', legGood: 'טוב', legLearning: 'בלמידה',
+    legMastered: 'שולטת', legGood: 'יודעת', legLearning: 'לומדת',
     legStruggling: 'מתקשה', legUnseen: 'לא נראו',
     reportTimes: 'פעמים',
+    lvlTitle1: 'מתחילה', lvlTitle2: 'חוקרת', lvlTitle3: 'לומדת',
+    lvlTitle4: 'הרפתקנית', lvlTitle5: 'מלגאית כסף',
+    lvlTitle6: 'לוחמת מילים', lvlTitle7: 'חכמולוגית',
+    lvlTitle8: 'מחפשת ידע', lvlTitle9: 'כוכב עולה',
+    lvlTitle10: 'אלופת זהב', lvlTitle11: 'קוסמת מילים',
+    lvlTitle12: 'כוח מוחי', lvlTitle13: 'סופרסטאר',
+    lvlTitle14: 'גיבורת שפה', lvlTitle15: 'אגדת יהלום',
+    spTitle: 'התקדמות מילים', spMastered: 'שולטת',
+    spSummary: '%m מתוך %t מילים שולטת',
+    spReadyMsg: '!כל המילים נשלטו! מוכנה למילים חדשות',
+    spNoSelection: '.בחרי מילים מבנק המילים כדי לעקוב אחרי ההתקדמות',
+    spLegMastered: 'שולטת', spLegAlmost: 'כמעט', spLegLearning: 'לומדת',
+    spLegStruggling: 'מתקשה', spLegNew: 'חדשה',
+    spStreak: 'רצף', spModes: 'משחקים', spAccuracy: 'דיוק',
+    spLvlMastered: 'שולטת', spLvlAlmost: 'כמעט שם',
+    spLvlLearning: 'לומדת', spLvlStruggling: 'מתקשה', spLvlNew: 'חדשה',
   },
   get(key) { return this[this._lang][key] || this.en[key] || key; },
   setLang(lang) {
@@ -393,6 +529,7 @@ const Particles = {
 
   _animate() {
     this._animating = true;
+    this._canvas.style.visibility = 'visible';
     const ctx = this._ctx;
     const loop = () => {
       ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
@@ -416,6 +553,7 @@ const Particles = {
         requestAnimationFrame(loop);
       } else {
         this._animating = false;
+        this._canvas.style.visibility = 'hidden';
       }
     };
     requestAnimationFrame(loop);
@@ -432,14 +570,18 @@ const GameState = {
     return {
       xp: 0, level: 1, totalStars: 0,
       streak: 0, lastPlayDate: null, streakShield: false,
+      streakFreeze: 0,
       gamesPlayed: { bubble: 0, memory: 0, lightning: 0, scramble: 0, falling: 0, truefalse: 0, matchup: 0, bingo: 0, sprint: 0, wordspy: 0, catsort: 0, fillin: 0 },
       achievements: [],
       dailyChallenge: { date: null, type: null, progress: 0, completed: false },
       bonusChallenge: { date: null, xpTarget: 0, xpEarned: 0, completed: false, tier: 0 },
+      dailyTimeGoal: { date: null, targetMin: 10, playedSec: 0, completed: false },
       todayGamesPlayed: { date: null, modes: [], rounds: 0, maxCombo: 0, maxStreak: 0, gotStars3: false, masteredNewWord: false },
       fallingHighScore: 0,
       sprintHighScore: 0,
+      testHistory: [],
       firstTime: true,
+      milestonesShown: [],
     };
   },
 
@@ -455,14 +597,15 @@ const GameState = {
     try { localStorage.setItem(this.KEY, JSON.stringify(this.data)); } catch(e) {}
   },
 
-  logSession(gameMode, correct, total, stars, xp) {
+  logSession(gameMode, correct, total, stars, xp, durationSec) {
     try {
       const history = this.getHistory();
       history.push({
         ts: Date.now(),
         game: gameMode,
         correct, total, stars, xp,
-        accuracy: total > 0 ? Math.round((correct / total) * 100) : 0
+        accuracy: total > 0 ? Math.round((correct / total) * 100) : 0,
+        duration: durationSec || 0
       });
       if (history.length > 500) history.splice(0, history.length - 500);
       localStorage.setItem(this.HISTORY_KEY, JSON.stringify(history));
@@ -477,6 +620,18 @@ const GameState = {
     return [];
   },
 
+  addTestResult(record) {
+    if (!this.data.testHistory) this.data.testHistory = [];
+    this.data.testHistory.push(record);
+    if (this.data.testHistory.length > 50) this.data.testHistory.splice(0, this.data.testHistory.length - 50);
+    this.save();
+  },
+
+  getLatestTest() {
+    if (!this.data.testHistory || this.data.testHistory.length === 0) return null;
+    return this.data.testHistory[this.data.testHistory.length - 1];
+  },
+
   getLevelThreshold(level) {
     return level * level * 50 + 50;
   },
@@ -487,6 +642,42 @@ const GameState = {
     if (l >= 10) return 'gold';
     if (l >= 5) return 'silver';
     return '';
+  },
+
+  getLevelTitle() {
+    const l = Math.min(this.data.level, 15);
+    return T.get('lvlTitle' + l);
+  }
+};
+
+// ===== SPEAK (Text-to-Speech) =====
+const Speak = {
+  say(text, lang) {
+    if (!('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = lang === 'he' ? 'he-IL' : 'en-US';
+    u.rate = 0.85;
+    u.pitch = 1;
+    window.speechSynthesis.speak(u);
+  },
+
+  english(text) { this.say(text, 'en'); },
+  hebrew(text) { this.say(text, 'he'); },
+
+  btn(text, lang) {
+    const b = document.createElement('button');
+    b.className = 'speak-btn';
+    b.textContent = '🔊';
+    b.title = T.get('speakListen');
+    b.addEventListener('click', (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      this.say(text, lang);
+      b.classList.add('speak-pulse');
+      setTimeout(() => b.classList.remove('speak-pulse'), 400);
+    });
+    return b;
   }
 };
 
@@ -522,6 +713,8 @@ const Progress = {
     badge.textContent = GameState.data.level;
     badge.className = 'levelup-badge ' + GameState.getLevelColor();
     num.textContent = T.get('levelPrefix') + GameState.data.level;
+    const titleEl = document.getElementById('levelup-title');
+    if (titleEl) titleEl.textContent = GameState.getLevelTitle();
     overlay.classList.remove('hidden');
     Particles.celebration();
     setTimeout(() => { overlay.classList.add('hidden'); }, 3000);
@@ -539,7 +732,11 @@ const Progress = {
       if (diff === 1) {
         GameState.data.streak++;
       } else if (diff > 1) {
-        if (GameState.data.streakShield) {
+        if (GameState.data.streakFreeze > 0 && diff === 2) {
+          GameState.data.streakFreeze--;
+          GameState.data.streak++;
+          UI._freezeUsedToday = true;
+        } else if (GameState.data.streakShield) {
           GameState.data.streakShield = false;
           if (diff === 2) GameState.data.streak++;
           else GameState.data.streak = 1;
@@ -571,14 +768,144 @@ const Progress = {
 
     if (stars === 3) d.streakShield = true;
 
-    GameState.logSession(gameMode, correct || 0, total || 0, stars, xpEarned);
+    const durationSec = App._gameStartTs ? Math.round((Date.now() - App._gameStartTs) / 1000) : 0;
+    GameState.logSession(gameMode, correct || 0, total || 0, stars, xpEarned, durationSec);
+    DailyChallenge.recordPlayTime(durationSec);
 
     this.updateStreak();
     this.addXP(xpEarned);
     DailyChallenge.checkProgress();
     Achievements.checkAll();
+    Milestones.check();
     GameState.save();
     UI.updateStats();
+  }
+};
+
+// ===== MILESTONES =====
+const Milestones = {
+  thresholds: [
+    { count: 10, key: 'milestone10' },
+    { count: 25, key: 'milestone25' },
+    { count: 50, key: 'milestone50' },
+    { count: 75, key: 'milestone75' },
+  ],
+
+  check() {
+    const mastered = WordManager.getMasteredCount();
+    const total = WordManager.getCount();
+    const shown = GameState.data.milestonesShown || [];
+
+    for (const m of this.thresholds) {
+      if (mastered >= m.count && !shown.includes(m.key)) {
+        shown.push(m.key);
+        GameState.data.milestonesShown = shown;
+        GameState.save();
+        this._celebrate(T.get(m.key));
+        return;
+      }
+    }
+
+    if (mastered >= total && total > 0 && !shown.includes('milestoneAll')) {
+      shown.push('milestoneAll');
+      GameState.data.milestonesShown = shown;
+      GameState.save();
+      this._celebrate(T.get('milestoneAll'));
+    }
+  },
+
+  _celebrate(text) {
+    const overlay = document.getElementById('milestone-overlay');
+    if (!overlay) return;
+    document.getElementById('milestone-text').textContent = text;
+    overlay.classList.remove('hidden');
+    Particles.celebration();
+    Sound.achievement();
+    setTimeout(() => overlay.classList.add('hidden'), 4000);
+  }
+};
+
+// ===== SMART PROGRESS =====
+const SmartProgress = {
+  render() {
+    const prog = WordManager.getSelectedWordsProgress();
+    const summary = document.getElementById('sp-summary');
+    const countsEl = document.getElementById('sp-summary-counts');
+    const barFill = document.getElementById('sp-bar-fill');
+    const pctEl = document.getElementById('sp-summary-pct');
+    const readyEl = document.getElementById('sp-ready');
+    const noSelEl = document.getElementById('sp-no-selection');
+    const legendEl = document.getElementById('sp-legend');
+    const listEl = document.getElementById('sp-word-list');
+
+    if (prog.total === 0) {
+      if (summary) summary.classList.add('hidden');
+      if (readyEl) readyEl.classList.add('hidden');
+      if (legendEl) legendEl.classList.add('hidden');
+      if (noSelEl) noSelEl.classList.remove('hidden');
+      if (listEl) listEl.innerHTML = '';
+      return;
+    }
+
+    if (summary) summary.classList.remove('hidden');
+    if (noSelEl) noSelEl.classList.add('hidden');
+    if (legendEl) legendEl.classList.remove('hidden');
+
+    if (countsEl) countsEl.textContent = T.get('spSummary').replace('%m', prog.mastered).replace('%t', prog.total);
+    if (barFill) barFill.style.width = prog.pct + '%';
+    if (pctEl) pctEl.textContent = prog.pct + '%';
+
+    if (readyEl) {
+      readyEl.classList.toggle('hidden', !prog.ready);
+      if (prog.ready) {
+        Particles.celebration();
+        Sound.achievement();
+      }
+    }
+
+    if (!listEl) return;
+    listEl.innerHTML = '';
+
+    const levelLabels = {
+      mastered: T.get('spLvlMastered'),
+      almost: T.get('spLvlAlmost'),
+      learning: T.get('spLvlLearning'),
+      struggling: T.get('spLvlStruggling'),
+      not_started: T.get('spLvlNew')
+    };
+
+    prog.words.forEach(({ word, confidence }) => {
+      const row = document.createElement('div');
+      row.className = 'sp-word-row';
+      row.setAttribute('data-level', confidence.level);
+
+      row.innerHTML = `
+        <div class="sp-word-texts">
+          <div class="sp-word-en">${word.english}</div>
+          <div class="sp-word-he">${word.hebrew}</div>
+        </div>
+        <div class="sp-word-meta">
+          <span class="sp-word-badge sp-badge-${confidence.level}">${levelLabels[confidence.level]}</span>
+          <div class="sp-word-bar-track">
+            <div class="sp-word-bar-fill" style="width:${confidence.pctToMastery}%"></div>
+          </div>
+        </div>
+        <div class="sp-word-detail">
+          <span class="sp-detail-item"><span class="sp-detail-label">${T.get('spStreak')}:</span> ${confidence.streak}/5</span>
+          <span class="sp-detail-item"><span class="sp-detail-label">${T.get('spModes')}:</span> ${confidence.modesCount}/2</span>
+          <span class="sp-detail-item"><span class="sp-detail-label">${T.get('spAccuracy')}:</span> ${confidence.accuracy}%</span>
+        </div>
+      `;
+
+      row.addEventListener('click', () => row.classList.toggle('expanded'));
+      listEl.appendChild(row);
+    });
+  },
+
+  getBadgeText() {
+    const prog = WordManager.getSelectedWordsProgress();
+    if (prog.total === 0) return { text: '—', show: false };
+    return { text: prog.mastered + ' / ' + prog.total, show: true };
   }
 };
 
@@ -613,6 +940,7 @@ const DailyChallenge = {
     GameState.data.dailyChallenge = { date: today, type: type.id, progress: 0, completed: false };
     this._generateBonus(today);
     this._generateXpTarget(today);
+    this._generateTimeTarget(today);
     GameState.save();
   },
 
@@ -639,6 +967,65 @@ const DailyChallenge = {
     const b = GameState.data.bonusChallenge;
     b.xpTarget = target;
     b.xpEarned = 0;
+  },
+
+  _generateTimeTarget(today) {
+    const history = GameState.getHistory();
+    const last7 = history.filter(s => s.ts > Date.now() - 7 * 86400000);
+
+    let avgDailyMin = 10;
+    if (last7.length > 0) {
+      const dayMap = {};
+      last7.forEach(s => {
+        const day = new Date(s.ts).toDateString();
+        dayMap[day] = (dayMap[day] || 0) + (s.duration || 0);
+      });
+      const activeDays = Object.keys(dayMap).length;
+      const totalSec = Object.values(dayMap).reduce((a, b) => a + b, 0);
+      avgDailyMin = Math.round(totalSec / 60 / Math.max(activeDays, 1));
+    }
+
+    const streak = GameState.data.streak || 0;
+    let boost = 1.15;
+    if (streak >= 14) boost = 1.25;
+    else if (streak >= 7) boost = 1.20;
+
+    const raw = Math.round(avgDailyMin * boost);
+    const target = Math.max(5, Math.min(30, Math.ceil(raw / 5) * 5));
+
+    GameState.data.dailyTimeGoal = {
+      date: today, targetMin: target, playedSec: 0, completed: false
+    };
+  },
+
+  getTimeGoal() {
+    const g = GameState.data.dailyTimeGoal;
+    if (!g || !g.date) return { targetMin: 10, playedSec: 0, completed: false };
+    return g;
+  },
+
+  _getTimeMotivation(targetMin) {
+    if (targetMin <= 5) return T.get('dailyTimeMsg5');
+    if (targetMin <= 10) return T.get('dailyTimeMsg10');
+    if (targetMin <= 15) return T.get('dailyTimeMsg15');
+    if (targetMin <= 20) return T.get('dailyTimeMsg20');
+    if (targetMin <= 25) return T.get('dailyTimeMsg25');
+    return T.get('dailyTimeMsg30');
+  },
+
+  recordPlayTime(durationSec) {
+    const g = GameState.data.dailyTimeGoal;
+    const today = new Date().toDateString();
+    if (!g || g.date !== today) return;
+    g.playedSec += durationSec;
+    if (!g.completed && g.playedSec >= g.targetMin * 60) {
+      g.completed = true;
+      Progress.addXP(30);
+      Sound.levelUp();
+      Particles.celebration();
+      UI._showChallengeToast(T.get('dailyTimeReachedToast'), '+30 ' + T.get('xpUnit'), 'teal');
+    }
+    GameState.save();
   },
 
   getCurrent() {
@@ -902,7 +1289,7 @@ const UI = {
     const xpBar = document.getElementById('xp-bar');
     if (xpBar) xpBar.style.width = pct + '%';
     const xpText = document.getElementById('xp-text');
-    if (xpText) xpText.textContent = d.xp + ' / ' + threshold + ' XP';
+    if (xpText) xpText.textContent = d.xp + ' / ' + threshold + ' ' + T.get('xpUnit');
 
     const streakCount = document.getElementById('streak-count');
     if (streakCount) streakCount.textContent = d.streak;
@@ -946,6 +1333,11 @@ const UI = {
 
   updateHomeScreen() {
     this.updateStats();
+    this._renderGreeting();
+    this._renderStreakFreeze();
+    this._renderDecayWarning();
+    const levelTitle = document.getElementById('level-title');
+    if (levelTitle) levelTitle.textContent = GameState.getLevelTitle();
     const ch = DailyChallenge.getCurrent();
     const dailyText = document.getElementById('daily-text');
     if (dailyText) dailyText.textContent = T.get(ch.textKey);
@@ -978,9 +1370,23 @@ const UI = {
       xpCard.classList.toggle('completed', bonus.xpCompleted);
     }
 
-    this._renderWordOfDay();
-    this._renderMotivation();
+    const timeGoal = DailyChallenge.getTimeGoal();
+    const timeCard = document.getElementById('daily-time-card');
+    if (timeCard) {
+      const playedMin = Math.floor(timeGoal.playedSec / 60);
+      const pct = timeGoal.targetMin > 0 ? Math.min((playedMin / timeGoal.targetMin) * 100, 100) : 0;
+      document.getElementById('daily-time-played').textContent = playedMin;
+      document.getElementById('daily-time-target').textContent = timeGoal.targetMin;
+      document.getElementById('daily-time-progress').style.width = pct + '%';
+      const motiv = document.getElementById('daily-time-motiv');
+      if (motiv) motiv.textContent = timeGoal.completed
+        ? T.get('dailyTimeReached')
+        : DailyChallenge._getTimeMotivation(timeGoal.targetMin);
+      timeCard.classList.toggle('completed', timeGoal.completed);
+    }
+
     this._renderQuickPractice();
+    this._renderSmartBadge();
 
     if (GameState.data.firstTime) {
       const firstCard = document.querySelector('[data-game="bubble"]');
@@ -1007,19 +1413,19 @@ const UI = {
       const dailyText = document.getElementById('daily-text');
       if (dailyText) dailyText.textContent = T.get('dailyComplete');
     }
-    this._showChallengeToast(T.get('dailyComplete'), '+50 XP', 'gold');
+    this._showChallengeToast(T.get('dailyComplete'), '+50 ' + T.get('xpUnit'), 'gold');
     this.updateHomeScreen();
   },
 
   showBonusChallengeComplete() {
-    this._showChallengeToast(T.get('bonusComplete'), '+30 XP', 'coral');
+    this._showChallengeToast(T.get('bonusComplete'), '+30 ' + T.get('xpUnit'), 'coral');
     this.updateHomeScreen();
   },
 
   showXpGoalComplete() {
     this._showChallengeToast(
       T.get('dailyXpReached'),
-      '+40 XP', 'purple'
+      '+40 ' + T.get('xpUnit'), 'purple'
     );
     this.updateHomeScreen();
   },
@@ -1028,9 +1434,10 @@ const UI = {
     const existing = document.querySelector('.challenge-toast');
     if (existing) existing.remove();
     const toast = document.createElement('div');
-    toast.className = 'challenge-toast challenge-toast-' + color;
-    toast.innerHTML = '<div class="challenge-toast-text">' + text + '</div>' +
-      '<div class="challenge-toast-reward">' + reward + '</div>';
+    toast.className = 'challenge-toast challenge-toast-' + (color || 'gold');
+    let html = '<div class="challenge-toast-text">' + text + '</div>';
+    if (reward) html += '<div class="challenge-toast-reward">' + reward + '</div>';
+    toast.innerHTML = html;
     document.body.appendChild(toast);
     requestAnimationFrame(() => toast.classList.add('show'));
     setTimeout(() => {
@@ -1043,7 +1450,7 @@ const UI = {
     const { title, score, xp, stars, missedWords, onPlayAgain, onHome } = config;
     document.getElementById('results-title').textContent = title;
     document.getElementById('results-score').textContent = score || '';
-    document.getElementById('results-xp').textContent = '+' + xp + ' XP';
+    document.getElementById('results-xp').textContent = '+' + xp + ' ' + T.get('xpUnit');
 
     const starsEl = document.getElementById('results-stars');
     starsEl.textContent = '⭐'.repeat(stars) + '☆'.repeat(3 - stars);
@@ -1108,92 +1515,66 @@ const UI = {
     setTimeout(() => el.remove(), 1000);
   },
 
-  _renderWordOfDay() {
-    const words = WordManager.getAll();
-    const dayIndex = Math.floor(Date.now() / 86400000) % words.length;
-    const word = words[dayIndex];
-    if (!word) return;
-    const engEl = document.getElementById('wotd-english');
-    const hebEl = document.getElementById('wotd-hebrew');
-    const hintEl = document.getElementById('wotd-hint');
-    if (engEl) engEl.textContent = word.english;
-    if (hebEl) hebEl.textContent = word.hebrew;
-    if (hintEl) {
-      const letters = word.english.length;
-      hintEl.textContent = letters + T.get('wotdHint');
-    }
+  showToast(msg, color) {
+    this._showChallengeToast(msg, '', color || 'gold');
   },
 
-  _motivationalMessages: {
-    en: {
-      newUser: ['Welcome, future word master! 🌟', 'Your journey begins now! 🚀', 'Every expert was once a beginner! 💪'],
-      lowStreak: ['Come back tomorrow to build your streak! 🔥', 'Consistency is key — play a little every day! 📅', 'Even 5 minutes of practice makes a difference! ⏰'],
-      midStreak: ['You\'re on fire! Keep it going! 🔥', '{streak}-day streak — incredible! 🎯', 'Your dedication is amazing! ⭐'],
-      highStreak: ['Unstoppable {streak}-day streak!! 🏆', 'You\'re a learning machine! 🤖💜', 'Legend status — keep crushing it! 👑'],
-      struggling: ['Those tough words? You\'ll get them! 💪', 'Mistakes help you learn faster! 🧠', 'Practice makes progress, not perfect! 🌱'],
-      improving: ['Your accuracy is getting better! 📈', 'You\'re improving every day! 🌟', 'Nice progress — keep going! 🎉'],
-      mastering: ['Look at all those mastered words! ⭐', 'You know so many words now! 🏅', 'Almost there — master them all! 🎯'],
-    },
-    he: {
-      newUser: ['!ברוכה הבאה, מאסטרית המילים העתידית 🌟', '!המסע שלך מתחיל עכשיו 🚀', '!כל מומחית הייתה פעם מתחילה 💪'],
-      lowStreak: ['!חזרי מחר כדי לבנות את הרצף 🔥', '!עקביות היא המפתח — שחקי קצת כל יום 📅', '!אפילו 5 דקות תרגול עושות הבדל ⏰'],
-      midStreak: ['!את בוערת! המשיכי ככה 🔥', '!ימים ברצף — מדהים {streak} 🎯', '!המסירות שלך מדהימה ⭐'],
-      highStreak: ['!!ימים ברצף {streak} — בלתי ניתנת לעצירה 🏆', '!את מכונת למידה 🤖💜', '!סטטוס אגדה — המשיכי לרסק את זה 👑'],
-      struggling: ['!המילים הקשות האלה? תשלטי בהן 💪', '!טעויות עוזרות ללמוד מהר יותר 🧠', '!תרגול מביא התקדמות 🌱'],
-      improving: ['!הדיוק שלך משתפר 📈', '!את משתפרת כל יום 🌟', '!התקדמות יפה — המשיכי 🎉'],
-      mastering: ['!תראי כמה מילים שלטת בהן ⭐', '!את יודעת כל כך הרבה מילים עכשיו 🏅', '!כמעט שם — שלטי בכולן 🎯'],
-    }
+  _freezeUsedToday: false,
+
+  _getGreeting() {
+    const h = new Date().getHours();
+    if (h >= 5 && h < 12) return T.get('greetMorning');
+    if (h >= 12 && h < 17) return T.get('greetAfternoon');
+    if (h >= 17 && h < 21) return T.get('greetEvening');
+    return T.get('greetNight');
   },
 
-  _renderMotivation() {
-    const isHe = T._lang === 'he';
-    const msgs = this._motivationalMessages[isHe ? 'he' : 'en'];
-    const streak = GameState.data.streak;
-    const mastered = WordManager.getMasteredCount();
-    const total = WordManager.getCount();
-    const history = GameState.getHistory();
-
-    let category;
-    if (history.length === 0) category = 'newUser';
-    else if (mastered >= total * 0.6) category = 'mastering';
-    else if (streak >= 14) category = 'highStreak';
-    else if (streak >= 3) category = 'midStreak';
-    else {
-      const recent = history.slice(-10);
-      const avgAcc = recent.reduce((s, h) => s + h.accuracy, 0) / recent.length;
-      if (avgAcc < 50) category = 'struggling';
-      else if (avgAcc > 70) category = 'improving';
-      else category = 'lowStreak';
-    }
-
-    const pool = msgs[category] || msgs.newUser;
-    const dayIdx = Math.floor(Date.now() / 86400000) % pool.length;
-    let msg = pool[dayIdx].replace('{streak}', streak);
-
-    const iconEl = document.getElementById('motivation-icon');
-    const textEl = document.getElementById('motivation-text');
-    const emoji = msg.match(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/u);
-    if (iconEl) iconEl.textContent = emoji ? emoji[0] : '💬';
-    if (textEl) textEl.textContent = msg;
+  _renderGreeting() {
+    const el = document.getElementById('home-greeting');
+    if (el) el.textContent = this._getGreeting();
   },
 
-  _renderQuickPractice() {
-    const textEl = document.getElementById('qp-text');
-    if (!textEl) return;
-
-    const words = WordManager.getAll();
-    let weakCount = 0;
-    words.forEach(w => {
-      const s = WordManager.getWordStrength(w.id);
-      if (s.label === 'struggling' || s.label === 'unseen') weakCount++;
-    });
-
-    if (weakCount > 0) {
-      textEl.textContent = T.get('quickPractice') + ' · ' + weakCount + T.get('qpNeedAttention');
+  _renderStreakFreeze() {
+    const el = document.getElementById('freeze-indicator');
+    if (!el) return;
+    const count = GameState.data.streakFreeze || 0;
+    if (this._freezeUsedToday) {
+      el.classList.remove('hidden');
+      el.innerHTML = '<span class="freeze-icon">❄️</span><span class="freeze-text">' + T.get('freezeActive') + '</span>';
+      return;
+    }
+    if (count > 0) {
+      el.classList.remove('hidden');
+      el.innerHTML = '<span class="freeze-icon">❄️</span><span class="freeze-text">' + count + ' ' + T.get('streakFreezeOwned') + '</span>';
     } else {
-      textEl.textContent = T.get('qpReviewAll');
+      el.classList.add('hidden');
     }
-  }
+  },
+
+  _renderDecayWarning() {
+    const el = document.getElementById('decay-warning');
+    if (!el) return;
+    const stale = WordManager.getStaleWords(7);
+    if (stale.length >= 3) {
+      el.classList.remove('hidden');
+      el.querySelector('.decay-text').textContent = T.get('decayWarning').replace('%d', stale.length);
+      el.querySelector('.decay-btn').textContent = T.get('decayReview');
+    } else {
+      el.classList.add('hidden');
+    }
+  },
+
+  _renderQuickPractice() {},
+
+  _renderSmartBadge() {
+    const badge = document.getElementById('sp-badge');
+    if (!badge) return;
+    const info = SmartProgress.getBadgeText();
+    const textEl = document.getElementById('sp-badge-text');
+    if (textEl) textEl.textContent = info.text;
+    badge.classList.toggle('hidden', !info.show);
+  },
+
 };
 
 // ===== BUBBLE POP GAME =====
@@ -1262,9 +1643,16 @@ const BubblePop = {
     const isHeToEn = this._direction !== 'en-to-he';
     const target = document.getElementById('bubble-target');
     target.textContent = isHeToEn ? correct.hebrew : correct.english;
+    const oldSpeak = target.parentNode.querySelector('.speak-btn');
+    if (oldSpeak) oldSpeak.remove();
+    target.after(Speak.btn(isHeToEn ? correct.hebrew : correct.english, isHeToEn ? 'he' : 'en'));
 
     const cw = this._container.clientWidth;
     const ch = this._container.clientHeight;
+
+    const maxBubbleSize = Math.min(cw, ch) * 0.28;
+    const minBubbleSize = Math.max(56, maxBubbleSize * 0.6);
+
     const colors = [
       'rgba(255,107,107,0.85)', 'rgba(78,205,196,0.85)', 'rgba(168,85,247,0.85)',
       'rgba(255,217,61,0.85)', 'rgba(244,114,182,0.85)'
@@ -1278,16 +1666,18 @@ const BubblePop = {
       bubble.style.background = colors[i % colors.length];
       bubble.dataset.wordId = w.id;
 
-      const size = Math.max(90, bubbleText.length * 8 + 40);
+      const size = Math.round(Math.min(maxBubbleSize, Math.max(minBubbleSize, bubbleText.length * 6 + 30)));
       bubble.style.width = size + 'px';
       bubble.style.height = size + 'px';
+      bubble.style.fontSize = Math.max(11, Math.min(15, size * 0.16)) + 'px';
 
+      const margin = 4;
       const bData = {
         el: bubble, wordId: w.id, isCorrect: w.id === correct.id,
-        x: Math.random() * (cw - size - 20) + 10,
-        y: Math.random() * (ch - size - 20) + 10,
-        vx: (Math.random() - 0.5) * 2,
-        vy: (Math.random() - 0.5) * 2,
+        x: Math.random() * Math.max(1, cw - size - margin * 2) + margin,
+        y: Math.random() * Math.max(1, ch - size - margin * 2) + margin,
+        vx: (Math.random() - 0.5) * 1.6,
+        vy: (Math.random() - 0.5) * 1.6,
         size
       };
       this._bubbles.push(bData);
@@ -1307,10 +1697,12 @@ const BubblePop = {
     this._bubbles.forEach(b => {
       b.x += b.vx;
       b.y += b.vy;
-      if (b.x <= 0 || b.x >= cw - b.size) b.vx *= -1;
-      if (b.y <= 0 || b.y >= ch - b.size) b.vy *= -1;
-      b.x = Math.max(0, Math.min(b.x, cw - b.size));
-      b.y = Math.max(0, Math.min(b.y, ch - b.size));
+      const maxX = Math.max(0, cw - b.size);
+      const maxY = Math.max(0, ch - b.size);
+      if (b.x <= 0) { b.x = 0; b.vx = Math.abs(b.vx); }
+      if (b.x >= maxX) { b.x = maxX; b.vx = -Math.abs(b.vx); }
+      if (b.y <= 0) { b.y = 0; b.vy = Math.abs(b.vy); }
+      if (b.y >= maxY) { b.y = maxY; b.vy = -Math.abs(b.vy); }
       b.el.style.transform = `translate(${b.x}px, ${b.y}px)`;
     });
 
@@ -1596,6 +1988,10 @@ const LightningQuiz = {
     }
 
     wordEl.textContent = questionText;
+    const oldSpk = wordEl.parentNode.querySelector('.speak-btn');
+    if (oldSpk) oldSpk.remove();
+    wordEl.after(Speak.btn(questionText, dir === 'en-to-he' ? 'en' : 'he'));
+
     document.getElementById('lightning-progress').textContent =
       (this._currentIdx + 1) + '/' + this._words.length;
 
@@ -1791,7 +2187,12 @@ const WordScramble = {
     const scrambleTarget = isHeToEn ? this._currentWord.english : this._currentWord.hebrew;
     const clueText = isHeToEn ? this._currentWord.hebrew : this._currentWord.english;
 
-    document.getElementById('scramble-clue-text').textContent = clueText;
+    const clueEl = document.getElementById('scramble-clue-text');
+    clueEl.textContent = clueText;
+    const oldSpk = clueEl.parentNode.querySelector('.speak-btn');
+    if (oldSpk) oldSpk.remove();
+    clueEl.after(Speak.btn(clueText, isHeToEn ? 'he' : 'en'));
+
     document.getElementById('scramble-progress').textContent =
       (this._currentIdx + 1) + '/' + this._words.length;
 
@@ -2108,7 +2509,7 @@ const FallingWords = {
           return;
         }
 
-        UI.showCorrection(missedWord, 2500, () => {
+        UI.showCorrection(missedWord, 3000, () => {
           this._active = true;
           const rate = this._spawnRates[this._level] || 3000;
           this._spawnInterval = setInterval(() => this._spawnWord(), rate);
@@ -2240,6 +2641,8 @@ const WordManagerUI = {
       words = words.filter(w => { const m = WordManager.getMastery(w.id); return m.masteryLevel >= 5; });
     }
 
+    words.sort((a, b) => a.english.localeCompare(b.english, 'en', { sensitivity: 'base' }));
+
     const counts = { all: WordManager.getCount(), new: 0, learning: 0, mastered: 0 };
     WordManager.getAll().forEach(w => {
       const m = WordManager.getMastery(w.id);
@@ -2275,6 +2678,8 @@ const WordManagerUI = {
           <button class="word-delete" data-id="${w.id}" title="${T.get('deleteWord')}">✕</button>
         </div>
       `;
+      const engEl = row.querySelector('.word-english');
+      engEl.parentNode.insertBefore(Speak.btn(w.english, 'en'), engEl.nextSibling);
       list.appendChild(row);
     });
 
@@ -2445,7 +2850,12 @@ const TrueFalse = {
 
     const card = document.getElementById('tf-card');
     card.className = 'tf-card';
-    document.getElementById('tf-english').textContent = word.english;
+    const engEl = document.getElementById('tf-english');
+    engEl.textContent = word.english;
+    const oldSpk = engEl.querySelector('.speak-btn');
+    if (oldSpk) oldSpk.remove();
+    engEl.appendChild(Speak.btn(word.english, 'en'));
+
     document.getElementById('tf-hebrew').textContent = hebrewShown;
     document.getElementById('tf-progress').textContent =
       (this._currentIdx + 1) + '/' + this._total;
@@ -2501,7 +2911,7 @@ const TrueFalse = {
       setTimeout(() => this._showPair(), 600);
     } else {
       this._active = false;
-      UI.showCorrection(this._currentWord, 3500, () => {
+      UI.showCorrection(this._currentWord, 3000, () => {
         this._active = true;
         this._showPair();
       });
@@ -2796,8 +3206,12 @@ const WordBingo = {
     this._current = unfound[0];
     this._queue = this._queue.filter(w => w.id !== this._current.id);
     const isHeToEn = this._direction === 'he-to-en';
-    document.getElementById('bingo-prompt').textContent =
-      T.get('bingoFind') + ' ' + (isHeToEn ? this._current.hebrew : this._current.english);
+    const promptEl = document.getElementById('bingo-prompt');
+    const promptWord = isHeToEn ? this._current.hebrew : this._current.english;
+    promptEl.textContent = T.get('bingoFind') + ' ' + promptWord;
+    const oldSpk = promptEl.querySelector('.speak-btn');
+    if (oldSpk) oldSpk.remove();
+    promptEl.appendChild(Speak.btn(promptWord, isHeToEn ? 'he' : 'en'));
   },
 
   _onCellClick(i, cell) {
@@ -2819,7 +3233,7 @@ const WordBingo = {
       this._active = false;
       if (!this._missed.find(m => m.id === this._current.id)) this._missed.push(this._current);
       WordManager.recordAnswer(this._current.id, false, 'bingo');
-      UI.showCorrection(this._current, 2500, () => {
+      UI.showCorrection(this._current, 3000, () => {
         cell.classList.remove('wrong-flash');
         this._active = true;
         this._nextPrompt();
@@ -2849,8 +3263,7 @@ const WordBingo = {
     const correct = this._found;
     const stars = correct >= 16 ? 3 : correct >= 12 ? 2 : 1;
     const xp = correct * 5 + (correct >= 16 ? 20 : 0);
-    Progress.addXP(xp);
-    Progress.recordGameComplete('bingo', stars, correct, 16);
+    Progress.recordGameComplete('bingo', stars, xp, [], correct, 16);
     if (correct >= 16) Particles.celebration();
     UI.showResults({
       title: T.get(stars === 3 ? 'perfect' : stars === 2 ? 'great' : 'good'),
@@ -2902,8 +3315,12 @@ const TranslationSprint = {
     this._current = words[0];
     this._total++;
     const isHeToEn = this._direction === 'he-to-en';
-    document.getElementById('sprint-word').textContent =
-      isHeToEn ? this._current.hebrew : this._current.english;
+    const sprintWordEl = document.getElementById('sprint-word');
+    const sprintText = isHeToEn ? this._current.hebrew : this._current.english;
+    sprintWordEl.textContent = sprintText;
+    const oldSpk = sprintWordEl.querySelector('.speak-btn');
+    if (oldSpk) oldSpk.remove();
+    sprintWordEl.appendChild(Speak.btn(sprintText, isHeToEn ? 'he' : 'en'));
 
     const distractors = WordManager.getRandom(1, [this._current.id]);
     const options = [this._current, distractors[0]].sort(() => Math.random() - 0.5);
@@ -2964,7 +3381,7 @@ const TranslationSprint = {
       if (!this._missed.find(m => m.id === this._current.id)) this._missed.push(this._current);
       WordManager.recordAnswer(this._current.id, false, 'sprint');
       document.getElementById('sprint-streak').textContent = '0';
-      UI.showCorrection(this._current, 2500, () => {
+      UI.showCorrection(this._current, 3000, () => {
         if (this._total >= 20) { this._endGame(); return; }
         this._active = true; this._showWord();
       });
@@ -2980,7 +3397,7 @@ const TranslationSprint = {
     if (!this._missed.find(m => m.id === this._current.id)) this._missed.push(this._current);
     WordManager.recordAnswer(this._current.id, false, 'sprint');
     Sound.wrong();
-    UI.showCorrection(this._current, 2500, () => {
+    UI.showCorrection(this._current, 3000, () => {
       if (this._total >= 20) { this._endGame(); return; }
       this._active = true; this._showWord();
     });
@@ -2995,8 +3412,7 @@ const TranslationSprint = {
     }
     const stars = this._correct >= 18 ? 3 : this._correct >= 14 ? 2 : 1;
     const xp = this._score;
-    Progress.addXP(xp);
-    Progress.recordGameComplete('sprint', stars, this._correct, this._total);
+    Progress.recordGameComplete('sprint', stars, xp, [], this._correct, this._total);
     if (stars === 3) Particles.celebration();
     UI.showResults({
       title: T.get(stars === 3 ? 'perfect' : stars === 2 ? 'great' : 'good'),
@@ -3100,7 +3516,7 @@ const WordSpy = {
         const missWord = a.word;
         if (!this._missed.find(m => m.id === missWord.id)) this._missed.push(missWord);
         WordManager.recordAnswer(missWord.id, false, 'wordspy');
-        UI.showCorrection(missWord, 2500, () => {
+        UI.showCorrection(missWord, 3000, () => {
           prev.cell.classList.remove('selected', 'wrong-flash');
           cell.classList.remove('wrong-flash');
           this._selected = null;
@@ -3128,8 +3544,7 @@ const WordSpy = {
     const correct = this._found;
     const stars = correct >= this._totalPairs ? 3 : correct >= this._totalPairs * 0.7 ? 2 : 1;
     const xp = correct * 8 + (correct >= this._totalPairs ? 25 : 0);
-    Progress.addXP(xp);
-    Progress.recordGameComplete('wordspy', stars, correct, this._totalPairs);
+    Progress.recordGameComplete('wordspy', stars, xp, [], correct, this._totalPairs);
     if (stars === 3) Particles.celebration();
     UI.showResults({
       title: T.get(stars === 3 ? 'perfect' : stars === 2 ? 'great' : 'good'),
@@ -3177,8 +3592,13 @@ const CategorySort = {
     this._bucketWords = [correct, ...distractors].sort(() => Math.random() - 0.5);
     this._current = correct;
 
-    document.getElementById('cs-prompt').textContent =
-      isHeToEn ? correct.hebrew : correct.english;
+    const csPromptEl = document.getElementById('cs-prompt');
+    const csText = isHeToEn ? correct.hebrew : correct.english;
+    csPromptEl.textContent = csText;
+    const oldSpk = csPromptEl.querySelector('.speak-btn');
+    if (oldSpk) oldSpk.remove();
+    csPromptEl.appendChild(Speak.btn(csText, isHeToEn ? 'he' : 'en'));
+
     document.getElementById('cs-progress').textContent =
       (this._round + 1) + '/' + this._totalRounds;
 
@@ -3214,7 +3634,7 @@ const CategorySort = {
       if (!this._missed.find(m => m.id === this._current.id)) this._missed.push(this._current);
       WordManager.recordAnswer(this._current.id, false, 'catsort');
       this._round++;
-      UI.showCorrection(this._current, 2500, () => {
+      UI.showCorrection(this._current, 3000, () => {
         this._active = true;
         this._showRound();
       });
@@ -3225,8 +3645,7 @@ const CategorySort = {
     this._active = false;
     const stars = this._correct >= 14 ? 3 : this._correct >= 10 ? 2 : 1;
     const xp = this._score + (this._correct >= 14 ? 20 : 0);
-    Progress.addXP(xp);
-    Progress.recordGameComplete('catsort', stars, this._correct, this._totalRounds);
+    Progress.recordGameComplete('catsort', stars, xp, [], this._correct, this._totalRounds);
     if (stars === 3) Particles.celebration();
     UI.showResults({
       title: T.get(stars === 3 ? 'perfect' : stars === 2 ? 'great' : 'good'),
@@ -3290,7 +3709,11 @@ const SentenceFill = {
     const template = this._templates[Math.floor(Math.random() * this._templates.length)];
     const sentence = template.replace('___', '<span class="fi-blank">?</span>');
     document.getElementById('fi-sentence').innerHTML = sentence;
-    document.getElementById('fi-hint').textContent = '(' + this._current.hebrew + ')';
+    const fiHintEl = document.getElementById('fi-hint');
+    fiHintEl.textContent = '(' + this._current.hebrew + ')';
+    const oldSpk = fiHintEl.querySelector('.speak-btn');
+    if (oldSpk) oldSpk.remove();
+    fiHintEl.appendChild(Speak.btn(this._current.hebrew, 'he'));
 
     const distractors = WordManager.getRandom(2, [this._current.id]);
     const options = [this._current, ...distractors].sort(() => Math.random() - 0.5);
@@ -3375,8 +3798,7 @@ const SentenceFill = {
     clearInterval(this._timerInterval);
     const stars = this._correct >= 9 ? 3 : this._correct >= 7 ? 2 : 1;
     const xp = this._score + (this._correct >= 9 ? 20 : 0);
-    Progress.addXP(xp);
-    Progress.recordGameComplete('fillin', stars, this._correct, this._total);
+    Progress.recordGameComplete('fillin', stars, xp, [], this._correct, this._total);
     if (stars === 3) Particles.celebration();
     UI.showResults({
       title: T.get(stars === 3 ? 'perfect' : stars === 2 ? 'great' : 'good'),
@@ -3390,359 +3812,183 @@ const SentenceFill = {
   stop() { this._active = false; clearInterval(this._timerInterval); }
 };
 
-const WordReport = {
-  render() {
-    const words = WordManager.getAll();
-    const buckets = { mastered: [], good: [], learning: [], struggling: [], unseen: [] };
+// WordReport removed — unified into Dashboard
 
-    words.forEach(w => {
-      const s = WordManager.getWordStrength(w.id);
-      const m = WordManager.getMastery(w.id);
-      buckets[s.label].push({ word: w, strength: s, mastery: m });
-    });
+// ===== TEST MODE =====
+const WordTest = {
+  _words: [],
+  _currentIdx: 0,
+  _results: [],
+  _customPool: null,
+  _pendingTimeout: null,
 
-    buckets.struggling.sort((a, b) => a.strength.score - b.strength.score);
-    buckets.learning.sort((a, b) => a.strength.score - b.strength.score);
-    buckets.good.sort((a, b) => a.strength.score - b.strength.score);
-
-    this._renderOverview(words, buckets);
-    this._renderSection('report-focus-list', buckets.struggling, true);
-    this._renderSection('report-learning-list', buckets.learning, false);
-    this._renderSection('report-good-list', buckets.good, false);
-    this._renderSection('report-mastered-list', buckets.mastered, false);
-    this._renderSection('report-unseen-list', buckets.unseen, false);
-
-    document.getElementById('report-focus').style.display = buckets.struggling.length ? '' : 'none';
-    document.getElementById('report-learning-section').style.display = buckets.learning.length ? '' : 'none';
-    document.getElementById('report-good-section').style.display = buckets.good.length ? '' : 'none';
-    document.getElementById('report-mastered-section').style.display = buckets.mastered.length ? '' : 'none';
-    document.getElementById('report-unseen-section').style.display = buckets.unseen.length ? '' : 'none';
+  stop() {
+    if (this._pendingTimeout) { clearTimeout(this._pendingTimeout); this._pendingTimeout = null; }
   },
 
-  _renderOverview(words, buckets) {
-    const el = document.getElementById('report-overview');
-    const total = words.length;
-    const counts = {
-      mastered: buckets.mastered.length,
-      good: buckets.good.length,
-      learning: buckets.learning.length,
-      struggling: buckets.struggling.length,
-      unseen: buckets.unseen.length
-    };
-
-    const practiced = total - counts.unseen;
-    const pctDone = total > 0 ? Math.round((counts.mastered / total) * 100) : 0;
-    const circ = 2 * Math.PI * 48;
-
-    const allMastery = words.map(w => WordManager.getMastery(w.id));
-    const totalAttempts = allMastery.reduce((s, m) => s + m.timesCorrect + m.timesWrong, 0);
-    const totalCorrect = allMastery.reduce((s, m) => s + m.timesCorrect, 0);
-    const avgAcc = totalAttempts > 0 ? Math.round((totalCorrect / totalAttempts) * 100) : 0;
-
-    const lastSeen = allMastery.reduce((max, m) => m.lastSeen && m.lastSeen > max ? m.lastSeen : max, 0);
-    const locale = T._lang === 'he' ? 'he-IL' : 'en-GB';
-    const lastStr = lastSeen ? new Date(lastSeen).toLocaleDateString(locale, { day: 'numeric', month: 'short' }) : '—';
-
-    const segData = [
-      { key: 'mastered', count: counts.mastered, color: '#eab308' },
-      { key: 'good', count: counts.good, color: '#22c55e' },
-      { key: 'learning', count: counts.learning, color: '#f59e0b' },
-      { key: 'struggling', count: counts.struggling, color: '#ef4444' },
-      { key: 'unseen', count: counts.unseen, color: 'rgba(255,255,255,0.1)' }
-    ];
-
-    let segs = '';
-    let offset = 0;
-    segData.forEach(s => {
-      if (s.count === 0) return;
-      const len = (s.count / total) * circ;
-      segs += '<circle class="report-donut-seg" cx="55" cy="55" r="48" ' +
-        'stroke="' + s.color + '" stroke-dasharray="' + len + ' ' + (circ - len) + '" ' +
-        'stroke-dashoffset="' + (-offset) + '"/>';
-      offset += len;
-    });
-
-    el.innerHTML =
-      '<div class="report-donut-row">' +
-        '<div class="report-donut-wrap">' +
-          '<svg class="report-donut" viewBox="0 0 110 110">' +
-            '<circle class="report-donut-bg" cx="55" cy="55" r="48"/>' +
-            segs +
-          '</svg>' +
-          '<div class="report-donut-center">' +
-            '<div class="report-donut-pct">' + pctDone + '%</div>' +
-            '<div class="report-donut-sub">' + T.get('reportOverall') + '</div>' +
-          '</div>' +
-        '</div>' +
-        '<div class="report-stats-col">' +
-          '<div class="report-stat-row"><span class="report-stat-icon">📚</span><span class="report-stat-label">' + T.get('reportPracticed') + '</span><span class="report-stat-val">' + practiced + '/' + total + '</span></div>' +
-          '<div class="report-stat-row"><span class="report-stat-icon">🎯</span><span class="report-stat-label">' + T.get('reportAccAvg') + '</span><span class="report-stat-val">' + avgAcc + '%</span></div>' +
-          '<div class="report-stat-row"><span class="report-stat-icon">🔢</span><span class="report-stat-label">' + T.get('reportTotalPractice') + '</span><span class="report-stat-val">' + totalAttempts + '</span></div>' +
-          '<div class="report-stat-row"><span class="report-stat-icon">📅</span><span class="report-stat-label">' + T.get('reportLastActive') + '</span><span class="report-stat-val">' + lastStr + '</span></div>' +
-          this._statCountsHtml(counts) +
-        '</div>' +
-      '</div>';
-  },
-
-  _statCountsHtml(counts) {
-    const items = [
-      { key: 'mastered', icon: '⭐', count: counts.mastered },
-      { key: 'good', icon: '🟢', count: counts.good },
-      { key: 'learning', icon: '🟡', count: counts.learning },
-      { key: 'struggling', icon: '🔴', count: counts.struggling },
-      { key: 'unseen', icon: '⬜', count: counts.unseen }
-    ];
-    return items.map(i =>
-      '<div class="report-stat-row"><span class="report-stat-icon">' + i.icon + '</span>' +
-      '<span class="report-stat-label">' + T.get('leg' + i.key.charAt(0).toUpperCase() + i.key.slice(1)) + '</span>' +
-      '<span class="report-stat-val ' + i.key + '">' + i.count + '</span></div>'
-    ).join('');
-  },
-
-  _renderSection(containerId, items, showPractice) {
-    const el = document.getElementById(containerId);
-    el.innerHTML = '';
-
-    if (items.length === 0) {
-      el.innerHTML = '<div class="report-section-empty">' + T.get('reportNone') + '</div>';
+  start(customPool) {
+    this._customPool = customPool || null;
+    const pool = customPool || WordManager._getActivePool();
+    if (pool.length < 4) {
+      UI.showToast(T.get('testMinWords'), 'coral');
       return;
     }
+    this._words = WordManager._shuffleArray([...pool]);
+    this._currentIdx = 0;
+    this._results = [];
+    UI.showScreen('test');
+    this._showQuestion();
+  },
 
-    items.forEach(item => {
-      const w = item.word;
-      const s = item.strength;
-      const m = item.mastery;
-      const total = m.timesCorrect + m.timesWrong;
-      const accClass = s.accuracy >= 70 ? 'high' : s.accuracy >= 40 ? 'mid' : total === 0 ? 'none' : 'low';
-      const row = document.createElement('div');
-      row.className = 'rw-row';
-      row.innerHTML =
-        '<span class="rw-eng">' + w.english + '</span>' +
-        '<span class="rw-heb">' + w.hebrew + '</span>' +
-        '<span class="rw-acc ' + accClass + '">' + (total > 0 ? s.accuracy + '%' : '—') + '</span>' +
-        '<span class="rw-bar"><span class="rw-bar-fill ' + s.label + '" style="width:' + s.score + '%"></span></span>';
+  _showQuestion() {
+    const total = this._words.length;
+    const idx = this._currentIdx;
+    if (idx >= total) { this._finish(); return; }
 
-      if (total > 0) {
-        const detail = document.createElement('span');
-        detail.className = 'rw-detail';
-        detail.textContent = m.timesCorrect + '✓ ' + m.timesWrong + '✗ · ' + total + ' ' + T.get('reportTimes');
-        row.appendChild(detail);
-      }
+    document.getElementById('test-progress').textContent =
+      T.get('testQuestion') + ' ' + (idx + 1) + ' ' + T.get('testOf') + ' ' + total;
+    document.getElementById('test-progress-fill').style.width =
+      ((idx / total) * 100) + '%';
 
-      if (showPractice) {
-        const btn = document.createElement('button');
-        btn.className = 'rw-practice-btn';
-        btn.textContent = '🎯 ' + T.get('reportPracticeTip');
-        btn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          WordManager.clearSelection();
-          const weakWords = items.slice(0, Math.min(10, items.length));
-          weakWords.forEach(iw => WordManager.toggleSelection(iw.word.id));
-          const games = ['lightning', 'truefalse', 'sprint', 'catsort', 'fillin'];
-          const pick = games[Math.floor(Math.random() * games.length)];
-          UI.showScreen(pick);
-          UI._startGame(pick);
-        });
-        row.appendChild(btn);
-      }
+    const word = this._words[idx];
+    const isEnToHe = Math.random() < 0.5;
+    const dirEl = document.getElementById('test-direction');
+    dirEl.textContent = isEnToHe ? T.get('testTranslateToHe') : T.get('testTranslateToEn');
 
-      el.appendChild(row);
+    const promptEl = document.getElementById('test-prompt');
+    promptEl.textContent = isEnToHe ? word.english : word.hebrew;
+    promptEl.appendChild(Speak.btn(isEnToHe ? word.english : word.hebrew, isEnToHe ? 'en' : 'he'));
+
+    const distractors = WordManager.getRandom(5, [word]);
+    const choices = WordManager._shuffleArray([word, ...distractors]);
+
+    const choicesEl = document.getElementById('test-choices');
+    choicesEl.innerHTML = '';
+    choices.forEach(c => {
+      const btn = document.createElement('button');
+      btn.className = 'test-choice-btn';
+      btn.textContent = isEnToHe ? c.hebrew : c.english;
+      btn.dataset.wordId = c.id;
+      btn.addEventListener('click', () => this._onAnswer(btn, word, c, isEnToHe, choicesEl));
+      choicesEl.appendChild(btn);
     });
+
+    this._currentDirection = isEnToHe;
+  },
+
+  _onAnswer(btn, correctWord, chosenWord, isEnToHe, choicesEl) {
+    const isCorrect = chosenWord.id === correctWord.id;
+
+    this._results.push({
+      word: correctWord,
+      correct: isCorrect,
+      chosenWord: chosenWord,
+      direction: isEnToHe ? 'en-to-he' : 'he-to-en'
+    });
+
+    const allBtns = choicesEl.querySelectorAll('.test-choice-btn');
+    allBtns.forEach(b => {
+      b.style.pointerEvents = 'none';
+      if (Number(b.dataset.wordId) === correctWord.id) {
+        b.classList.add('correct-reveal');
+      }
+    });
+    if (!isCorrect) {
+      btn.classList.add('wrong-reveal');
+    }
+
+    WordManager.recordAnswer(correctWord.id, isCorrect, 'test');
+
+    this._pendingTimeout = setTimeout(() => {
+      this._pendingTimeout = null;
+      this._currentIdx++;
+      this._showQuestion();
+    }, isCorrect ? 400 : 1200);
+  },
+
+  _finish() {
+    const total = this._results.length;
+    const correct = this._results.filter(r => r.correct).length;
+    const pct = total > 0 ? Math.round((correct / total) * 100) : 0;
+    const grade = this._getGrade(pct);
+
+    const record = {
+      date: Date.now(),
+      totalWords: total,
+      correct: correct,
+      wrong: total - correct,
+      grade: grade.letter,
+      pct: pct,
+      wrongWords: this._results.filter(r => !r.correct).map(r => ({
+        english: r.word.english, hebrew: r.word.hebrew
+      }))
+    };
+    GameState.addTestResult(record);
+
+    UI.showScreen('test-results');
+    document.getElementById('test-progress-fill').style.width = '100%';
+
+    const card = document.getElementById('test-grade-card');
+    card.className = 'test-grade-card grade-' + grade.letter.toLowerCase();
+    document.getElementById('test-grade-letter').textContent = grade.letter;
+    document.getElementById('test-grade-score').textContent = correct + ' / ' + total;
+    document.getElementById('test-grade-pct').textContent = pct + '%';
+    document.getElementById('test-grade-rec').textContent = grade.recommendation;
+
+    const list = document.getElementById('test-word-list');
+    list.innerHTML = '';
+    this._results.forEach(r => {
+      const row = document.createElement('div');
+      row.className = 'test-word-row ' + (r.correct ? 'tw-correct' : 'tw-wrong');
+      const icon = r.correct ? '✓' : '✗';
+      const pair = r.word.english + ' = ' + r.word.hebrew;
+      let correction = '';
+      if (!r.correct) {
+        const chosenText = r.direction === 'en-to-he' ? r.chosenWord.hebrew : r.chosenWord.english;
+        correction = '<div class="tw-correction">' + T.get('testYourAnswer') + ': ' + chosenText + '</div>';
+      }
+      row.innerHTML =
+        '<span class="tw-icon" style="color:' + (r.correct ? '#22c55e' : '#ef4444') + '">' + icon + '</span>' +
+        '<div class="tw-words"><div class="tw-pair">' + pair + '</div>' + correction + '</div>';
+      row.appendChild(Speak.btn(r.word.english, 'en'));
+      list.appendChild(row);
+    });
+
+    const retryBtn = document.getElementById('test-retry-btn');
+    const wrongOnes = this._results.filter(r => !r.correct);
+    if (wrongOnes.length > 0) {
+      retryBtn.style.display = '';
+    } else {
+      retryBtn.style.display = 'none';
+    }
+  },
+
+  retryMistakes() {
+    const wrongWords = this._results.filter(r => !r.correct).map(r => r.word);
+    if (wrongWords.length === 0) return;
+    this.start(wrongWords);
+  },
+
+  _getGrade(pct) {
+    if (pct >= 90) return { letter: 'A', recommendation: T.get('testGradeA') };
+    if (pct >= 80) return { letter: 'B', recommendation: T.get('testGradeB') };
+    if (pct >= 70) return { letter: 'C', recommendation: T.get('testGradeC') };
+    if (pct >= 60) return { letter: 'D', recommendation: T.get('testGradeD') };
+    return { letter: 'F', recommendation: T.get('testGradeF') };
   }
 };
 
 const Dashboard = {
-  _gameKeys: { bubble: 'gameBubble', memory: 'gameMemory', lightning: 'gameLightning', scramble: 'gameScramble', falling: 'gameFalling', truefalse: 'gameTrueFalse', matchup: 'gameMatchUp', bingo: 'gameBingo', sprint: 'gameSprint', wordspy: 'gameWordSpy', catsort: 'gameCatSort', fillin: 'gameFillIn' },
-  _gameIcons: { bubble: '🫧', memory: '🃏', lightning: '⚡', scramble: '🧩', falling: '🌧️', truefalse: '✅', matchup: '🔗', bingo: '🎱', sprint: '🏃', wordspy: '🔍', catsort: '🪣', fillin: '📝' },
-
   render() {
+    this._buildWordData();
     const history = GameState.getHistory();
-    this._renderSummary(history);
-    this._renderActivityChart(history);
+    this._renderExecSummary(history);
+    this._renderMasteryBar();
+    this._renderTestHistory();
+    this._renderDailyChart(history);
     this._renderAccuracyChart(history);
-    this._renderGames(history);
     this._renderHardWords();
-    this._renderSessions(history);
-  },
-
-  _renderSummary(history) {
-    const el = document.getElementById('dash-summary');
-    const totalSessions = history.length;
-    const totalDays = new Set(history.map(s => new Date(s.ts).toDateString())).size;
-    const avgAccuracy = totalSessions > 0 ? Math.round(history.reduce((s, h) => s + h.accuracy, 0) / totalSessions) : 0;
-    const last7 = history.filter(s => s.ts > Date.now() - 7 * 86400000);
-    const last7Sessions = last7.length;
-
-    const streak = GameState.data.streak;
-    const mastered = WordManager.getMasteredCount();
-    const totalWords = WordManager.getCount();
-
-    el.innerHTML = `
-      <div class="dash-stat-card">
-        <div class="dash-stat-value">${totalSessions}</div>
-        <div class="dash-stat-label">${T.get('dashTotalSessions')}</div>
-      </div>
-      <div class="dash-stat-card">
-        <div class="dash-stat-value">${totalDays}</div>
-        <div class="dash-stat-label">${T.get('dashActiveDays')}</div>
-      </div>
-      <div class="dash-stat-card">
-        <div class="dash-stat-value">${last7Sessions}</div>
-        <div class="dash-stat-label">${T.get('dashThisWeek')}</div>
-      </div>
-      <div class="dash-stat-card">
-        <div class="dash-stat-value">${avgAccuracy}%</div>
-        <div class="dash-stat-label">${T.get('dashAvgAccuracy')}</div>
-      </div>
-      <div class="dash-stat-card">
-        <div class="dash-stat-value">${streak}🔥</div>
-        <div class="dash-stat-label">${T.get('dashStreak')}</div>
-      </div>
-      <div class="dash-stat-card">
-        <div class="dash-stat-value">${mastered}/${totalWords}</div>
-        <div class="dash-stat-label">${T.get('dashWordsMastered')}</div>
-      </div>
-    `;
-  },
-
-  _renderActivityChart(history) {
-    const el = document.getElementById('dash-activity-chart');
-    el.innerHTML = '';
-    const days = [];
-    for (let i = 13; i >= 0; i--) {
-      const d = new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate() - i);
-      days.push({ date: d, label: (d.getMonth()+1) + '/' + d.getDate(), dateStr: d.toDateString() });
-    }
-
-    const dayCounts = {};
-    history.forEach(s => { const ds = new Date(s.ts).toDateString(); dayCounts[ds] = (dayCounts[ds] || 0) + 1; });
-    const maxCount = Math.max(1, ...days.map(d => dayCounts[d.dateStr] || 0));
-
-    days.forEach(d => {
-      const count = dayCounts[d.dateStr] || 0;
-      const pct = (count / maxCount) * 100;
-      const bar = document.createElement('div');
-      bar.className = 'dash-bar-col';
-      bar.innerHTML = `
-        <div class="dash-bar-value">${count || ''}</div>
-        <div class="dash-bar-track"><div class="dash-bar-fill${count > 0 ? ' active' : ''}" style="height:${Math.max(pct, count > 0 ? 8 : 0)}%"></div></div>
-        <div class="dash-bar-label">${d.label}</div>
-      `;
-      el.appendChild(bar);
-    });
-  },
-
-  _renderAccuracyChart(history) {
-    const el = document.getElementById('dash-accuracy-chart');
-    el.innerHTML = '';
-
-    if (history.length === 0) {
-      el.innerHTML = '<div class="dash-empty">' + T.get('dashNoSessions') + '</div>';
-      return;
-    }
-
-    const days = [];
-    for (let i = 13; i >= 0; i--) {
-      const d = new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate() - i);
-      days.push({ date: d, label: (d.getMonth()+1) + '/' + d.getDate(), dateStr: d.toDateString() });
-    }
-
-    const dayAccuracy = {};
-    const dayCount = {};
-    history.forEach(s => {
-      const ds = new Date(s.ts).toDateString();
-      dayAccuracy[ds] = (dayAccuracy[ds] || 0) + s.accuracy;
-      dayCount[ds] = (dayCount[ds] || 0) + 1;
-    });
-
-    const points = days.map(d => {
-      const avg = dayCount[d.dateStr] ? Math.round(dayAccuracy[d.dateStr] / dayCount[d.dateStr]) : null;
-      return { label: d.label, value: avg };
-    });
-
-    const svgNs = 'http://www.w3.org/2000/svg';
-    const svg = document.createElementNS(svgNs, 'svg');
-    svg.setAttribute('viewBox', '0 0 420 120');
-    svg.setAttribute('class', 'dash-line-chart');
-
-    for (let y = 0; y <= 100; y += 25) {
-      const ly = 110 - y * 1.0;
-      const line = document.createElementNS(svgNs, 'line');
-      line.setAttribute('x1', '30'); line.setAttribute('x2', '410');
-      line.setAttribute('y1', ly); line.setAttribute('y2', ly);
-      line.setAttribute('class', 'dash-grid-line');
-      svg.appendChild(line);
-
-      const txt = document.createElementNS(svgNs, 'text');
-      txt.setAttribute('x', '26'); txt.setAttribute('y', ly + 3);
-      txt.setAttribute('class', 'dash-axis-label');
-      txt.textContent = y + '%';
-      svg.appendChild(txt);
-    }
-
-    let pathD = '';
-    let dotsSvg = '';
-    const validPoints = [];
-    points.forEach((p, i) => {
-      if (p.value !== null) {
-        const x = 35 + i * (375 / 13);
-        const y = 110 - p.value * 1.0;
-        validPoints.push({ x, y, value: p.value });
-      }
-    });
-
-    if (validPoints.length >= 2) {
-      pathD = 'M ' + validPoints.map(p => p.x + ' ' + p.y).join(' L ');
-      const path = document.createElementNS(svgNs, 'path');
-      path.setAttribute('d', pathD);
-      path.setAttribute('class', 'dash-trend-line');
-      svg.appendChild(path);
-    }
-
-    validPoints.forEach(p => {
-      const circle = document.createElementNS(svgNs, 'circle');
-      circle.setAttribute('cx', p.x); circle.setAttribute('cy', p.y);
-      circle.setAttribute('r', '3.5');
-      circle.setAttribute('class', 'dash-dot');
-      svg.appendChild(circle);
-
-      const txt = document.createElementNS(svgNs, 'text');
-      txt.setAttribute('x', p.x); txt.setAttribute('y', p.y - 7);
-      txt.setAttribute('class', 'dash-dot-label');
-      txt.textContent = p.value + '%';
-      svg.appendChild(txt);
-    });
-
-    el.appendChild(svg);
-  },
-
-  _renderGames(history) {
-    const el = document.getElementById('dash-games');
-    el.innerHTML = '';
-    const games = ['bubble', 'memory', 'lightning', 'scramble', 'falling', 'truefalse', 'matchup', 'bingo', 'sprint', 'wordspy', 'catsort', 'fillin'];
-
-    games.forEach(g => {
-      const sessions = history.filter(s => s.game === g);
-      const count = sessions.length;
-      const avgAcc = count > 0 ? Math.round(sessions.reduce((s, h) => s + h.accuracy, 0) / count) : 0;
-      const avgStars = count > 0 ? (sessions.reduce((s, h) => s + h.stars, 0) / count).toFixed(1) : '—';
-      const recent = sessions.slice(-5);
-      const recentAcc = recent.length > 0 ? Math.round(recent.reduce((s, h) => s + h.accuracy, 0) / recent.length) : 0;
-      const trend = recent.length >= 2 ? recentAcc - avgAcc : 0;
-      const trendIcon = trend > 5 ? '📈' : trend < -5 ? '📉' : '➡️';
-
-      const card = document.createElement('div');
-      card.className = 'dash-game-card';
-      card.innerHTML = `
-        <div class="dash-game-icon">${this._gameIcons[g]}</div>
-        <div class="dash-game-info">
-          <div class="dash-game-name">${T.get(this._gameKeys[g])}</div>
-          <div class="dash-game-stats">${count} ${T.get('dashSessions')} · ${T.get('dashAvg')} ${avgAcc}% · ★ ${avgStars}</div>
-        </div>
-        <div class="dash-game-trend">${trendIcon}</div>
-      `;
-      el.appendChild(card);
-    });
+    this._renderAllWords();
   },
 
   _wordData: null,
@@ -3764,10 +4010,227 @@ const Dashboard = {
     });
   },
 
+  _formatTime(totalSec) {
+    if (totalSec < 60) return '<1 ' + T.get('rptMin');
+    if (totalSec < 3600) return Math.round(totalSec / 60) + ' ' + T.get('rptMin');
+    const hrs = Math.floor(totalSec / 3600);
+    const mins = Math.round((totalSec % 3600) / 60);
+    return hrs + ' ' + T.get('rptHr') + ' ' + mins + ' ' + T.get('rptMin');
+  },
+
+  _renderExecSummary(history) {
+    const el = document.getElementById('rpt-exec');
+    if (!el) return;
+
+    const totalWords = this._wordData.length;
+    const counts = { mastered: 0, good: 0, learning: 0, struggling: 0, unseen: 0 };
+    this._wordData.forEach(w => counts[w.label]++);
+
+    const mastered = counts.mastered;
+    const known = mastered + counts.good;
+    const totalSessions = history.length;
+    const avgAcc = totalSessions > 0 ? Math.round(history.reduce((s, h) => s + h.accuracy, 0) / totalSessions) : 0;
+    const streak = GameState.data.streak || 0;
+
+    const todayStr = new Date().toDateString();
+    const todaySessions = history.filter(s => new Date(s.ts).toDateString() === todayStr);
+    const todayTimeSec = todaySessions.reduce((s, h) => s + (h.duration || 0), 0);
+    const totalTimeSec = history.reduce((s, h) => s + (h.duration || 0), 0);
+
+    const knownPct = totalWords > 0 ? Math.round((known / totalWords) * 100) : 0;
+
+    let verdictKey;
+    if (knownPct >= 70) verdictKey = 'rptVerdictGreat';
+    else if (knownPct >= 40) verdictKey = 'rptVerdictGood';
+    else if (totalSessions > 0) verdictKey = 'rptVerdictWork';
+    else verdictKey = 'rptVerdictStart';
+
+    el.innerHTML =
+      '<div class="rpt-exec-title">' + T.get('rptSummary') + '</div>' +
+      '<div class="rpt-exec-grid">' +
+        '<div class="rpt-kpi"><div class="rpt-kpi-val">' + known + '/' + totalWords + '</div><div class="rpt-kpi-label">' + T.get('rptWordsKnown') + '</div></div>' +
+        '<div class="rpt-kpi"><div class="rpt-kpi-val">' + avgAcc + '%</div><div class="rpt-kpi-label">' + T.get('rptAvgAccuracy') + '</div></div>' +
+        '<div class="rpt-kpi"><div class="rpt-kpi-val">' + this._formatTime(todayTimeSec) + '</div><div class="rpt-kpi-label">' + T.get('rptTimeToday') + '</div></div>' +
+        '<div class="rpt-kpi"><div class="rpt-kpi-val">' + streak + '🔥</div><div class="rpt-kpi-label">' + T.get('rptDayStreak') + '</div></div>' +
+        '<div class="rpt-kpi"><div class="rpt-kpi-val">' + totalSessions + '</div><div class="rpt-kpi-label">' + T.get('rptGamesPlayed') + '</div></div>' +
+        '<div class="rpt-kpi"><div class="rpt-kpi-val">' + this._formatTime(totalTimeSec) + '</div><div class="rpt-kpi-label">' + T.get('rptTimeTotal') + '</div></div>' +
+      '</div>' +
+      '<div class="rpt-exec-verdict">' + T.get(verdictKey) + '</div>';
+  },
+
+  _renderMasteryBar() {
+    const el = document.getElementById('rpt-mastery');
+    if (!el) return;
+
+    const total = this._wordData.length;
+    const counts = { mastered: 0, good: 0, learning: 0, struggling: 0, unseen: 0 };
+    this._wordData.forEach(w => counts[w.label]++);
+
+    const colors = { mastered: '#a78bfa', good: '#22c55e', learning: '#fbbf24', struggling: '#ef4444', unseen: 'rgba(255,255,255,0.1)' };
+    const labels = { mastered: T.get('dashMastered'), good: T.get('dashGood'), learning: T.get('dashLearning'), struggling: T.get('dashStruggling'), unseen: T.get('dashUnseen') };
+
+    let bar = '<div class="rpt-mastery-bar">';
+    ['mastered', 'good', 'learning', 'struggling', 'unseen'].forEach(k => {
+      const pct = total > 0 ? (counts[k] / total) * 100 : 0;
+      if (pct > 0) bar += '<div class="rpt-mastery-seg" style="width:' + pct + '%;background:' + colors[k] + '"></div>';
+    });
+    bar += '</div>';
+
+    let legend = '<div class="rpt-mastery-legend">';
+    ['mastered', 'good', 'learning', 'struggling', 'unseen'].forEach(k => {
+      legend += '<div class="rpt-legend-item">' +
+        '<span class="rpt-legend-dot" style="background:' + colors[k] + '"></span>' +
+        '<span>' + labels[k] + '</span>' +
+        '<span class="rpt-legend-count">' + counts[k] + '</span></div>';
+    });
+    legend += '</div>';
+
+    el.innerHTML = bar + legend;
+  },
+
+  _renderTestHistory() {
+    const el = document.getElementById('dash-test-history');
+    if (!el) return;
+    el.innerHTML = '';
+    const latest = GameState.getLatestTest();
+    if (!latest) {
+      el.innerHTML = '<div class="dash-empty">' + T.get('testNoTests') + '</div>';
+      return;
+    }
+    const date = new Date(latest.date);
+    const locale = T._lang === 'he' ? 'he-IL' : 'en-GB';
+    const dateStr = date.toLocaleDateString(locale, { day: 'numeric', month: 'short' }) + ' ' +
+      date.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
+    const gradeColors = { A: '#a78bfa', B: '#22c55e', C: '#fbbf24', D: '#f97316', F: '#ef4444' };
+    const color = gradeColors[latest.grade] || '#888';
+    el.innerHTML =
+      '<div style="display:flex;align-items:center;gap:14px;padding:8px 0;">' +
+        '<span style="font-size:2rem;font-weight:900;color:' + color + ';">' + latest.grade + '</span>' +
+        '<div style="flex:1;">' +
+          '<div style="font-size:0.88rem;font-weight:700;">' + latest.correct + '/' + latest.totalWords + ' (' + latest.pct + '%)</div>' +
+          '<div style="font-size:0.7rem;color:var(--text-dim);">' + dateStr + '</div>' +
+        '</div>' +
+      '</div>';
+  },
+
+  _renderDailyChart(history) {
+    const el = document.getElementById('rpt-daily-chart');
+    if (!el) return;
+    el.innerHTML = '';
+
+    const todayStr = new Date().toDateString();
+    const days = [];
+    for (let i = 13; i >= 0; i--) {
+      const d = new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate() - i);
+      days.push({ date: d, dateStr: d.toDateString() });
+    }
+
+    const dayData = {};
+    history.forEach(s => {
+      const ds = new Date(s.ts).toDateString();
+      if (!dayData[ds]) dayData[ds] = { time: 0, count: 0 };
+      dayData[ds].time += (s.duration || 0);
+      dayData[ds].count++;
+    });
+
+    const maxTime = Math.max(60, ...days.map(d => (dayData[d.dateStr] || {}).time || 0));
+
+    days.forEach(d => {
+      const data = dayData[d.dateStr];
+      const timeSec = data ? data.time : 0;
+      const count = data ? data.count : 0;
+      const pct = (timeSec / maxTime) * 100;
+      const isToday = d.dateStr === todayStr;
+      const dayLabel = d.date.getDate() + '/' + (d.date.getMonth() + 1);
+
+      let valText = '';
+      if (timeSec > 0) {
+        valText = timeSec < 60 ? '<1m' : Math.round(timeSec / 60) + 'm';
+      }
+
+      const col = document.createElement('div');
+      col.className = 'rpt-daily-col';
+      col.title = (isToday ? '★ ' : '') + dayLabel + ' — ' + count + ' games, ' + this._formatTime(timeSec);
+      col.innerHTML =
+        '<div class="rpt-daily-val">' + valText + '</div>' +
+        '<div class="rpt-daily-track"><div class="rpt-daily-fill' +
+          (timeSec > 0 ? (isToday ? ' today' : ' active') : '') +
+          '" style="height:' + Math.max(pct, timeSec > 0 ? 6 : 0) + '%"></div></div>' +
+        '<div class="rpt-daily-day' + (isToday ? ' today' : '') + '">' + dayLabel + '</div>';
+      el.appendChild(col);
+    });
+  },
+
+  _renderAccuracyChart(history) {
+    const el = document.getElementById('dash-accuracy-chart');
+    if (!el) return;
+    el.innerHTML = '';
+    if (history.length === 0) {
+      el.innerHTML = '<div class="dash-empty">' + T.get('dashNoSessions') + '</div>';
+      return;
+    }
+    const days = [];
+    for (let i = 13; i >= 0; i--) {
+      const d = new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate() - i);
+      days.push({ date: d, label: (d.getMonth()+1) + '/' + d.getDate(), dateStr: d.toDateString() });
+    }
+    const dayAccuracy = {}, dayCount = {};
+    history.forEach(s => {
+      const ds = new Date(s.ts).toDateString();
+      dayAccuracy[ds] = (dayAccuracy[ds] || 0) + s.accuracy;
+      dayCount[ds] = (dayCount[ds] || 0) + 1;
+    });
+    const points = days.map(d => {
+      const avg = dayCount[d.dateStr] ? Math.round(dayAccuracy[d.dateStr] / dayCount[d.dateStr]) : null;
+      return { label: d.label, value: avg };
+    });
+    const svgNs = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(svgNs, 'svg');
+    svg.setAttribute('viewBox', '0 0 420 120');
+    svg.setAttribute('class', 'dash-line-chart');
+    for (let y = 0; y <= 100; y += 25) {
+      const ly = 110 - y * 1.0;
+      const line = document.createElementNS(svgNs, 'line');
+      line.setAttribute('x1', '30'); line.setAttribute('x2', '410');
+      line.setAttribute('y1', ly); line.setAttribute('y2', ly);
+      line.setAttribute('class', 'dash-grid-line');
+      svg.appendChild(line);
+      const txt = document.createElementNS(svgNs, 'text');
+      txt.setAttribute('x', '26'); txt.setAttribute('y', ly + 3);
+      txt.setAttribute('class', 'dash-axis-label');
+      txt.textContent = y + '%';
+      svg.appendChild(txt);
+    }
+    const validPoints = [];
+    points.forEach((p, i) => {
+      if (p.value !== null) {
+        validPoints.push({ x: 35 + i * (375 / 13), y: 110 - p.value * 1.0, value: p.value });
+      }
+    });
+    if (validPoints.length >= 2) {
+      const path = document.createElementNS(svgNs, 'path');
+      path.setAttribute('d', 'M ' + validPoints.map(p => p.x + ' ' + p.y).join(' L '));
+      path.setAttribute('class', 'dash-trend-line');
+      svg.appendChild(path);
+    }
+    validPoints.forEach(p => {
+      const circle = document.createElementNS(svgNs, 'circle');
+      circle.setAttribute('cx', p.x); circle.setAttribute('cy', p.y);
+      circle.setAttribute('r', '3.5'); circle.setAttribute('class', 'dash-dot');
+      svg.appendChild(circle);
+      const txt = document.createElementNS(svgNs, 'text');
+      txt.setAttribute('x', p.x); txt.setAttribute('y', p.y - 7);
+      txt.setAttribute('class', 'dash-dot-label');
+      txt.textContent = p.value + '%';
+      svg.appendChild(txt);
+    });
+    el.appendChild(svg);
+  },
+
   _renderHardWords() {
     const el = document.getElementById('dash-hard-words');
+    if (!el) return;
     el.innerHTML = '';
-    if (!this._wordData) this._buildWordData();
 
     const struggled = this._wordData
       .filter(w => w.total >= 2 && (w.label === 'struggling' || w.label === 'learning'))
@@ -3783,28 +4246,26 @@ const Dashboard = {
       const row = document.createElement('div');
       row.className = 'dash-hard-row';
       const accClass = item.accuracy < 40 ? 'low' : item.accuracy < 60 ? 'mid' : 'ok';
-      row.innerHTML = `
-        <span class="dash-hard-eng">${item.word.english}</span>
-        <span class="dash-hard-heb">${item.word.hebrew}</span>
-        <span class="dash-hard-acc ${accClass}">${item.accuracy}%</span>
-        <span class="dash-hard-detail">${item.correct}✓ ${item.wrong}✗</span>
-        <span class="dash-hard-bar"><span class="dash-hard-fill" style="width:${item.strength}%"></span></span>
-      `;
+      row.innerHTML =
+        '<span class="dash-hard-eng">' + item.word.english + '</span>' +
+        '<span class="dash-hard-heb">' + item.word.hebrew + '</span>' +
+        '<span class="dash-hard-acc ' + accClass + '">' + item.accuracy + '%</span>' +
+        '<span class="dash-hard-detail">' + item.correct + '✓ ' + item.wrong + '✗</span>' +
+        '<span class="dash-hard-bar"><span class="dash-hard-fill" style="width:' + item.strength + '%"></span></span>';
+      row.appendChild(Speak.btn(item.word.english, 'en'));
       el.appendChild(row);
     });
-
-    this._renderAllWords();
   },
 
   _renderAllWords() {
     const el = document.getElementById('dash-all-words');
+    if (!el) return;
     el.innerHTML = '';
-    if (!this._wordData) this._buildWordData();
 
     const counts = { all: 0, struggling: 0, learning: 0, good: 0, mastered: 0, unseen: 0 };
     this._wordData.forEach(w => { counts.all++; counts[w.label]++; });
 
-    document.querySelectorAll('.dash-filter-btn').forEach(btn => {
+    document.querySelectorAll('.rpt-filter').forEach(btn => {
       const f = btn.dataset.wf;
       btn.classList.toggle('active', f === this._wordFilter);
       const c = counts[f] !== undefined ? ' (' + counts[f] + ')' : '';
@@ -3815,7 +4276,7 @@ const Dashboard = {
     if (this._wordFilter !== 'all') {
       filtered = filtered.filter(w => w.label === this._wordFilter);
     }
-    filtered.sort((a, b) => a.strength - b.strength);
+    filtered.sort((a, b) => a.word.english.localeCompare(b.word.english, 'en', { sensitivity: 'base' }));
 
     if (filtered.length === 0) {
       el.innerHTML = '<div class="dash-empty">' + T.get('dashNoCategory') + '</div>';
@@ -3829,14 +4290,14 @@ const Dashboard = {
       const lastSeenStr = item.lastSeen
         ? (item.daysSince === 0 ? T.get('dashToday') : item.daysSince === 1 ? T.get('dashYesterday') : item.daysSince + T.get('dashDaysAgo'))
         : T.get('dashNever');
-      row.innerHTML = `
-        <span class="dash-w-status">${statusIcon}</span>
-        <span class="dash-w-eng">${item.word.english}</span>
-        <span class="dash-w-heb">${item.word.hebrew}</span>
-        <span class="dash-w-stats">${item.total > 0 ? item.accuracy + '% · ' + item.correct + '✓ ' + item.wrong + '✗' : '—'}</span>
-        <span class="dash-w-seen">${lastSeenStr}</span>
-        <span class="dash-w-bar"><span class="dash-w-bar-fill dash-wlabel-${item.label}" style="width:${item.strength}%"></span></span>
-      `;
+      row.innerHTML =
+        '<span class="dash-w-status">' + statusIcon + '</span>' +
+        '<span class="dash-w-eng">' + item.word.english + '</span>' +
+        '<span class="dash-w-heb">' + item.word.hebrew + '</span>' +
+        '<span class="dash-w-stats">' + (item.total > 0 ? item.accuracy + '% · ' + item.correct + '✓ ' + item.wrong + '✗' : '—') + '</span>' +
+        '<span class="dash-w-seen">' + lastSeenStr + '</span>' +
+        '<span class="dash-w-bar"><span class="dash-w-bar-fill dash-wlabel-' + item.label + '" style="width:' + item.strength + '%"></span></span>';
+      row.appendChild(Speak.btn(item.word.english, 'en'));
       el.appendChild(row);
     });
   },
@@ -3844,35 +4305,6 @@ const Dashboard = {
   _filterLabel(f) {
     const keys = { all: 'dashFilterAll', struggling: 'dashStruggling', learning: 'dashLearning', good: 'dashGood', mastered: 'dashMastered', unseen: 'dashUnseen' };
     return keys[f] ? T.get(keys[f]) : f;
-  },
-
-  _renderSessions(history) {
-    const el = document.getElementById('dash-sessions');
-    el.innerHTML = '';
-    const recent = history.slice(-20).reverse();
-
-    if (recent.length === 0) {
-      el.innerHTML = '<div class="dash-empty">' + T.get('dashNoHistory') + '</div>';
-      return;
-    }
-
-    recent.forEach(s => {
-      const date = new Date(s.ts);
-      const locale = T._lang === 'he' ? 'he-IL' : 'en-GB';
-      const timeStr = date.toLocaleDateString(locale, { day:'numeric', month:'short' }) +
-        ' ' + date.toLocaleTimeString(locale, { hour:'2-digit', minute:'2-digit' });
-      const row = document.createElement('div');
-      row.className = 'dash-session-row';
-      row.innerHTML = `
-        <span class="dash-session-icon">${this._gameIcons[s.game] || '🎮'}</span>
-        <span class="dash-session-game">${this._gameKeys[s.game] ? T.get(this._gameKeys[s.game]) : s.game}</span>
-        <span class="dash-session-score">${s.correct}/${s.total}</span>
-        <span class="dash-session-acc">${s.accuracy}%</span>
-        <span class="dash-session-stars">${'★'.repeat(s.stars)}${'☆'.repeat(3 - s.stars)}</span>
-        <span class="dash-session-time">${timeStr}</span>
-      `;
-      el.appendChild(row);
-    });
   }
 };
 
@@ -3922,7 +4354,6 @@ const App = {
       if (UI._currentScreen === 'words') WordManagerUI.render();
       if (UI._currentScreen === 'achievements') AchievementsUI.render();
       if (UI._currentScreen === 'dashboard') { Dashboard._wordData = null; Dashboard.render(); }
-      if (UI._currentScreen === 'report') WordReport.render();
     });
 
     document.getElementById('btn-sound').addEventListener('click', () => {
@@ -3939,11 +4370,33 @@ const App = {
     });
 
     document.getElementById('btn-word-report').addEventListener('click', () => {
-      UI.showScreen('report');
-      WordReport.render();
+      UI.showScreen('dashboard');
+      Dashboard._wordData = null;
+      Dashboard._wordFilter = 'all';
+      Dashboard.render();
     });
 
-    document.querySelectorAll('.dash-filter-btn').forEach(btn => {
+    document.getElementById('btn-take-test').addEventListener('click', () => {
+      WordTest.start();
+    });
+
+    const spBadge = document.getElementById('sp-badge');
+    if (spBadge) {
+      spBadge.addEventListener('click', () => {
+        UI.showScreen('smart-progress');
+        SmartProgress.render();
+      });
+    }
+
+    document.getElementById('test-retry-btn').addEventListener('click', () => {
+      WordTest.retryMistakes();
+    });
+
+    document.getElementById('test-home-btn').addEventListener('click', () => {
+      UI.showScreen('home');
+    });
+
+    document.querySelectorAll('.rpt-filter').forEach(btn => {
       btn.addEventListener('click', () => {
         Dashboard._wordFilter = btn.dataset.wf;
         Dashboard._renderAllWords();
@@ -4126,13 +4579,20 @@ const App = {
       const hebInput = document.getElementById('add-hebrew');
       const eng = engInput.value.trim();
       const heb = hebInput.value.trim();
-      if (eng && heb) {
-        WordManager.addWord(eng, heb);
-        engInput.value = '';
-        hebInput.value = '';
-        WordManagerUI.render();
-        UI.updateStats();
+      if (!eng || !heb) return;
+      const exists = WordManager.getAll().some(w =>
+        w.english.toLowerCase() === eng.toLowerCase()
+      );
+      if (exists) {
+        UI.showToast(T.get('wordExists'), 'coral');
+        return;
       }
+      WordManager.addWord(eng, heb);
+      engInput.value = '';
+      hebInput.value = '';
+      WordManagerUI.render();
+      UI.updateStats();
+      UI.showToast(T.get('wordAdded'), 'teal');
     });
 
     window.addEventListener('popstate', () => {
@@ -4141,10 +4601,88 @@ const App = {
         UI.showScreen('home');
       }
     });
+
+    const freezeBtn = document.getElementById('btn-buy-freeze');
+    if (freezeBtn) {
+      freezeBtn.addEventListener('click', () => {
+        if (GameState.data.streakFreeze > 0) {
+          UI.showToast(T.get('freezeAlready'), 'coral');
+          return;
+        }
+        if (GameState.data.xp < 50) {
+          UI.showToast(T.get('notEnoughXP'), 'coral');
+          return;
+        }
+        GameState.data.xp -= 50;
+        GameState.data.streakFreeze++;
+        GameState.save();
+        UI.updateStats();
+        UI._renderStreakFreeze();
+        UI.showToast(T.get('freezeBought'), 'purple');
+      });
+    }
+
+    const decayBtn = document.getElementById('decay-review-btn');
+    if (decayBtn) {
+      decayBtn.addEventListener('click', () => {
+        const stale = WordManager.getStaleWords(7);
+        if (stale.length >= 4) {
+          WordTest.start(stale);
+        } else {
+          App._startGame('lightning');
+        }
+      });
+    }
+
+    const bulkBtn = document.getElementById('btn-bulk-import');
+    if (bulkBtn) {
+      bulkBtn.addEventListener('click', () => {
+        document.getElementById('bulk-import-modal').classList.remove('hidden');
+        document.getElementById('bulk-import-area').value = '';
+        document.getElementById('bulk-import-area').placeholder = T.get('bulkImportHint');
+      });
+    }
+
+    const bulkDoBtn = document.getElementById('btn-bulk-do');
+    if (bulkDoBtn) {
+      bulkDoBtn.addEventListener('click', () => {
+        const text = document.getElementById('bulk-import-area').value;
+        const lines = text.split('\n').map(l => l.trim()).filter(l => l);
+        let imported = 0;
+        lines.forEach(line => {
+          const sep = line.includes('=') ? '=' : line.includes('\t') ? '\t' : line.includes(',') ? ',' : null;
+          if (!sep) return;
+          const parts = line.split(sep).map(p => p.trim());
+          if (parts.length < 2 || !parts[0] || !parts[1]) return;
+          const exists = WordManager.getAll().some(w => w.english.toLowerCase() === parts[0].toLowerCase());
+          if (!exists) {
+            WordManager.addWord(parts[0], parts[1]);
+            imported++;
+          }
+        });
+        document.getElementById('bulk-import-modal').classList.add('hidden');
+        if (imported > 0) {
+          WordManagerUI.render();
+          UI.updateStats();
+          UI.showToast(T.get('bulkImportDone').replace('%d', imported), 'teal');
+        }
+      });
+    }
+
+    const bulkCloseBtn = document.getElementById('btn-bulk-close');
+    if (bulkCloseBtn) {
+      bulkCloseBtn.addEventListener('click', () => {
+        document.getElementById('bulk-import-modal').classList.add('hidden');
+      });
+    }
+
   },
+
+  _gameStartTs: 0,
 
   _startGame(game) {
     this._stopCurrentGame();
+    this._gameStartTs = Date.now();
     UI._currentGame = game;
     Achievements.resetFlags();
     switch(game) {
@@ -4167,6 +4705,7 @@ const App = {
     BubblePop.stop();
     MemoryMatch.stop();
     LightningQuiz.stop();
+    WordScramble.stop();
     FallingWords.stop();
     TrueFalse.stop();
     MatchUp.stop();
@@ -4175,6 +4714,7 @@ const App = {
     WordSpy.stop();
     CategorySort.stop();
     SentenceFill.stop();
+    WordTest.stop();
     UI._currentGame = null;
   }
 };

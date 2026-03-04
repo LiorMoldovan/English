@@ -167,8 +167,8 @@ const WordManager = {
   },
 
   _getActivePool() {
-    if (this._selection.size === 0) return this._words;
-    return this._words.filter(w => this._selection.has(w.id));
+    if (this._selection.size > 0) return this._words.filter(w => this._selection.has(w.id));
+    return this._words;
   },
 
   _saveWords(words) {
@@ -194,31 +194,39 @@ const WordManager = {
         timesWrong: 0,
         masteryLevel: 0,
         gameModesCorrect: [],
-        lastSeen: null
+        lastSeen: null,
+        srsInterval: 1,
+        srsNextReview: null,
+        recentAnswers: []
       };
     }
-    return this._mastery[wordId];
+    const m = this._mastery[wordId];
+    if (m.srsInterval === undefined) { m.srsInterval = 1; m.srsNextReview = null; }
+    if (!m.recentAnswers) m.recentAnswers = [];
+    return m;
   },
 
   getMasteredCount() {
-    return this._words.filter(w => {
-      const m = this._mastery[w.id];
-      return m && m.masteryLevel >= 5;
-    }).length;
+    return this._words.filter(w => this.getWordStrength(w.id).label === 'mastered').length;
   },
 
   recordAnswer(wordId, correct, gameMode) {
     const m = this.getMastery(wordId);
     m.lastSeen = Date.now();
+    m.recentAnswers.push(correct);
+    if (m.recentAnswers.length > 8) m.recentAnswers.shift();
     if (correct) {
       m.timesCorrect++;
       if (!m.gameModesCorrect.includes(gameMode)) {
         m.gameModesCorrect.push(gameMode);
       }
       this._checkMasteryLevelUp(m);
+      m.srsInterval = Math.min((m.srsInterval || 1) * 2, 30);
     } else {
       m.timesWrong++;
+      m.srsInterval = 1;
     }
+    m.srsNextReview = Date.now() + (m.srsInterval * 86400000);
     this._saveMastery();
     return m;
   },
@@ -237,6 +245,78 @@ const WordManager = {
     return this._getActivePool().length;
   },
 
+  getWordsDueForReview() {
+    const now = Date.now();
+    return this._words.filter(w => {
+      const m = this.getMastery(w.id);
+      if (m.timesCorrect + m.timesWrong === 0) return false;
+      if (!m.srsNextReview) return true;
+      return now >= m.srsNextReview;
+    });
+  },
+
+  getStaleWords(days) {
+    const cutoff = Date.now() - (days * 86400000);
+    return this._words.filter(w => {
+      const m = this.getMastery(w.id);
+      if (m.timesCorrect + m.timesWrong === 0) return false;
+      return m.lastSeen && m.lastSeen < cutoff;
+    });
+  },
+
+  getWordConfidence(wordId) {
+    const m = this.getMastery(wordId);
+    const total = m.timesCorrect + m.timesWrong;
+    if (total === 0) return { level: 'not_started', streak: 0, modesCount: 0, accuracy: 0, pctToMastery: 0 };
+
+    const accuracy = Math.round((m.timesCorrect / total) * 100);
+    const modes = m.gameModesCorrect.length;
+    const recent = m.recentAnswers || [];
+    let streak = 0;
+    for (let i = recent.length - 1; i >= 0; i--) {
+      if (recent[i]) streak++; else break;
+    }
+
+    const isMastered = streak >= 5 && modes >= 2 && accuracy >= 90;
+    const isAlmost = (streak >= 3 && accuracy >= 80) || (streak >= 5 && modes < 2) || (modes >= 2 && accuracy >= 90 && streak < 5);
+    const isLearning = accuracy >= 60 || streak >= 1;
+
+    let level = 'struggling';
+    if (isMastered) level = 'mastered';
+    else if (isAlmost) level = 'almost';
+    else if (isLearning) level = 'learning';
+
+    let pct = 0;
+    pct += Math.min(streak / 5, 1) * 50;
+    pct += Math.min(modes / 2, 1) * 25;
+    pct += Math.min(accuracy / 90, 1) * 25;
+    pct = Math.round(Math.min(pct, 100));
+    if (isMastered) pct = 100;
+
+    return { level, streak, modesCount: modes, accuracy, pctToMastery: pct, total };
+  },
+
+  getSelectedWordsProgress() {
+    const pool = this._selection.size > 0
+      ? this._words.filter(w => this._selection.has(w.id))
+      : [];
+    if (pool.length === 0) return { total: 0, mastered: 0, almost: 0, learning: 0, struggling: 0, not_started: 0, ready: false, pct: 0, words: [] };
+
+    const counts = { mastered: 0, almost: 0, learning: 0, struggling: 0, not_started: 0 };
+    const words = pool.map(w => {
+      const c = this.getWordConfidence(w.id);
+      counts[c.level]++;
+      return { word: w, confidence: c };
+    });
+
+    words.sort((a, b) => a.confidence.pctToMastery - b.confidence.pctToMastery);
+
+    const pct = pool.length > 0 ? Math.round((counts.mastered / pool.length) * 100) : 0;
+    const ready = counts.mastered === pool.length;
+
+    return { total: pool.length, ...counts, ready, pct, words };
+  },
+
   getWordStrength(wordId) {
     const m = this.getMastery(wordId);
     const total = m.timesCorrect + m.timesWrong;
@@ -246,8 +326,8 @@ const WordManager = {
     const decayPenalty = Math.min(daysSinceSeen * 3, 20);
     const score = Math.max(0, Math.min(100, accuracy - decayPenalty + m.masteryLevel * 4));
     let label = 'struggling';
-    if (score >= 85) label = 'mastered';
-    else if (score >= 65) label = 'good';
+    if (score >= 100) label = 'mastered';
+    else if (score >= 70) label = 'good';
     else if (score >= 40) label = 'learning';
     return { score, label, accuracy, total, daysSinceSeen };
   },
@@ -257,48 +337,52 @@ const WordManager = {
     const pool = this._getActivePool().filter(w => !excludeIds.has(w.id));
     if (pool.length <= count) return this._shuffleArray([...pool]);
 
-    const now = Date.now();
-    const buckets = { struggling: [], learning: [], unseen: [], good: [], mastered: [] };
+    const buckets = { struggling: [], not_started: [], learning: [], almost: [], mastered: [] };
     pool.forEach(w => {
-      const s = this.getWordStrength(w.id);
-      buckets[s.label].push(w);
+      const c = this.getWordConfidence(w.id);
+      buckets[c.level].push({ w, streak: c.streak, accuracy: c.accuracy,
+        lastSeen: this.getMastery(w.id).lastSeen || 0 });
     });
-    Object.values(buckets).forEach(b => this._shuffleArray(b));
 
-    const challengeRatio = 0.55;
-    const newRatio = 0.15;
-    const easyRatio = 0.30;
-
-    const challengeCount = Math.max(1, Math.round(count * challengeRatio));
-    const newCount = Math.round(count * newRatio);
-    const easyCount = count - challengeCount - newCount;
+    const sortWeakFirst = arr => arr.sort((a, b) => a.streak - b.streak || a.accuracy - b.accuracy || a.lastSeen - b.lastSeen);
+    sortWeakFirst(buckets.struggling);
+    sortWeakFirst(buckets.learning);
+    this._shuffleArray(buckets.not_started);
+    this._shuffleArray(buckets.almost);
+    this._shuffleArray(buckets.mastered);
 
     const selected = [];
-
     const pickFrom = (bucket, n) => {
       let picked = 0;
       while (picked < n && bucket.length > 0) {
-        const w = bucket.shift();
+        const item = bucket.shift();
+        const w = item.w || item;
         if (!selected.find(s => s.id === w.id)) { selected.push(w); picked++; }
       }
       return picked;
     };
 
-    let remaining = challengeCount;
-    remaining -= pickFrom(buckets.struggling, remaining);
-    remaining -= pickFrom(buckets.learning, remaining);
+    const weakCount = Math.max(1, Math.round(count * 0.60));
+    const almostCount = Math.round(count * 0.25);
+    const masteredCount = count - weakCount - almostCount;
 
-    let newRemaining = newCount;
-    newRemaining -= pickFrom(buckets.unseen, newRemaining);
+    let weakLeft = weakCount;
+    weakLeft -= pickFrom(buckets.struggling, weakLeft);
+    weakLeft -= pickFrom(buckets.not_started, weakLeft);
+    weakLeft -= pickFrom(buckets.learning, weakLeft);
 
-    let easyRemaining = easyCount;
-    easyRemaining -= pickFrom(buckets.mastered, easyRemaining);
-    easyRemaining -= pickFrom(buckets.good, easyRemaining);
+    let almostLeft = almostCount;
+    almostLeft -= pickFrom(buckets.almost, almostLeft);
 
-    const leftover = remaining + newRemaining + easyRemaining;
+    let masteredLeft = masteredCount;
+    masteredLeft -= pickFrom(buckets.mastered, masteredLeft);
+
+    const leftover = weakLeft + almostLeft + masteredLeft;
     if (leftover > 0) {
-      const allLeft = [...buckets.struggling, ...buckets.learning, ...buckets.unseen,
-        ...buckets.good, ...buckets.mastered].filter(w => !selected.find(s => s.id === w.id));
+      const allLeft = [...buckets.struggling, ...buckets.not_started, ...buckets.learning,
+        ...buckets.almost, ...buckets.mastered]
+        .map(item => item.w || item)
+        .filter(w => !selected.find(s => s.id === w.id));
       this._shuffleArray(allLeft);
       pickFrom(allLeft, leftover);
     }
@@ -339,10 +423,13 @@ const WordManager = {
   },
 
   editWord(wordId, english, hebrew) {
+    const eng = english.trim();
+    const heb = hebrew.trim();
+    if (!eng || !heb) return false;
     const word = this._words.find(w => w.id === wordId);
     if (!word) return false;
-    word.english = english.trim();
-    word.hebrew = hebrew.trim();
+    word.english = eng;
+    word.hebrew = heb;
     this._saveWords();
     return true;
   },
