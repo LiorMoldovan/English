@@ -58,13 +58,6 @@
         <span class="home-level-title" id="level-title">Beginner</span>
       </div>
 
-      <div class="home-freeze-row">
-        <div class="freeze-indicator hidden" id="freeze-indicator">
-          <span class="freeze-icon">❄️</span>
-          <span class="freeze-text"></span>
-        </div>
-        <button class="freeze-buy-btn" id="btn-buy-freeze" data-t="buyFreeze">Buy Freeze (50 XP)</button>
-      </div>
 
       <div class="decay-warning hidden" id="decay-warning">
         <span class="decay-icon">⏰</span>
@@ -109,14 +102,21 @@
         <span class="sp-badge-arrow">›</span>
       </button>
 
+      <div class="game-mode-hint hidden" id="game-mode-hint">
+        <span class="gm-hint-icon">💡</span>
+        <span class="gm-hint-text" id="gm-hint-text"></span>
+      </div>
+
       <div class="home-actions-row">
         <button class="home-action-btn action-practice" id="btn-quick-practice">
           <span class="action-icon">🎯</span>
           <span class="action-label" data-t="quickPractice">Quick Practice</span>
+          <span class="action-desc" data-t="quickPracticeDesc">Focuses on your weakest words</span>
         </button>
         <button class="home-action-btn action-test" id="btn-take-test">
           <span class="action-icon">📝</span>
           <span class="action-label" data-t="takeTest">Take a Test</span>
+          <span class="action-desc" data-t="takeTestDesc">Test your selected words</span>
         </button>
         <div class="home-action-btn action-stats">
           <span class="action-stat-val" id="total-stars">0</span><span class="action-stat-emoji">⭐</span>
@@ -460,6 +460,13 @@
           <button class="sel-action-btn" id="btn-select-all" data-t="selSelectAll">Select All</button>
           <button class="sel-action-btn" id="btn-clear-selection" data-t="selClear">Clear</button>
         </div>
+        <div class="bulk-select-row" id="bulk-select-row">
+          <span class="bulk-select-label" data-t="bulkSelectLabel">Select by level:</span>
+          <button class="bulk-sel-btn bulk-sel-struggling" data-conf="struggling" data-t="spLvlStruggling">Struggling</button>
+          <button class="bulk-sel-btn bulk-sel-learning" data-conf="learning" data-t="spLvlLearning">Learning</button>
+          <button class="bulk-sel-btn bulk-sel-almost" data-conf="almost" data-t="spLvlAlmost">Almost there</button>
+          <button class="bulk-sel-btn bulk-sel-new" data-conf="not_started" data-t="spLvlNew">New</button>
+        </div>
       </div>
     </div>
     <div class="words-list" id="words-list"></div>
@@ -756,9 +763,12 @@
       <div class="results-review hidden" id="results-review">
         <div class="review-title" data-t="wordsToReview">Words to review:</div>
         <div class="review-list" id="review-list"></div>
+        <button class="btn btn-accent btn-practice-missed hidden" id="btn-practice-missed" data-t="practiceMissed">Practice these words</button>
       </div>
+      <div class="results-suggest hidden" id="results-suggest"></div>
       <div class="results-buttons">
         <button class="btn btn-primary" id="btn-play-again" data-t="playAgain">Play Again</button>
+        <button class="btn btn-secondary" id="btn-suggest-game" data-t="trySuggested">Try suggested</button>
         <button class="btn btn-secondary" id="btn-go-home" data-t="goHome">Home</button>
       </div>
     </div>

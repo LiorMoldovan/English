@@ -211,6 +211,7 @@ const WordManager = {
   },
 
   recordAnswer(wordId, correct, gameMode) {
+    const wasMastered = this.getWordConfidence(wordId).level === 'mastered';
     const m = this.getMastery(wordId);
     m.lastSeen = Date.now();
     m.recentAnswers.push(correct);
@@ -228,6 +229,8 @@ const WordManager = {
     }
     m.srsNextReview = Date.now() + (m.srsInterval * 86400000);
     this._saveMastery();
+    const nowMastered = this.getWordConfidence(wordId).level === 'mastered';
+    m.justMastered = !wasMastered && nowMastered;
     return m;
   },
 

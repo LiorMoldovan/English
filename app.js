@@ -62,7 +62,7 @@ const T = {
     correctAnswer: 'Correct Answer', tryRemember: 'Try to remember this one!',
     wordOfDay: 'Word of the Day',
     wotdHint: ' letters · Try using this word today!',
-    quickPractice: 'Quick Practice',
+    quickPractice: 'Quick Practice', quickPracticeDesc: 'Focuses on your weakest words',
     qpNeedAttention: ' words need attention',
     qpReviewAll: 'Quick Practice · Review all words',
     parentDashboard: 'Progress Report',
@@ -127,13 +127,9 @@ const T = {
     labelStars: 'Stars', labelAchievements: 'Achievements',
     xpUnit: 'XP', speakListen: 'Listen', soundToggle: 'Sound',
     instrTest: 'Choose the correct translation for each word!',
-    takeTest: 'Take a Test', testTitle: 'Test',
+    takeTest: 'Take a Test', takeTestDesc: 'Test your selected words', testTitle: 'Test',
     greetMorning: 'Good morning! ☀️', greetAfternoon: 'Good afternoon! 🌤️',
     greetEvening: 'Good evening! 🌙', greetNight: 'Good night! 🌟',
-    streakFreezeLabel: 'Streak Freeze', streakFreezeOwned: 'freeze available',
-    buyFreeze: 'Buy Freeze (50 XP)', freezeActive: '❄️ Freeze active!',
-    freezeBought: 'Streak Freeze purchased!', notEnoughXP: 'Not enough XP!',
-    freezeAlready: 'You already have a freeze!',
     almostStars: '%d more for 3 stars!', almostPerfect: 'Almost perfect! Keep going!',
     milestoneTitle: 'Milestone!',
     milestone10: '10 words mastered! 🎉', milestone25: '25 words mastered! 🌟',
@@ -144,6 +140,13 @@ const T = {
     bulkImport: 'Bulk Import', bulkImportHint: 'Paste words, one per line:\napple = תפוח\ndog = כלב',
     bulkImportBtn: 'Import', bulkImportDone: '%d words imported!',
     bulkImportClose: 'Close', bulkImportTitle: 'Bulk Import Words',
+    bulkSelectLabel: 'Select by level:',
+    bulkSelAdded: '%d words selected',
+    gameModeHint: 'Try a different game to master %d more words!',
+    practiceMissed: 'Practice these words', missedSelected: '%d missed words selected for practice',
+    suggestGame: 'Try %g — it could help master %d words!', trySuggested: 'Try suggested',
+    wordMastered: '🎉 You mastered "%w"!',
+    spPlayedIn: 'Played in:',
     dailyTimeGoal: 'Daily Time Goal',
     dailyTimeProgress: '%played / %target min',
     dailyTimeReached: '⏱️ Time goal reached!',
@@ -251,7 +254,7 @@ const T = {
     correctAnswer: 'התשובה הנכונה', tryRemember: '!נסי לזכור את זה',
     wordOfDay: 'מילת היום',
     wotdHint: ' אותיות · נסי להשתמש במילה היום!',
-    quickPractice: 'תרגול מהיר',
+    quickPractice: 'תרגול מהיר', quickPracticeDesc: 'מתמקד במילים שצריך לחזק',
     qpNeedAttention: ' מילים דורשות תשומת לב',
     qpReviewAll: 'תרגול מהיר · חזרו על הכל',
     parentDashboard: 'דוח התקדמות',
@@ -316,13 +319,9 @@ const T = {
     labelStars: 'כוכבים', labelAchievements: 'הישגים',
     xpUnit: 'נק׳', speakListen: 'השמע', soundToggle: 'צליל',
     instrTest: '!בחרי את התרגום הנכון לכל מילה',
-    takeTest: 'מבחן', testTitle: 'מבחן',
+    takeTest: 'מבחן', takeTestDesc: 'בחני את המילים שבחרת', testTitle: 'מבחן',
     greetMorning: '!בוקר טוב ☀️', greetAfternoon: '!צהריים טובים 🌤️',
     greetEvening: '!ערב טוב 🌙', greetNight: '!לילה טוב 🌟',
-    streakFreezeLabel: 'הקפאת רצף', streakFreezeOwned: 'הקפאה זמינה',
-    buyFreeze: 'קני הקפאה (50 נק׳)', freezeActive: '!❄️ הקפאה פעילה',
-    freezeBought: '!הקפאת רצף נרכשה', notEnoughXP: '!אין מספיק נקודות',
-    freezeAlready: '!כבר יש לך הקפאה',
     almostStars: '!עוד %d ל-3 כוכבים', almostPerfect: '!כמעט מושלם! המשיכי',
     milestoneTitle: '!אבן דרך',
     milestone10: '!10 מילים נשלטו 🎉', milestone25: '!25 מילים נשלטו 🌟',
@@ -333,6 +332,13 @@ const T = {
     bulkImport: 'ייבוא מילים', bulkImportHint: ':הדביקי מילים, אחת בכל שורה\napple = תפוח\ndog = כלב',
     bulkImportBtn: 'ייבוא', bulkImportDone: '!מילים יובאו %d',
     bulkImportClose: 'סגירה', bulkImportTitle: 'ייבוא מילים',
+    bulkSelectLabel: ':בחרי לפי רמה',
+    bulkSelAdded: 'מילים נבחרו %d',
+    gameModeHint: '!שחקי משחק אחר כדי לשלוט ב-%d מילים נוספות',
+    practiceMissed: 'תרגלי מילים אלה', missedSelected: 'מילים שפספסת נבחרו לתרגול %d',
+    suggestGame: '!נסי %g — זה יעזור לשלוט ב-%d מילים', trySuggested: 'נסי את המומלץ',
+    wordMastered: '!🎉 שלטת במילה "%w"',
+    spPlayedIn: ':שיחקת ב',
     dailyTimeGoal: 'יעד זמן יומי',
     dailyTimeProgress: '%target / %played דק׳',
     dailyTimeReached: '!⏱️ יעד הזמן הושג',
@@ -570,7 +576,6 @@ const GameState = {
     return {
       xp: 0, level: 1, totalStars: 0,
       streak: 0, lastPlayDate: null, streakShield: false,
-      streakFreeze: 0,
       gamesPlayed: { bubble: 0, memory: 0, lightning: 0, scramble: 0, falling: 0, truefalse: 0, matchup: 0, bingo: 0, sprint: 0, wordspy: 0, catsort: 0, fillin: 0 },
       achievements: [],
       dailyChallenge: { date: null, type: null, progress: 0, completed: false },
@@ -732,11 +737,7 @@ const Progress = {
       if (diff === 1) {
         GameState.data.streak++;
       } else if (diff > 1) {
-        if (GameState.data.streakFreeze > 0 && diff === 2) {
-          GameState.data.streakFreeze--;
-          GameState.data.streak++;
-          UI._freezeUsedToday = true;
-        } else if (GameState.data.streakShield) {
+        if (GameState.data.streakShield) {
           GameState.data.streakShield = false;
           if (diff === 2) GameState.data.streak++;
           else GameState.data.streak = 1;
@@ -879,6 +880,8 @@ const SmartProgress = {
       row.className = 'sp-word-row';
       row.setAttribute('data-level', confidence.level);
 
+      const mastery = WordManager.getMastery(word.id);
+      const modeNames = (mastery.gameModesCorrect || []).map(g => T.get(UI._gameNameKeys[g] || g)).join(', ');
       row.innerHTML = `
         <div class="sp-word-texts">
           <div class="sp-word-en">${word.english}</div>
@@ -894,6 +897,7 @@ const SmartProgress = {
           <span class="sp-detail-item"><span class="sp-detail-label">${T.get('spStreak')}:</span> ${confidence.streak}/5</span>
           <span class="sp-detail-item"><span class="sp-detail-label">${T.get('spModes')}:</span> ${confidence.modesCount}/2</span>
           <span class="sp-detail-item"><span class="sp-detail-label">${T.get('spAccuracy')}:</span> ${confidence.accuracy}%</span>
+          ${modeNames ? `<div class="sp-detail-modes"><span class="sp-detail-label">${T.get('spPlayedIn')}</span> ${modeNames}</div>` : ''}
         </div>
       `;
 
@@ -1334,7 +1338,6 @@ const UI = {
   updateHomeScreen() {
     this.updateStats();
     this._renderGreeting();
-    this._renderStreakFreeze();
     this._renderDecayWarning();
     const levelTitle = document.getElementById('level-title');
     if (levelTitle) levelTitle.textContent = GameState.getLevelTitle();
@@ -1387,6 +1390,7 @@ const UI = {
 
     this._renderQuickPractice();
     this._renderSmartBadge();
+    this._renderGameModeHint();
 
     if (GameState.data.firstTime) {
       const firstCard = document.querySelector('[data-game="bubble"]');
@@ -1458,6 +1462,7 @@ const UI = {
     const reviewSection = document.getElementById('results-review');
     const reviewList = document.getElementById('review-list');
     reviewList.innerHTML = '';
+    const practiceMissedBtn = document.getElementById('btn-practice-missed');
     if (missedWords && missedWords.length > 0) {
       reviewSection.classList.remove('hidden');
       missedWords.forEach(w => {
@@ -1466,8 +1471,36 @@ const UI = {
         item.innerHTML = `<span>${w.english}</span><span>${w.hebrew}</span>`;
         reviewList.appendChild(item);
       });
+      practiceMissedBtn.classList.remove('hidden');
+      practiceMissedBtn.onclick = () => {
+        WordManager.clearSelection();
+        missedWords.forEach(w => {
+          if (w.id !== undefined) WordManager.toggleSelection(w.id);
+        });
+        document.getElementById('results-overlay').classList.add('hidden');
+        UI.showScreen('words');
+        UI.showToast(T.get('missedSelected').replace('%d', missedWords.length), 'teal');
+      };
     } else {
       reviewSection.classList.add('hidden');
+      practiceMissedBtn.classList.add('hidden');
+    }
+
+    const suggestEl = document.getElementById('results-suggest');
+    const suggestBtn = document.getElementById('btn-suggest-game');
+    const suggested = this._getSuggestedGame();
+    if (suggested) {
+      suggestEl.classList.remove('hidden');
+      suggestEl.textContent = suggested.reason;
+      suggestBtn.classList.remove('hidden');
+      suggestBtn.onclick = () => {
+        document.getElementById('results-overlay').classList.add('hidden');
+        UI.showScreen(suggested.game);
+        App._startGame(suggested.game);
+      };
+    } else {
+      suggestEl.classList.add('hidden');
+      suggestBtn.classList.add('hidden');
     }
 
     document.getElementById('results-overlay').classList.remove('hidden');
@@ -1482,6 +1515,53 @@ const UI = {
     };
 
     if (stars >= 2) Particles.celebration();
+  },
+
+  _gameNameKeys: {
+    bubble: 'gameBubble', memory: 'gameMemory', lightning: 'gameLightning',
+    scramble: 'gameScramble', falling: 'gameFalling', truefalse: 'gameTrueFalse',
+    matchup: 'gameMatchUp', bingo: 'gameBingo', sprint: 'gameSprint',
+    wordspy: 'gameWordSpy', catsort: 'gameCatSort', fillin: 'gameFillIn'
+  },
+
+  _getSuggestedGame() {
+    const currentGame = this._currentGame;
+    const allGames = ['bubble', 'memory', 'lightning', 'scramble', 'falling', 'truefalse', 'matchup', 'bingo', 'sprint', 'wordspy', 'catsort', 'fillin'];
+    const pool = WordManager._getActivePool();
+
+    const needModeDiversity = [];
+    pool.forEach(w => {
+      const c = WordManager.getWordConfidence(w.id);
+      const m = WordManager.getMastery(w.id);
+      if (c.level !== 'mastered' && c.level !== 'not_started' && m.gameModesCorrect.length < 2) {
+        needModeDiversity.push(m.gameModesCorrect);
+      }
+    });
+
+    if (needModeDiversity.length === 0) return null;
+
+    const gameScores = {};
+    allGames.forEach(g => { if (g !== currentGame) gameScores[g] = 0; });
+    needModeDiversity.forEach(modes => {
+      allGames.forEach(g => {
+        if (g !== currentGame && !modes.includes(g)) {
+          gameScores[g] = (gameScores[g] || 0) + 1;
+        }
+      });
+    });
+
+    let bestGame = null, bestScore = 0;
+    Object.entries(gameScores).forEach(([g, s]) => {
+      if (s > bestScore) { bestGame = g; bestScore = s; }
+    });
+
+    if (!bestGame || bestScore === 0) return null;
+
+    const gameName = T.get(this._gameNameKeys[bestGame] || bestGame);
+    return {
+      game: bestGame,
+      reason: T.get('suggestGame').replace('%g', gameName).replace('%d', needModeDiversity.length)
+    };
   },
 
   showCorrection(word, duration, callback) {
@@ -1519,7 +1599,15 @@ const UI = {
     this._showChallengeToast(msg, '', color || 'gold');
   },
 
-  _freezeUsedToday: false,
+  checkWordMastered(result, wordId) {
+    if (result && result.justMastered) {
+      const w = WordManager.getAll().find(x => x.id === wordId);
+      if (w) {
+        this.showToast(T.get('wordMastered').replace('%w', w.english), 'green');
+        Sound.achievement();
+      }
+    }
+  },
 
   _getGreeting() {
     const h = new Date().getHours();
@@ -1532,23 +1620,6 @@ const UI = {
   _renderGreeting() {
     const el = document.getElementById('home-greeting');
     if (el) el.textContent = this._getGreeting();
-  },
-
-  _renderStreakFreeze() {
-    const el = document.getElementById('freeze-indicator');
-    if (!el) return;
-    const count = GameState.data.streakFreeze || 0;
-    if (this._freezeUsedToday) {
-      el.classList.remove('hidden');
-      el.innerHTML = '<span class="freeze-icon">❄️</span><span class="freeze-text">' + T.get('freezeActive') + '</span>';
-      return;
-    }
-    if (count > 0) {
-      el.classList.remove('hidden');
-      el.innerHTML = '<span class="freeze-icon">❄️</span><span class="freeze-text">' + count + ' ' + T.get('streakFreezeOwned') + '</span>';
-    } else {
-      el.classList.add('hidden');
-    }
   },
 
   _renderDecayWarning() {
@@ -1573,6 +1644,27 @@ const UI = {
     const textEl = document.getElementById('sp-badge-text');
     if (textEl) textEl.textContent = info.text;
     badge.classList.toggle('hidden', !info.show);
+  },
+
+  _renderGameModeHint() {
+    const el = document.getElementById('game-mode-hint');
+    if (!el) return;
+    const pool = WordManager.getAll();
+    let needDiversity = 0;
+    pool.forEach(w => {
+      const c = WordManager.getWordConfidence(w.id);
+      const m = WordManager.getMastery(w.id);
+      if (c.level === 'almost' && m.gameModesCorrect.length < 2) {
+        needDiversity++;
+      }
+    });
+    if (needDiversity > 0) {
+      el.classList.remove('hidden');
+      document.getElementById('gm-hint-text').textContent =
+        T.get('gameModeHint').replace('%d', needDiversity);
+    } else {
+      el.classList.add('hidden');
+    }
   },
 
 };
@@ -1737,7 +1829,8 @@ const BubblePop = {
       DailyChallenge.reportCombo(this._combo);
 
       document.getElementById('bubble-score').textContent = this._score;
-      WordManager.recordAnswer(bData.wordId, true, 'bubble');
+      const _br = WordManager.recordAnswer(bData.wordId, true, 'bubble');
+      UI.checkWordMastered(_br, bData.wordId);
 
       const dots = document.querySelectorAll('#bubble-dots .dot');
       if (dots[this._currentIdx]) dots[this._currentIdx].className = 'dot correct';
@@ -1882,7 +1975,8 @@ const MemoryMatch = {
         const rect = cardA.el.getBoundingClientRect();
         Particles.sparkle(rect.left + rect.width/2, rect.top + rect.height/2);
 
-        WordManager.recordAnswer(cardA.pairId, true, 'memory');
+        const _mr = WordManager.recordAnswer(cardA.pairId, true, 'memory');
+        UI.checkWordMastered(_mr, cardA.pairId);
 
         this._flipped = [];
         this._locked = false;
@@ -2060,7 +2154,8 @@ const LightningQuiz = {
       Particles.sparkle(rect.left + rect.width/2, rect.top);
       UI.floatXP(rect.left + rect.width/2 - 20, rect.top - 20, xp);
 
-      WordManager.recordAnswer(word.id, true, 'lightning');
+      const _lr = WordManager.recordAnswer(word.id, true, 'lightning');
+      UI.checkWordMastered(_lr, word.id);
 
       if (this._streak >= 5) {
         const streakEl = document.getElementById('lightning-streak');
@@ -2295,7 +2390,8 @@ const WordScramble = {
       UI.floatXP(rect.left + rect.width/2, rect.top - 10, xp);
 
       document.getElementById('scramble-score').textContent = this._score;
-      WordManager.recordAnswer(this._currentWord.id, true, 'scramble');
+      const _sr = WordManager.recordAnswer(this._currentWord.id, true, 'scramble');
+      UI.checkWordMastered(_sr, this._currentWord.id);
 
       this._currentIdx++;
       setTimeout(() => this._showWord(), 800);
@@ -2553,7 +2649,8 @@ const FallingWords = {
       Particles.sparkle(rect.left + rect.width/2, rect.top);
       UI.floatXP(rect.left + rect.width/2 - 20, rect.top - 20, xp);
 
-      WordManager.recordAnswer(item.word.id, true, 'falling');
+      const _fr = WordManager.recordAnswer(item.word.id, true, 'falling');
+      UI.checkWordMastered(_fr, item.word.id);
 
       if (item.powerUp === 'freeze') {
         this._fallingItems.forEach(fi => { fi.frozen = true; });
@@ -2634,20 +2731,20 @@ const WordManagerUI = {
     }
 
     if (this._filter === 'new') {
-      words = words.filter(w => { const m = WordManager.getMastery(w.id); return m.masteryLevel === 0; });
+      words = words.filter(w => WordManager.getWordConfidence(w.id).level === 'not_started');
     } else if (this._filter === 'learning') {
-      words = words.filter(w => { const m = WordManager.getMastery(w.id); return m.masteryLevel > 0 && m.masteryLevel < 5; });
+      words = words.filter(w => { const l = WordManager.getWordConfidence(w.id).level; return l === 'struggling' || l === 'learning' || l === 'almost'; });
     } else if (this._filter === 'mastered') {
-      words = words.filter(w => { const m = WordManager.getMastery(w.id); return m.masteryLevel >= 5; });
+      words = words.filter(w => WordManager.getWordConfidence(w.id).level === 'mastered');
     }
 
     words.sort((a, b) => a.english.localeCompare(b.english, 'en', { sensitivity: 'base' }));
 
     const counts = { all: WordManager.getCount(), new: 0, learning: 0, mastered: 0 };
     WordManager.getAll().forEach(w => {
-      const m = WordManager.getMastery(w.id);
-      if (m.masteryLevel === 0) counts.new++;
-      else if (m.masteryLevel >= 5) counts.mastered++;
+      const l = WordManager.getWordConfidence(w.id).level;
+      if (l === 'not_started') counts.new++;
+      else if (l === 'mastered') counts.mastered++;
       else counts.learning++;
     });
 
@@ -2661,17 +2758,27 @@ const WordManagerUI = {
     this._updateSelectionBar();
 
     words.forEach(w => {
-      const m = WordManager.getMastery(w.id);
+      const c = WordManager.getWordConfidence(w.id);
       const isSelected = WordManager.isSelected(w.id);
       const row = document.createElement('div');
       row.className = 'word-row' + (isSelected ? ' selected' : '');
+      const levelLabels = {
+        mastered: T.get('spLvlMastered'),
+        almost: T.get('spLvlAlmost'),
+        learning: T.get('spLvlLearning'),
+        struggling: T.get('spLvlStruggling'),
+        not_started: T.get('spLvlNew')
+      };
       row.innerHTML = `
         <label class="word-checkbox-wrapper">
           <input type="checkbox" class="word-checkbox" data-id="${w.id}" ${isSelected ? 'checked' : ''}>
           <span class="word-checkbox-custom"></span>
         </label>
         <span class="word-english">${w.english}</span>
-        <span class="word-mastery">${'<span class="star filled">★</span>'.repeat(m.masteryLevel)}${'<span class="star">★</span>'.repeat(5 - m.masteryLevel)}</span>
+        <span class="word-confidence">
+          <span class="conf-dot conf-${c.level}"></span>
+          <span class="conf-label conf-label-${c.level}">${levelLabels[c.level]}</span>
+        </span>
         <span class="word-hebrew">${w.hebrew}</span>
         <div class="word-actions">
           <button class="word-edit" data-id="${w.id}" title="${T.get('editWord')}">✎</button>
@@ -2721,7 +2828,7 @@ const WordManagerUI = {
     const engSpan = rowEl.querySelector('.word-english');
     const hebSpan = rowEl.querySelector('.word-hebrew');
     const actionsEl = rowEl.querySelector('.word-actions');
-    const masteryEl = rowEl.querySelector('.word-mastery');
+    const masteryEl = rowEl.querySelector('.word-confidence');
 
     if (rowEl.classList.contains('editing')) return;
     rowEl.classList.add('editing');
@@ -2891,7 +2998,8 @@ const TrueFalse = {
       if (this._streak >= 5) Achievements._flags.combo5 = true;
       DailyChallenge.reportStreak(this._streak);
 
-      WordManager.recordAnswer(this._currentWord.id, true, 'truefalse');
+      const _tfr = WordManager.recordAnswer(this._currentWord.id, true, 'truefalse');
+      UI.checkWordMastered(_tfr, this._currentWord.id);
     } else {
       this._streak = 0;
       card.classList.add('tf-wrong');
@@ -3074,7 +3182,8 @@ const MatchUp = {
       UI.floatXP(rect.left + rect.width / 2, rect.top - 10, xp);
 
       document.getElementById('mu-score').textContent = this._score;
-      WordManager.recordAnswer(left.word.id, true, 'matchup');
+      const _mur = WordManager.recordAnswer(left.word.id, true, 'matchup');
+      UI.checkWordMastered(_mur, left.word.id);
       this._totalCorrect++;
 
       this._matched++;
@@ -3222,7 +3331,8 @@ const WordBingo = {
       this._found++;
       document.getElementById('bingo-found').textContent = this._found;
       Sound.correct();
-      WordManager.recordAnswer(this._current.id, true, 'bingo');
+      const _bgr = WordManager.recordAnswer(this._current.id, true, 'bingo');
+      UI.checkWordMastered(_bgr, this._current.id);
       const rect = cell.getBoundingClientRect();
       Particles.sparkle(rect.left + rect.width / 2, rect.top);
       this._checkBingoLine();
@@ -3371,7 +3481,8 @@ const TranslationSprint = {
       if (this._streak > this._best) this._best = this._streak;
       DailyChallenge.reportStreak(this._streak);
       Sound.correct();
-      WordManager.recordAnswer(this._current.id, true, 'sprint');
+      const _spr = WordManager.recordAnswer(this._current.id, true, 'sprint');
+      UI.checkWordMastered(_spr, this._current.id);
       document.getElementById('sprint-streak').textContent = this._streak;
       setTimeout(() => { this._active = true; this._showWord(); }, 500);
     } else {
@@ -3504,7 +3615,8 @@ const WordSpy = {
         this._found++;
         document.getElementById('spy-found').textContent = this._found;
         Sound.correct();
-        WordManager.recordAnswer(a.word.id, true, 'wordspy');
+        const _wsr = WordManager.recordAnswer(a.word.id, true, 'wordspy');
+        UI.checkWordMastered(_wsr, a.word.id);
         Particles.sparkle(cell.getBoundingClientRect().left + 30, cell.getBoundingClientRect().top);
         if (this._found >= this._totalPairs) { clearInterval(this._timerInterval); this._endGame(); }
       } else {
@@ -3624,7 +3736,8 @@ const CategorySort = {
       this._correct++;
       this._score += 10;
       document.getElementById('cs-score').textContent = this._score;
-      WordManager.recordAnswer(this._current.id, true, 'catsort');
+      const _csr = WordManager.recordAnswer(this._current.id, true, 'catsort');
+      UI.checkWordMastered(_csr, this._current.id);
       Particles.sparkle(btn.getBoundingClientRect().left + 40, btn.getBoundingClientRect().top);
       this._round++;
       setTimeout(() => { this._active = true; this._showRound(); }, 600);
@@ -3764,7 +3877,8 @@ const SentenceFill = {
       document.getElementById('fi-score').textContent = this._score;
       document.querySelector('.fi-blank').textContent = this._current.english;
       document.querySelector('.fi-blank').style.color = '#4ade80';
-      WordManager.recordAnswer(this._current.id, true, 'fillin');
+      const _fir = WordManager.recordAnswer(this._current.id, true, 'fillin');
+      UI.checkWordMastered(_fir, this._current.id);
       Particles.sparkle(btn.getBoundingClientRect().left + 40, btn.getBoundingClientRect().top);
       this._idx++;
       setTimeout(() => { this._active = true; this._showQuestion(); }, 800);
@@ -4547,6 +4661,25 @@ const App = {
       WordManagerUI.render();
     });
 
+    document.querySelectorAll('.bulk-sel-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const level = btn.dataset.conf;
+        const all = WordManager.getAll();
+        let added = 0;
+        all.forEach(w => {
+          const c = WordManager.getWordConfidence(w.id);
+          if (c.level === level && !WordManager.isSelected(w.id)) {
+            WordManager.toggleSelection(w.id);
+            added++;
+          }
+        });
+        if (added > 0) {
+          UI.showToast(T.get('bulkSelAdded').replace('%d', added), 'teal');
+        }
+        WordManagerUI.render();
+      });
+    });
+
     document.getElementById('home-clear-selection').addEventListener('click', () => {
       WordManager.clearSelection();
       UI.updateHomeScreen();
@@ -4601,26 +4734,6 @@ const App = {
         UI.showScreen('home');
       }
     });
-
-    const freezeBtn = document.getElementById('btn-buy-freeze');
-    if (freezeBtn) {
-      freezeBtn.addEventListener('click', () => {
-        if (GameState.data.streakFreeze > 0) {
-          UI.showToast(T.get('freezeAlready'), 'coral');
-          return;
-        }
-        if (GameState.data.xp < 50) {
-          UI.showToast(T.get('notEnoughXP'), 'coral');
-          return;
-        }
-        GameState.data.xp -= 50;
-        GameState.data.streakFreeze++;
-        GameState.save();
-        UI.updateStats();
-        UI._renderStreakFreeze();
-        UI.showToast(T.get('freezeBought'), 'purple');
-      });
-    }
 
     const decayBtn = document.getElementById('decay-review-btn');
     if (decayBtn) {
