@@ -71,7 +71,7 @@ const T = {
     rptTotalPractices: 'Practices', rptDayStreak: 'Day Streak',
     rptThisWeek: 'This Week', rptActiveDays: 'Active Days',
     rptTimeToday: 'Today', rptTimeTotal: 'Total Time',
-    rptGamesPlayed: 'Games Played', rptWordsKnown: 'Known Words',
+    rptGamesPlayed: 'Games Played', rptWordsKnown: 'Mastered Words',
     rptMin: 'min', rptHr: 'hr',
     rptDailyUse: 'Daily Usage — Last 14 Days',
     rptDay: 'Day', rptSessions: 'Games', rptTimePlayed: 'Time', rptDayAccuracy: 'Accuracy',
@@ -272,7 +272,7 @@ const T = {
     rptTotalPractices: 'תרגולים', rptDayStreak: 'ימים ברצף',
     rptThisWeek: 'השבוע', rptActiveDays: 'ימים פעילים',
     rptTimeToday: 'היום', rptTimeTotal: 'זמן כולל',
-    rptGamesPlayed: 'משחקים', rptWordsKnown: 'מילים שיודעת',
+    rptGamesPlayed: 'משחקים', rptWordsKnown: 'מילים ששולטת',
     rptMin: 'דק׳', rptHr: 'שע׳',
     rptDailyUse: 'שימוש יומי — 14 ימים אחרונים',
     rptDay: 'יום', rptSessions: 'משחקים', rptTimePlayed: 'זמן', rptDayAccuracy: 'דיוק',
@@ -403,7 +403,7 @@ const T = {
     parentLinkError: 'לא ניתן ליצור קישור, נסי שוב מאוחר יותר',
     restoreLink: 'שחזור התקדמות', restorePlaceholder: 'הדביקי את הקישור כאן',
     restoreGo: 'שחזור', restoreSuccess: '!ההתקדמות שוחזרה', restoreFail: 'לא ניתן לשחזר, בדקי את הקישור',
-    parentViewTitle: '(דוח התקדמות (חי',
+    parentViewTitle: 'דוח התקדמות - לייב',
     parentViewRefresh: 'רענון', parentViewUpdated: 'עדכון אחרון',
     parentViewJustNow: 'עכשיו', parentViewMinAgo: 'לפני %d דק׳',
     parentViewHrAgo: 'לפני %d שע׳', parentViewLoading: '...טוען התקדמות',
@@ -4160,7 +4160,6 @@ const Dashboard = {
     this._wordData.forEach(w => counts[w.label]++);
 
     const mastered = counts.mastered;
-    const known = mastered + counts.good;
     const totalSessions = history.length;
     const avgAcc = totalSessions > 0 ? Math.round(history.reduce((s, h) => s + h.accuracy, 0) / totalSessions) : 0;
     const streak = GameState.data.streak || 0;
@@ -4170,18 +4169,18 @@ const Dashboard = {
     const todayTimeSec = todaySessions.reduce((s, h) => s + (h.duration || 0), 0);
     const totalTimeSec = history.reduce((s, h) => s + (h.duration || 0), 0);
 
-    const knownPct = totalWords > 0 ? Math.round((known / totalWords) * 100) : 0;
+    const masteredPct = totalWords > 0 ? Math.round((mastered / totalWords) * 100) : 0;
 
     let verdictKey;
-    if (knownPct >= 70) verdictKey = 'rptVerdictGreat';
-    else if (knownPct >= 40) verdictKey = 'rptVerdictGood';
+    if (masteredPct >= 70) verdictKey = 'rptVerdictGreat';
+    else if (masteredPct >= 40) verdictKey = 'rptVerdictGood';
     else if (totalSessions > 0) verdictKey = 'rptVerdictWork';
     else verdictKey = 'rptVerdictStart';
 
     el.innerHTML =
       '<div class="rpt-exec-title">' + T.get('rptSummary') + '</div>' +
       '<div class="rpt-exec-grid">' +
-        '<div class="rpt-kpi"><div class="rpt-kpi-val">' + known + '/' + totalWords + '</div><div class="rpt-kpi-label">' + T.get('rptWordsKnown') + '</div></div>' +
+        '<div class="rpt-kpi"><div class="rpt-kpi-val">' + mastered + '/' + totalWords + '</div><div class="rpt-kpi-label">' + T.get('rptWordsKnown') + '</div></div>' +
         '<div class="rpt-kpi"><div class="rpt-kpi-val">' + avgAcc + '%</div><div class="rpt-kpi-label">' + T.get('rptAvgAccuracy') + '</div></div>' +
         '<div class="rpt-kpi"><div class="rpt-kpi-val">' + this._formatTime(todayTimeSec) + '</div><div class="rpt-kpi-label">' + T.get('rptTimeToday') + '</div></div>' +
         '<div class="rpt-kpi"><div class="rpt-kpi-val">' + streak + '🔥</div><div class="rpt-kpi-label">' + T.get('rptDayStreak') + '</div></div>' +
@@ -4398,7 +4397,10 @@ const Dashboard = {
     const counts = { all: 0, struggling: 0, learning: 0, good: 0, mastered: 0, unseen: 0 };
     this._wordData.forEach(w => { counts.all++; counts[w.label]++; });
 
-    document.querySelectorAll('.rpt-filter').forEach(btn => {
+    const titleEl = el.closest('.rpt-section')?.querySelector('.rpt-section-title');
+    if (titleEl) titleEl.textContent = T.get('dashAllWords') + ' (' + counts.all + ')';
+
+    document.querySelectorAll('#screen-dashboard .rpt-filter').forEach(btn => {
       const f = btn.dataset.wf;
       btn.classList.toggle('active', f === this._wordFilter);
       const c = counts[f] !== undefined ? ' (' + counts[f] + ')' : '';
@@ -4486,15 +4488,35 @@ const CloudSync = {
   },
 
   _buildFullBackup() {
+    const words = WordManager.getAll();
+    const wordData = words.map(w => {
+      const m = WordManager.getMastery(w.id);
+      const s = WordManager.getWordStrength(w.id);
+      const c = WordManager.getWordConfidence(w.id);
+      const total = m.timesCorrect + m.timesWrong;
+      return {
+        english: w.english, hebrew: w.hebrew,
+        correct: m.timesCorrect, wrong: m.timesWrong,
+        accuracy: total > 0 ? Math.round((m.timesCorrect / total) * 100) : 0,
+        strengthLabel: s.label, strengthScore: s.score,
+        confidenceLevel: c.level, pctToMastery: c.pctToMastery,
+        streak: c.streak, modesCount: c.modesCount,
+        gameModesCorrect: m.gameModesCorrect,
+        lastSeen: m.lastSeen, daysSince: s.daysSinceSeen
+      };
+    });
     return {
       ts: Date.now(),
       version: 2,
       gameState: GameState.data,
       history: GameState.getHistory(),
-      words: WordManager.getAll(),
-      mastery: WordManager._mastery,
+      words, mastery: WordManager._mastery,
       selection: [...WordManager._selection],
-      syncBin: this._binId
+      syncBin: this._binId,
+      wordData, totalWords: words.length,
+      streak: GameState.data.streak,
+      latestTest: GameState.getLatestTest(),
+      lang: T._lang
     };
   },
 
@@ -4601,10 +4623,10 @@ const CloudSync = {
 const ParentView = {
   _data: null,
   _binId: null,
+  _wordFilter: 'all',
 
   isActive() {
-    const params = new URLSearchParams(window.location.search);
-    return params.has('parent');
+    return new URLSearchParams(window.location.search).has('parent');
   },
 
   getBinId() {
@@ -4629,6 +4651,13 @@ const ParentView = {
 
     document.getElementById('pv-refresh-btn').addEventListener('click', () => this.refresh());
 
+    document.querySelectorAll('#pv-filters .rpt-filter').forEach(btn => {
+      btn.addEventListener('click', () => {
+        this._wordFilter = btn.dataset.wf;
+        this._renderAllWords();
+      });
+    });
+
     await this.refresh();
   },
 
@@ -4650,21 +4679,36 @@ const ParentView = {
     }
 
     this._data = data;
+    this._wordData = (data.wordData || []).map(w => ({
+      word: { english: w.english, hebrew: w.hebrew },
+      correct: w.correct || 0, wrong: w.wrong || 0,
+      total: (w.correct || 0) + (w.wrong || 0),
+      accuracy: w.accuracy || 0,
+      strength: w.strengthScore || 0, label: w.strengthLabel || 'unseen',
+      lastSeen: w.lastSeen, daysSince: w.daysSince
+    }));
     loadingEl.classList.add('hidden');
     contentEl.classList.remove('hidden');
     this._renderAll();
   },
 
+  _fmt(sec) {
+    if (sec < 60) return '<1 ' + T.get('rptMin');
+    if (sec < 3600) return Math.round(sec / 60) + ' ' + T.get('rptMin');
+    return Math.floor(sec / 3600) + ' ' + T.get('rptHr') + ' ' + Math.round((sec % 3600) / 60) + ' ' + T.get('rptMin');
+  },
+
   _renderAll() {
-    const d = this._data;
     document.getElementById('pv-title').textContent = T.get('parentViewTitle');
     document.getElementById('pv-refresh-btn').textContent = T.get('parentViewRefresh');
-
     this._renderUpdatedTime();
     this._renderExec();
     this._renderMastery();
+    this._renderTestHistory();
     this._renderDailyChart();
-    this._renderWords();
+    this._renderAccuracyChart();
+    this._renderHardWords();
+    this._renderAllWords();
   },
 
   _renderUpdatedTime() {
@@ -4682,10 +4726,10 @@ const ParentView = {
   _renderExec() {
     const el = document.getElementById('pv-exec');
     const d = this._data;
-    const wds = d.wordData || [];
     const counts = { mastered: 0, good: 0, learning: 0, struggling: 0, unseen: 0 };
-    wds.forEach(w => counts[w.strengthLabel]++);
-    const known = counts.mastered + counts.good;
+    this._wordData.forEach(w => counts[w.label]++);
+    const mastered = counts.mastered;
+    const totalWords = d.totalWords || this._wordData.length;
     const hist = d.history || [];
     const totalSessions = hist.length;
     const avgAcc = totalSessions > 0 ? Math.round(hist.reduce((s, h) => s + h.accuracy, 0) / totalSessions) : 0;
@@ -4695,30 +4739,31 @@ const ParentView = {
     const todayTimeSec = todaySessions.reduce((s, h) => s + (h.duration || 0), 0);
     const totalTimeSec = hist.reduce((s, h) => s + (h.duration || 0), 0);
 
-    const fmt = (sec) => {
-      if (sec < 60) return '<1 ' + T.get('rptMin');
-      if (sec < 3600) return Math.round(sec / 60) + ' ' + T.get('rptMin');
-      return Math.floor(sec / 3600) + ' ' + T.get('rptHr') + ' ' + Math.round((sec % 3600) / 60) + ' ' + T.get('rptMin');
-    };
+    const masteredPct = totalWords > 0 ? Math.round((mastered / totalWords) * 100) : 0;
+    let verdictKey;
+    if (masteredPct >= 70) verdictKey = 'rptVerdictGreat';
+    else if (masteredPct >= 40) verdictKey = 'rptVerdictGood';
+    else if (totalSessions > 0) verdictKey = 'rptVerdictWork';
+    else verdictKey = 'rptVerdictStart';
 
     el.innerHTML =
       '<div class="rpt-exec-title">' + T.get('rptSummary') + '</div>' +
       '<div class="rpt-exec-grid">' +
-        '<div class="rpt-kpi"><div class="rpt-kpi-val">' + known + '/' + d.totalWords + '</div><div class="rpt-kpi-label">' + T.get('rptWordsKnown') + '</div></div>' +
+        '<div class="rpt-kpi"><div class="rpt-kpi-val">' + mastered + '/' + totalWords + '</div><div class="rpt-kpi-label">' + T.get('rptWordsKnown') + '</div></div>' +
         '<div class="rpt-kpi"><div class="rpt-kpi-val">' + avgAcc + '%</div><div class="rpt-kpi-label">' + T.get('rptAvgAccuracy') + '</div></div>' +
-        '<div class="rpt-kpi"><div class="rpt-kpi-val">' + fmt(todayTimeSec) + '</div><div class="rpt-kpi-label">' + T.get('rptTimeToday') + '</div></div>' +
+        '<div class="rpt-kpi"><div class="rpt-kpi-val">' + this._fmt(todayTimeSec) + '</div><div class="rpt-kpi-label">' + T.get('rptTimeToday') + '</div></div>' +
         '<div class="rpt-kpi"><div class="rpt-kpi-val">' + (d.streak || 0) + '🔥</div><div class="rpt-kpi-label">' + T.get('rptDayStreak') + '</div></div>' +
         '<div class="rpt-kpi"><div class="rpt-kpi-val">' + totalSessions + '</div><div class="rpt-kpi-label">' + T.get('rptGamesPlayed') + '</div></div>' +
-        '<div class="rpt-kpi"><div class="rpt-kpi-val">' + fmt(totalTimeSec) + '</div><div class="rpt-kpi-label">' + T.get('rptTimeTotal') + '</div></div>' +
-      '</div>';
+        '<div class="rpt-kpi"><div class="rpt-kpi-val">' + this._fmt(totalTimeSec) + '</div><div class="rpt-kpi-label">' + T.get('rptTimeTotal') + '</div></div>' +
+      '</div>' +
+      '<div class="rpt-exec-verdict">' + T.get(verdictKey) + '</div>';
   },
 
   _renderMastery() {
     const el = document.getElementById('pv-mastery');
-    const wds = this._data.wordData || [];
-    const total = wds.length;
+    const total = this._wordData.length;
     const counts = { mastered: 0, good: 0, learning: 0, struggling: 0, unseen: 0 };
-    wds.forEach(w => counts[w.strengthLabel]++);
+    this._wordData.forEach(w => counts[w.label]++);
     const colors = { mastered: '#a78bfa', good: '#22c55e', learning: '#fbbf24', struggling: '#ef4444', unseen: 'rgba(255,255,255,0.1)' };
     const labels = { mastered: T.get('dashMastered'), good: T.get('dashGood'), learning: T.get('dashLearning'), struggling: T.get('dashStruggling'), unseen: T.get('dashUnseen') };
 
@@ -4737,55 +4782,213 @@ const ParentView = {
     el.innerHTML = bar + legend;
   },
 
-  _renderDailyChart() {
-    const el = document.getElementById('pv-daily');
-    const hist = this._data.history || [];
-    const days = [];
-    for (let i = 13; i >= 0; i--) {
-      const d = new Date(); d.setDate(d.getDate() - i);
-      days.push(d.toDateString());
+  _renderTestHistory() {
+    const el = document.getElementById('pv-test');
+    if (!el) return;
+    const latest = this._data.latestTest;
+    if (!latest) {
+      el.innerHTML = '<div class="dash-empty">' + T.get('testNoTests') + '</div>';
+      return;
     }
-    const dayData = days.map(dayStr => {
-      const sessions = hist.filter(s => new Date(s.ts).toDateString() === dayStr);
-      const totalMin = Math.round(sessions.reduce((s, h) => s + (h.duration || 0), 0) / 60);
-      const games = sessions.length;
-      return { dayStr, totalMin, games };
-    });
-    const maxMin = Math.max(1, ...dayData.map(d => d.totalMin));
-
-    let html = '';
-    dayData.forEach(d => {
-      const date = new Date(d.dayStr);
-      const label = (date.getMonth() + 1) + '/' + date.getDate();
-      const pct = Math.round((d.totalMin / maxMin) * 100);
-      html += '<div class="rpt-daily-row">' +
-        '<span class="rpt-daily-label">' + label + '</span>' +
-        '<div class="rpt-daily-bar-track"><div class="rpt-daily-bar-fill" style="width:' + pct + '%"></div></div>' +
-        '<span class="rpt-daily-val">' + d.totalMin + ' ' + T.get('rptMin') + '</span></div>';
-    });
-    el.innerHTML = html || '<div class="dash-empty">—</div>';
+    const date = new Date(latest.date);
+    const locale = T._lang === 'he' ? 'he-IL' : 'en-GB';
+    const dateStr = date.toLocaleDateString(locale, { day: 'numeric', month: 'short' }) + ' ' +
+      date.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
+    const gradeColors = { A: '#a78bfa', B: '#22c55e', C: '#fbbf24', D: '#f97316', F: '#ef4444' };
+    const color = gradeColors[latest.grade] || '#888';
+    el.innerHTML =
+      '<div style="display:flex;align-items:center;gap:14px;padding:8px 0;">' +
+        '<span style="font-size:2rem;font-weight:900;color:' + color + ';">' + latest.grade + '</span>' +
+        '<div style="flex:1;">' +
+          '<div style="font-size:0.88rem;font-weight:700;">' + latest.correct + '/' + latest.totalWords + ' (' + latest.pct + '%)</div>' +
+          '<div style="font-size:0.7rem;color:var(--text-dim);">' + dateStr + '</div>' +
+        '</div>' +
+      '</div>';
   },
 
-  _renderWords() {
-    const el = document.getElementById('pv-words');
-    const wds = this._data.wordData || [];
-    wds.sort((a, b) => (a.pctToMastery || 0) - (b.pctToMastery || 0));
-
-    const levelLabels = {
-      mastered: T.get('spLvlMastered'), almost: T.get('spLvlAlmost'),
-      learning: T.get('spLvlLearning'), struggling: T.get('spLvlStruggling'),
-      not_started: T.get('spLvlNew')
-    };
-
-    let html = '';
-    wds.forEach(w => {
-      const lvl = w.confidenceLevel || 'not_started';
-      html += '<div class="sp-word-row" data-level="' + lvl + '">' +
-        '<div class="sp-word-texts"><div class="sp-word-en">' + w.english + '</div><div class="sp-word-he">' + w.hebrew + '</div></div>' +
-        '<div class="sp-word-meta"><span class="sp-word-badge sp-badge-' + lvl + '">' + (levelLabels[lvl] || lvl) + '</span>' +
-        '<div class="sp-word-bar-track"><div class="sp-word-bar-fill" style="width:' + (w.pctToMastery || 0) + '%"></div></div></div></div>';
+  _renderDailyChart() {
+    const el = document.getElementById('pv-daily');
+    if (!el) return;
+    el.innerHTML = '';
+    const hist = this._data.history || [];
+    const todayStr = new Date().toDateString();
+    const days = [];
+    for (let i = 13; i >= 0; i--) {
+      const d = new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate() - i);
+      days.push({ date: d, dateStr: d.toDateString() });
+    }
+    const dayData = {};
+    hist.forEach(s => {
+      const ds = new Date(s.ts).toDateString();
+      if (!dayData[ds]) dayData[ds] = { time: 0, count: 0 };
+      dayData[ds].time += (s.duration || 0);
+      dayData[ds].count++;
     });
-    el.innerHTML = html;
+    const maxTime = Math.max(60, ...days.map(d => (dayData[d.dateStr] || {}).time || 0));
+
+    days.forEach(d => {
+      const data = dayData[d.dateStr];
+      const timeSec = data ? data.time : 0;
+      const count = data ? data.count : 0;
+      const pct = (timeSec / maxTime) * 100;
+      const isToday = d.dateStr === todayStr;
+      const dayLabel = d.date.getDate() + '/' + (d.date.getMonth() + 1);
+      let valText = '';
+      if (timeSec > 0) valText = timeSec < 60 ? '<1m' : Math.round(timeSec / 60) + 'm';
+
+      const col = document.createElement('div');
+      col.className = 'rpt-daily-col';
+      col.title = (isToday ? '★ ' : '') + dayLabel + ' — ' + count + ' games, ' + this._fmt(timeSec);
+      col.innerHTML =
+        '<div class="rpt-daily-val">' + valText + '</div>' +
+        '<div class="rpt-daily-track"><div class="rpt-daily-fill' +
+          (timeSec > 0 ? (isToday ? ' today' : ' active') : '') +
+          '" style="height:' + Math.max(pct, timeSec > 0 ? 6 : 0) + '%"></div></div>' +
+        '<div class="rpt-daily-day' + (isToday ? ' today' : '') + '">' + dayLabel + '</div>';
+      el.appendChild(col);
+    });
+  },
+
+  _renderAccuracyChart() {
+    const el = document.getElementById('pv-accuracy');
+    if (!el) return;
+    el.innerHTML = '';
+    const hist = this._data.history || [];
+    if (hist.length === 0) {
+      el.innerHTML = '<div class="dash-empty">' + T.get('dashNoSessions') + '</div>';
+      return;
+    }
+    const days = [];
+    for (let i = 13; i >= 0; i--) {
+      const d = new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate() - i);
+      days.push({ date: d, label: (d.getMonth()+1) + '/' + d.getDate(), dateStr: d.toDateString() });
+    }
+    const dayAccuracy = {}, dayCount = {};
+    hist.forEach(s => {
+      const ds = new Date(s.ts).toDateString();
+      dayAccuracy[ds] = (dayAccuracy[ds] || 0) + s.accuracy;
+      dayCount[ds] = (dayCount[ds] || 0) + 1;
+    });
+    const points = days.map(d => {
+      const avg = dayCount[d.dateStr] ? Math.round(dayAccuracy[d.dateStr] / dayCount[d.dateStr]) : null;
+      return { label: d.label, value: avg };
+    });
+    const svgNs = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(svgNs, 'svg');
+    svg.setAttribute('viewBox', '0 0 420 120');
+    svg.setAttribute('class', 'dash-line-chart');
+    for (let y = 0; y <= 100; y += 25) {
+      const ly = 110 - y * 1.0;
+      const line = document.createElementNS(svgNs, 'line');
+      line.setAttribute('x1', '30'); line.setAttribute('x2', '410');
+      line.setAttribute('y1', ly); line.setAttribute('y2', ly);
+      line.setAttribute('class', 'dash-grid-line');
+      svg.appendChild(line);
+      const txt = document.createElementNS(svgNs, 'text');
+      txt.setAttribute('x', '26'); txt.setAttribute('y', ly + 3);
+      txt.setAttribute('class', 'dash-axis-label');
+      txt.textContent = y + '%';
+      svg.appendChild(txt);
+    }
+    const validPoints = [];
+    points.forEach((p, i) => {
+      if (p.value !== null) {
+        validPoints.push({ x: 35 + i * (375 / 13), y: 110 - p.value * 1.0, value: p.value });
+      }
+    });
+    if (validPoints.length >= 2) {
+      const path = document.createElementNS(svgNs, 'path');
+      path.setAttribute('d', 'M ' + validPoints.map(p => p.x + ' ' + p.y).join(' L '));
+      path.setAttribute('class', 'dash-trend-line');
+      svg.appendChild(path);
+    }
+    validPoints.forEach(p => {
+      const circle = document.createElementNS(svgNs, 'circle');
+      circle.setAttribute('cx', p.x); circle.setAttribute('cy', p.y);
+      circle.setAttribute('r', '3.5'); circle.setAttribute('class', 'dash-dot');
+      svg.appendChild(circle);
+      const txt = document.createElementNS(svgNs, 'text');
+      txt.setAttribute('x', p.x); txt.setAttribute('y', p.y - 7);
+      txt.setAttribute('class', 'dash-dot-label');
+      txt.textContent = p.value + '%';
+      svg.appendChild(txt);
+    });
+    el.appendChild(svg);
+  },
+
+  _renderHardWords() {
+    const el = document.getElementById('pv-hard');
+    if (!el) return;
+    el.innerHTML = '';
+    const struggled = this._wordData
+      .filter(w => w.total >= 2 && (w.label === 'struggling' || w.label === 'learning'))
+      .sort((a, b) => a.strength - b.strength)
+      .slice(0, 10);
+
+    if (struggled.length === 0) {
+      el.innerHTML = '<div class="dash-empty">' + T.get('dashNoStruggling') + '</div>';
+      return;
+    }
+    struggled.forEach(item => {
+      const accClass = item.accuracy < 40 ? 'low' : item.accuracy < 60 ? 'mid' : 'ok';
+      const row = document.createElement('div');
+      row.className = 'dash-hard-row';
+      row.innerHTML =
+        '<span class="dash-hard-eng">' + item.word.english + '</span>' +
+        '<span class="dash-hard-heb">' + item.word.hebrew + '</span>' +
+        '<span class="dash-hard-acc ' + accClass + '">' + item.accuracy + '%</span>' +
+        '<span class="dash-hard-detail">' + item.correct + '✓ ' + item.wrong + '✗</span>' +
+        '<span class="dash-hard-bar"><span class="dash-hard-fill" style="width:' + item.strength + '%"></span></span>';
+      el.appendChild(row);
+    });
+  },
+
+  _renderAllWords() {
+    const el = document.getElementById('pv-all-words');
+    if (!el) return;
+    el.innerHTML = '';
+
+    const counts = { all: 0, struggling: 0, learning: 0, good: 0, mastered: 0, unseen: 0 };
+    this._wordData.forEach(w => { counts.all++; counts[w.label]++; });
+
+    const titleEl = el.closest('.rpt-section')?.querySelector('.rpt-section-title');
+    if (titleEl) titleEl.textContent = T.get('dashAllWords') + ' (' + counts.all + ')';
+
+    document.querySelectorAll('#pv-filters .rpt-filter').forEach(btn => {
+      const f = btn.dataset.wf;
+      btn.classList.toggle('active', f === this._wordFilter);
+      const c = counts[f] !== undefined ? ' (' + counts[f] + ')' : '';
+      const keys = { all: 'dashFilterAll', struggling: 'dashStruggling', learning: 'dashLearning', good: 'dashGood', mastered: 'dashMastered', unseen: 'dashUnseen' };
+      btn.textContent = (keys[f] ? T.get(keys[f]) : f) + c;
+    });
+
+    let filtered = this._wordData;
+    if (this._wordFilter !== 'all') {
+      filtered = filtered.filter(w => w.label === this._wordFilter);
+    }
+    filtered.sort((a, b) => a.word.english.localeCompare(b.word.english, 'en', { sensitivity: 'base' }));
+
+    if (filtered.length === 0) {
+      el.innerHTML = '<div class="dash-empty">' + T.get('dashNoCategory') + '</div>';
+      return;
+    }
+
+    filtered.forEach(item => {
+      const row = document.createElement('div');
+      row.className = 'dash-word-row dash-wlabel-' + item.label;
+      const statusIcon = { unseen: '⬜', struggling: '🔴', learning: '🟡', good: '🟢', mastered: '⭐' }[item.label];
+      const lastSeenStr = item.lastSeen
+        ? (item.daysSince === 0 ? T.get('dashToday') : item.daysSince === 1 ? T.get('dashYesterday') : item.daysSince + T.get('dashDaysAgo'))
+        : T.get('dashNever');
+      row.innerHTML =
+        '<span class="dash-w-status">' + statusIcon + '</span>' +
+        '<span class="dash-w-eng">' + item.word.english + '</span>' +
+        '<span class="dash-w-heb">' + item.word.hebrew + '</span>' +
+        '<span class="dash-w-stats">' + (item.total > 0 ? item.accuracy + '% · ' + item.correct + '✓ ' + item.wrong + '✗' : '—') + '</span>' +
+        '<span class="dash-w-seen">' + lastSeenStr + '</span>' +
+        '<span class="dash-w-bar"><span class="dash-w-bar-fill dash-wlabel-' + item.label + '" style="width:' + item.strength + '%"></span></span>';
+      el.appendChild(row);
+    });
   }
 };
 

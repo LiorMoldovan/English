@@ -38,12 +38,32 @@
         <div class="rpt-mastery" id="pv-mastery"></div>
       </div>
       <div class="rpt-section">
+        <h3 class="rpt-section-title" data-t="testLatest">Latest Test</h3>
+        <div id="pv-test"></div>
+      </div>
+      <div class="rpt-section">
         <h3 class="rpt-section-title" data-t="rptDailyUse">Daily Usage — Last 14 Days</h3>
         <div class="rpt-daily-chart" id="pv-daily"></div>
       </div>
       <div class="rpt-section">
-        <h3 class="rpt-section-title" data-t="spTitle">Word Progress</h3>
-        <div class="sp-word-list" id="pv-words"></div>
+        <h3 class="rpt-section-title" data-t="dashAccuracy">Accuracy Trend</h3>
+        <div class="dash-chart" id="pv-accuracy"></div>
+      </div>
+      <div class="rpt-section">
+        <h3 class="rpt-section-title" data-t="dashNeedsWork">Words That Need Work</h3>
+        <div id="pv-hard"></div>
+      </div>
+      <div class="rpt-section">
+        <h3 class="rpt-section-title" data-t="dashAllWords">All Words</h3>
+        <div class="rpt-word-filters" id="pv-filters">
+          <button class="rpt-filter active" data-wf="all" data-t="dashFilterAll">All</button>
+          <button class="rpt-filter" data-wf="mastered" data-t="dashMastered">Mastered</button>
+          <button class="rpt-filter" data-wf="good" data-t="dashGood">Good</button>
+          <button class="rpt-filter" data-wf="learning" data-t="dashLearning">Learning</button>
+          <button class="rpt-filter" data-wf="struggling" data-t="dashStruggling">Struggling</button>
+          <button class="rpt-filter" data-wf="unseen" data-t="dashUnseen">Not Seen</button>
+        </div>
+        <div class="dash-all-words" id="pv-all-words"></div>
       </div>
     </div>
   </div>
@@ -100,34 +120,28 @@
         <button class="decay-btn" id="decay-review-btn" data-t="decayReview">Review Now</button>
       </div>
 
-      <div class="home-top-strip">
-        <div class="strip-card strip-daily" id="daily-challenge">
-          <div class="strip-label" data-t="dailyChallenge">Daily Challenge</div>
-          <div class="strip-text" id="daily-text"></div>
-          <div class="strip-bar"><div class="strip-fill daily-fill-color" id="daily-progress"></div></div>
-          <div class="strip-reward">+50 XP</div>
+      <div class="goals-grid">
+        <div class="goal-item goal-challenge" id="daily-challenge">
+          <div class="goal-head"><span class="goal-title" data-t="dailyChallenge">Daily Challenge</span><span class="goal-xp">+50</span></div>
+          <div class="goal-desc" id="daily-text"></div>
+          <div class="goal-bar"><div class="goal-fill daily-fill-color" id="daily-progress"></div></div>
         </div>
-        <div class="strip-card strip-xp" id="daily-xp-card">
-          <div class="strip-label strip-label-xp" data-t="dailyXpGoal">Daily XP Goal</div>
-          <div class="strip-nums"><span id="daily-xp-earned">0</span>/<span id="daily-xp-target">100</span> XP</div>
-          <div class="strip-bar"><div class="strip-fill xp-fill-color" id="daily-xp-progress"></div></div>
-          <div class="strip-reward strip-reward-xp">+40 XP</div>
+        <div class="goal-item goal-xp" id="daily-xp-card">
+          <div class="goal-head"><span class="goal-title goal-title-xp" data-t="dailyXpGoal">XP Goal</span><span class="goal-xp goal-xp-purple">+40</span></div>
+          <div class="goal-nums"><span id="daily-xp-earned">0</span>/<span id="daily-xp-target">100</span> XP</div>
+          <div class="goal-bar"><div class="goal-fill xp-fill-color" id="daily-xp-progress"></div></div>
         </div>
-      </div>
-
-      <div class="strip-card strip-bonus hidden" id="daily-bonus">
-        <div class="strip-label bonus-label" data-t="bonusChallenge">Bonus Challenge</div>
-        <div class="strip-text" id="bonus-text"></div>
-        <div class="strip-bar"><div class="strip-fill bonus-fill" id="bonus-progress"></div></div>
-        <div class="strip-reward bonus-reward-text">+30 XP</div>
-      </div>
-
-      <div class="strip-card strip-time" id="daily-time-card">
-        <div class="strip-label strip-label-time" data-t="dailyTimeGoal">Daily Time Goal</div>
-        <div class="strip-nums"><span id="daily-time-played">0</span>/<span id="daily-time-target">10</span> min</div>
-        <div class="strip-text strip-time-motiv" id="daily-time-motiv"></div>
-        <div class="strip-bar"><div class="strip-fill time-fill-color" id="daily-time-progress"></div></div>
-        <div class="strip-reward strip-reward-time">+30 XP</div>
+        <div class="goal-item goal-time" id="daily-time-card">
+          <div class="goal-head"><span class="goal-title goal-title-teal" data-t="dailyTimeGoal">Time Goal</span><span class="goal-xp goal-xp-teal">+30</span></div>
+          <div class="goal-nums"><span id="daily-time-played">0</span>/<span id="daily-time-target">10</span> min</div>
+          <div class="goal-bar"><div class="goal-fill time-fill-color" id="daily-time-progress"></div></div>
+          <div class="goal-desc strip-time-motiv" id="daily-time-motiv" style="display:none"></div>
+        </div>
+        <div class="goal-item goal-bonus hidden" id="daily-bonus">
+          <div class="goal-head"><span class="goal-title goal-title-coral" data-t="bonusChallenge">Bonus</span><span class="goal-xp goal-xp-coral">+30</span></div>
+          <div class="goal-desc" id="bonus-text"></div>
+          <div class="goal-bar"><div class="goal-fill bonus-fill" id="bonus-progress"></div></div>
+        </div>
       </div>
 
       <button class="sp-badge" id="sp-badge">
