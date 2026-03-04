@@ -128,8 +128,8 @@ const T = {
     xpUnit: 'XP', speakListen: 'Listen', soundToggle: 'Sound',
     instrTest: 'Choose the correct translation for each word!',
     takeTest: 'Take a Test', takeTestDesc: 'Test your selected words', testTitle: 'Test',
-    greetMorning: 'Good morning! ☀️', greetAfternoon: 'Good afternoon! 🌤️',
-    greetEvening: 'Good evening! 🌙', greetNight: 'Good night! 🌟',
+    greetMorning: 'Good morning, Ofri! ☀️', greetAfternoon: 'Good afternoon, Ofri! 🌤️',
+    greetEvening: 'Good evening, Ofri! 🌙', greetNight: 'Good night, Ofri! 🌟',
     almostStars: '%d more for 3 stars!', almostPerfect: 'Almost perfect! Keep going!',
     milestoneTitle: 'Milestone!',
     milestone10: '10 words mastered! 🎉', milestone25: '25 words mastered! 🌟',
@@ -198,9 +198,10 @@ const T = {
     spStreak: 'Streak', spModes: 'Modes', spAccuracy: 'Accuracy',
     spLvlMastered: 'Mastered', spLvlAlmost: 'Almost there',
     spLvlLearning: 'Learning', spLvlStruggling: 'Struggling', spLvlNew: 'New',
-    parentLink: 'Parent Link', parentLinkDesc: 'Share this link to view progress from another device',
-    parentLinkCopied: 'Link copied!', parentLinkCreating: 'Creating link...',
+    parentLinkCopied: 'Link copied!',
     parentLinkError: 'Could not create link, try again later',
+    restoreLink: 'Restore progress', restorePlaceholder: 'Paste your parent link here',
+    restoreGo: 'Restore', restoreSuccess: 'Progress restored!', restoreFail: 'Could not restore, check the link',
     parentViewTitle: 'Progress Report (Live)',
     parentViewRefresh: 'Refresh', parentViewUpdated: 'Last updated',
     parentViewJustNow: 'just now', parentViewMinAgo: '%d min ago',
@@ -328,8 +329,8 @@ const T = {
     xpUnit: 'נק׳', speakListen: 'השמע', soundToggle: 'צליל',
     instrTest: '!בחרי את התרגום הנכון לכל מילה',
     takeTest: 'מבחן', takeTestDesc: 'בחני את המילים שבחרת', testTitle: 'מבחן',
-    greetMorning: '!בוקר טוב ☀️', greetAfternoon: '!צהריים טובים 🌤️',
-    greetEvening: '!ערב טוב 🌙', greetNight: '!לילה טוב 🌟',
+    greetMorning: '☀️ !בוקר טוב, עופרי', greetAfternoon: '🌤️ !צהריים טובים, עופרי',
+    greetEvening: '🌙 !ערב טוב, עופרי', greetNight: '🌟 !לילה טוב, עופרי',
     almostStars: '!עוד %d ל-3 כוכבים', almostPerfect: '!כמעט מושלם! המשיכי',
     milestoneTitle: '!אבן דרך',
     milestone10: '!10 מילים נשלטו 🎉', milestone25: '!25 מילים נשלטו 🌟',
@@ -398,9 +399,10 @@ const T = {
     spStreak: 'רצף', spModes: 'משחקים', spAccuracy: 'דיוק',
     spLvlMastered: 'שולטת', spLvlAlmost: 'כמעט שם',
     spLvlLearning: 'לומדת', spLvlStruggling: 'מתקשה', spLvlNew: 'חדשה',
-    parentLink: 'קישור להורה', parentLinkDesc: 'שתפי קישור זה כדי לראות התקדמות ממכשיר אחר',
-    parentLinkCopied: '!הקישור הועתק', parentLinkCreating: '...יוצר קישור',
+    parentLinkCopied: '!הקישור הועתק',
     parentLinkError: 'לא ניתן ליצור קישור, נסי שוב מאוחר יותר',
+    restoreLink: 'שחזור התקדמות', restorePlaceholder: 'הדביקי את הקישור כאן',
+    restoreGo: 'שחזור', restoreSuccess: '!ההתקדמות שוחזרה', restoreFail: 'לא ניתן לשחזר, בדקי את הקישור',
     parentViewTitle: '(דוח התקדמות (חי',
     parentViewRefresh: 'רענון', parentViewUpdated: 'עדכון אחרון',
     parentViewJustNow: 'עכשיו', parentViewMinAgo: 'לפני %d דק׳',
@@ -4441,7 +4443,7 @@ const Dashboard = {
 
 // ===== CLOUD SYNC =====
 const CloudSync = {
-  ENDPOINT: 'https://jsonblob.com/api/jsonBlob',
+  ENDPOINT: '/api/sync',
   BIN_KEY: 'wordquest_sync_bin',
   _binId: null,
 
@@ -4483,20 +4485,47 @@ const CloudSync = {
     };
   },
 
+  _buildFullBackup() {
+    return {
+      ts: Date.now(),
+      version: 2,
+      gameState: GameState.data,
+      history: GameState.getHistory(),
+      words: WordManager.getAll(),
+      mastery: WordManager._mastery,
+      selection: [...WordManager._selection],
+      syncBin: this._binId
+    };
+  },
+
+  _compact(snapshot) {
+    snapshot.history = (snapshot.history || []).slice(-60);
+    if (snapshot.wordData) {
+      snapshot.wordData = snapshot.wordData.map(w => ({
+        english: w.english, hebrew: w.hebrew,
+        accuracy: w.accuracy, strengthLabel: w.strengthLabel,
+        confidenceLevel: w.confidenceLevel, pctToMastery: w.pctToMastery,
+        streak: w.streak, modesCount: w.modesCount
+      }));
+    }
+    delete snapshot.testHistory;
+    return snapshot;
+  },
+
   async _createBin() {
     try {
+      const data = this._buildFullBackup();
       const resp = await fetch(this.ENDPOINT, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify(this._buildSnapshot())
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
       });
       if (!resp.ok) return null;
-      const loc = resp.headers.get('Location') || '';
-      const id = loc.split('/').pop();
-      if (id) {
-        this._binId = id;
-        localStorage.setItem(this.BIN_KEY, id);
-        return id;
+      const result = await resp.json();
+      if (result && result.id) {
+        this._binId = result.id;
+        localStorage.setItem(this.BIN_KEY, result.id);
+        return result.id;
       }
       return null;
     } catch (e) { return null; }
@@ -4505,19 +4534,18 @@ const CloudSync = {
   async push() {
     if (!this._binId) return;
     try {
-      await fetch(this.ENDPOINT + '/' + this._binId, {
+      const data = this._buildFullBackup();
+      await fetch(this.ENDPOINT + '?id=' + this._binId, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify(this._buildSnapshot())
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
       });
     } catch (e) {}
   },
 
   async pull(binId) {
     try {
-      const resp = await fetch(this.ENDPOINT + '/' + binId, {
-        headers: { 'Accept': 'application/json' }
-      });
+      const resp = await fetch(this.ENDPOINT + '?id=' + binId);
       if (!resp.ok) return null;
       return await resp.json();
     } catch (e) { return null; }
@@ -4532,6 +4560,40 @@ const CloudSync = {
   async ensureBin() {
     if (this._binId) return this._binId;
     return await this._createBin();
+  },
+
+  async restore(input) {
+    const id = (input || '').trim().split('parent=').pop().split('&')[0].split('#')[0];
+    if (!id || id.length < 10) return false;
+    try {
+      const data = await this.pull(id);
+      if (!data) return false;
+      if (data.version >= 2 && data.gameState) {
+        GameState.data = { ...GameState.defaults(), ...data.gameState };
+        GameState.save();
+        if (data.history) {
+          localStorage.setItem(GameState.HISTORY_KEY, JSON.stringify(data.history));
+        }
+        if (data.words) {
+          WordManager._words = data.words;
+          WordManager._saveWords();
+        }
+        if (data.mastery) {
+          WordManager._mastery = data.mastery;
+          WordManager._saveMastery();
+        }
+        if (data.selection) {
+          WordManager._selection = new Set(data.selection);
+          WordManager._saveSelection();
+        }
+        if (data.syncBin) {
+          this._binId = data.syncBin;
+          localStorage.setItem(this.BIN_KEY, data.syncBin);
+        }
+        return true;
+      }
+      return false;
+    } catch (e) { return false; }
   }
 };
 
@@ -4770,6 +4832,29 @@ const App = {
       UI.showScreen('home');
     });
 
+    document.getElementById('btn-restore-toggle').addEventListener('click', () => {
+      document.getElementById('restore-box').classList.toggle('hidden');
+      document.getElementById('restore-input').focus();
+    });
+
+    document.getElementById('btn-restore-go').addEventListener('click', async () => {
+      const input = document.getElementById('restore-input').value;
+      if (!input.trim()) return;
+      const btn = document.getElementById('btn-restore-go');
+      btn.disabled = true;
+      const ok = await CloudSync.restore(input);
+      btn.disabled = false;
+      if (ok) {
+        UI.showToast(T.get('restoreSuccess'), 'teal');
+        GameState.data.firstTime = false;
+        GameState.save();
+        WordManager.init();
+        setTimeout(() => { UI.showScreen('home'); UI.updateHomeScreen(); UI.updateStats(); }, 600);
+      } else {
+        UI.showToast(T.get('restoreFail'), 'danger');
+      }
+    });
+
     document.getElementById('btn-lang').addEventListener('click', () => {
       const newLang = T._lang === 'en' ? 'he' : 'en';
       T.setLang(newLang);
@@ -4824,24 +4909,20 @@ const App = {
     const parentLinkBtn = document.getElementById('btn-parent-link');
     if (parentLinkBtn) {
       parentLinkBtn.addEventListener('click', async () => {
-        const linkEl = document.getElementById('parent-link-url');
         const link = CloudSync.getParentLink();
         if (link) {
-          linkEl.textContent = link;
-          linkEl.classList.remove('hidden');
-          try { await navigator.clipboard.writeText(link); UI.showToast(T.get('parentLinkCopied'), 'teal'); }
-          catch (e) { linkEl.select && linkEl.select(); }
+          try { await navigator.clipboard.writeText(link); } catch (e) {}
+          UI.showToast(T.get('parentLinkCopied'), 'teal');
         } else {
-          linkEl.textContent = T.get('parentLinkCreating');
-          linkEl.classList.remove('hidden');
+          parentLinkBtn.disabled = true;
           const binId = await CloudSync.ensureBin();
+          parentLinkBtn.disabled = false;
           if (binId) {
             const newLink = CloudSync.getParentLink();
-            linkEl.textContent = newLink;
-            try { await navigator.clipboard.writeText(newLink); UI.showToast(T.get('parentLinkCopied'), 'teal'); }
-            catch (e) {}
+            try { await navigator.clipboard.writeText(newLink); } catch (e) {}
+            UI.showToast(T.get('parentLinkCopied'), 'teal');
           } else {
-            linkEl.textContent = T.get('parentLinkError');
+            UI.showToast(T.get('parentLinkError'), 'danger');
           }
         }
       });

@@ -57,6 +57,11 @@
       <h2 class="welcome-subtitle">מסע המילים</h2>
       <p class="welcome-text" data-t="welcomeMessage">Ready to master 83 English words? Let's play!</p>
       <button class="btn btn-primary btn-large pulse-glow" id="btn-start" data-t="startButton">Start!</button>
+      <button class="restore-link" id="btn-restore-toggle" data-t="restoreLink">Restore progress</button>
+      <div class="restore-box hidden" id="restore-box">
+        <input type="text" class="restore-input" id="restore-input" placeholder="Paste your parent link here" data-t-placeholder="restorePlaceholder">
+        <button class="btn btn-accent btn-small" id="btn-restore-go" data-t="restoreGo">Restore</button>
+      </div>
     </div>
   </div>
 
@@ -703,17 +708,9 @@
     <div class="game-header">
       <button class="back-btn" data-back>←</button>
       <div class="game-title" data-t="parentDashboard">Progress Report</div>
+      <button class="icon-btn pl-btn" id="btn-parent-link" title="Share">🔗</button>
     </div>
     <div class="dashboard-scroll">
-      <!-- Parent Link -->
-      <div class="parent-link-card">
-        <button class="btn btn-parent-link" id="btn-parent-link">
-          <span class="pl-icon">🔗</span>
-          <span data-t="parentLink">Parent Link</span>
-        </button>
-        <div class="parent-link-desc" data-t="parentLinkDesc">Share this link to view progress from another device</div>
-        <div class="parent-link-url hidden" id="parent-link-url"></div>
-      </div>
       <!-- Executive Summary -->
       <div class="rpt-exec" id="rpt-exec"></div>
 
