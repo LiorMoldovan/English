@@ -198,6 +198,14 @@ const T = {
     spStreak: 'Streak', spModes: 'Modes', spAccuracy: 'Accuracy',
     spLvlMastered: 'Mastered', spLvlAlmost: 'Almost there',
     spLvlLearning: 'Learning', spLvlStruggling: 'Struggling', spLvlNew: 'New',
+    parentLink: 'Parent Link', parentLinkDesc: 'Share this link to view progress from another device',
+    parentLinkCopied: 'Link copied!', parentLinkCreating: 'Creating link...',
+    parentLinkError: 'Could not create link, try again later',
+    parentViewTitle: 'Progress Report (Live)',
+    parentViewRefresh: 'Refresh', parentViewUpdated: 'Last updated',
+    parentViewJustNow: 'just now', parentViewMinAgo: '%d min ago',
+    parentViewHrAgo: '%d hr ago', parentViewLoading: 'Loading progress...',
+    parentViewError: 'Could not load data. Check the link and try again.',
   },
   he: {
     welcomeMessage: '!מוכנה לשלוט ב-83 מילים באנגלית? בואי נשחק',
@@ -390,6 +398,14 @@ const T = {
     spStreak: 'רצף', spModes: 'משחקים', spAccuracy: 'דיוק',
     spLvlMastered: 'שולטת', spLvlAlmost: 'כמעט שם',
     spLvlLearning: 'לומדת', spLvlStruggling: 'מתקשה', spLvlNew: 'חדשה',
+    parentLink: 'קישור להורה', parentLinkDesc: 'שתפי קישור זה כדי לראות התקדמות ממכשיר אחר',
+    parentLinkCopied: '!הקישור הועתק', parentLinkCreating: '...יוצר קישור',
+    parentLinkError: 'לא ניתן ליצור קישור, נסי שוב מאוחר יותר',
+    parentViewTitle: '(דוח התקדמות (חי',
+    parentViewRefresh: 'רענון', parentViewUpdated: 'עדכון אחרון',
+    parentViewJustNow: 'עכשיו', parentViewMinAgo: 'לפני %d דק׳',
+    parentViewHrAgo: 'לפני %d שע׳', parentViewLoading: '...טוען התקדמות',
+    parentViewError: '.לא ניתן לטעון נתונים. בדקי את הקישור ונסי שוב',
   },
   get(key) { return this[this._lang][key] || this.en[key] || key; },
   setLang(lang) {
@@ -780,6 +796,7 @@ const Progress = {
     Milestones.check();
     GameState.save();
     UI.updateStats();
+    CloudSync.push();
   }
 };
 
@@ -4422,14 +4439,308 @@ const Dashboard = {
   }
 };
 
+// ===== CLOUD SYNC =====
+const CloudSync = {
+  ENDPOINT: 'https://jsonblob.com/api/jsonBlob',
+  BIN_KEY: 'wordquest_sync_bin',
+  _binId: null,
+
+  init() {
+    this._binId = localStorage.getItem(this.BIN_KEY) || null;
+  },
+
+  _buildSnapshot() {
+    const d = GameState.data;
+    const history = GameState.getHistory();
+    const words = WordManager.getAll();
+    const wordData = words.map(w => {
+      const m = WordManager.getMastery(w.id);
+      const s = WordManager.getWordStrength(w.id);
+      const c = WordManager.getWordConfidence(w.id);
+      const total = m.timesCorrect + m.timesWrong;
+      return {
+        english: w.english, hebrew: w.hebrew,
+        correct: m.timesCorrect, wrong: m.timesWrong,
+        accuracy: total > 0 ? Math.round((m.timesCorrect / total) * 100) : 0,
+        strengthLabel: s.label, strengthScore: s.score,
+        confidenceLevel: c.level, pctToMastery: c.pctToMastery,
+        streak: c.streak, modesCount: c.modesCount,
+        gameModesCorrect: m.gameModesCorrect,
+        lastSeen: m.lastSeen, daysSince: s.daysSinceSeen
+      };
+    });
+
+    return {
+      ts: Date.now(),
+      xp: d.xp, level: d.level, totalStars: d.totalStars,
+      streak: d.streak, gamesPlayed: d.gamesPlayed,
+      testHistory: d.testHistory || [],
+      latestTest: GameState.getLatestTest(),
+      history: history.slice(-200),
+      wordData,
+      totalWords: words.length,
+      lang: T._lang
+    };
+  },
+
+  async _createBin() {
+    try {
+      const resp = await fetch(this.ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(this._buildSnapshot())
+      });
+      if (!resp.ok) return null;
+      const loc = resp.headers.get('Location') || '';
+      const id = loc.split('/').pop();
+      if (id) {
+        this._binId = id;
+        localStorage.setItem(this.BIN_KEY, id);
+        return id;
+      }
+      return null;
+    } catch (e) { return null; }
+  },
+
+  async push() {
+    if (!this._binId) return;
+    try {
+      await fetch(this.ENDPOINT + '/' + this._binId, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(this._buildSnapshot())
+      });
+    } catch (e) {}
+  },
+
+  async pull(binId) {
+    try {
+      const resp = await fetch(this.ENDPOINT + '/' + binId, {
+        headers: { 'Accept': 'application/json' }
+      });
+      if (!resp.ok) return null;
+      return await resp.json();
+    } catch (e) { return null; }
+  },
+
+  getParentLink() {
+    if (!this._binId) return null;
+    const base = window.location.origin + window.location.pathname;
+    return base + '?parent=' + this._binId;
+  },
+
+  async ensureBin() {
+    if (this._binId) return this._binId;
+    return await this._createBin();
+  }
+};
+
+// ===== PARENT VIEW =====
+const ParentView = {
+  _data: null,
+  _binId: null,
+
+  isActive() {
+    const params = new URLSearchParams(window.location.search);
+    return params.has('parent');
+  },
+
+  getBinId() {
+    return new URLSearchParams(window.location.search).get('parent');
+  },
+
+  async init() {
+    this._binId = this.getBinId();
+    document.getElementById('app-main').classList.add('hidden');
+    document.getElementById('parent-view').classList.remove('hidden');
+
+    const savedLang = localStorage.getItem('wordquest_lang') || 'en';
+    T.setLang(savedLang);
+
+    document.getElementById('pv-lang-btn').textContent = savedLang === 'en' ? 'עברית' : 'EN';
+    document.getElementById('pv-lang-btn').addEventListener('click', () => {
+      const newLang = T._lang === 'en' ? 'he' : 'en';
+      T.setLang(newLang);
+      document.getElementById('pv-lang-btn').textContent = newLang === 'en' ? 'עברית' : 'EN';
+      this._renderAll();
+    });
+
+    document.getElementById('pv-refresh-btn').addEventListener('click', () => this.refresh());
+
+    await this.refresh();
+  },
+
+  async refresh() {
+    const loadingEl = document.getElementById('pv-loading');
+    const contentEl = document.getElementById('pv-content');
+    const errorEl = document.getElementById('pv-error');
+
+    loadingEl.classList.remove('hidden');
+    contentEl.classList.add('hidden');
+    errorEl.classList.add('hidden');
+
+    const data = await CloudSync.pull(this._binId);
+    if (!data || !data.ts) {
+      loadingEl.classList.add('hidden');
+      errorEl.classList.remove('hidden');
+      errorEl.textContent = T.get('parentViewError');
+      return;
+    }
+
+    this._data = data;
+    loadingEl.classList.add('hidden');
+    contentEl.classList.remove('hidden');
+    this._renderAll();
+  },
+
+  _renderAll() {
+    const d = this._data;
+    document.getElementById('pv-title').textContent = T.get('parentViewTitle');
+    document.getElementById('pv-refresh-btn').textContent = T.get('parentViewRefresh');
+
+    this._renderUpdatedTime();
+    this._renderExec();
+    this._renderMastery();
+    this._renderDailyChart();
+    this._renderWords();
+  },
+
+  _renderUpdatedTime() {
+    const el = document.getElementById('pv-updated');
+    const diff = Date.now() - this._data.ts;
+    const min = Math.floor(diff / 60000);
+    const hr = Math.floor(diff / 3600000);
+    let timeText;
+    if (min < 1) timeText = T.get('parentViewJustNow');
+    else if (min < 60) timeText = T.get('parentViewMinAgo').replace('%d', min);
+    else timeText = T.get('parentViewHrAgo').replace('%d', hr);
+    el.textContent = T.get('parentViewUpdated') + ': ' + timeText;
+  },
+
+  _renderExec() {
+    const el = document.getElementById('pv-exec');
+    const d = this._data;
+    const wds = d.wordData || [];
+    const counts = { mastered: 0, good: 0, learning: 0, struggling: 0, unseen: 0 };
+    wds.forEach(w => counts[w.strengthLabel]++);
+    const known = counts.mastered + counts.good;
+    const hist = d.history || [];
+    const totalSessions = hist.length;
+    const avgAcc = totalSessions > 0 ? Math.round(hist.reduce((s, h) => s + h.accuracy, 0) / totalSessions) : 0;
+
+    const todayStr = new Date().toDateString();
+    const todaySessions = hist.filter(s => new Date(s.ts).toDateString() === todayStr);
+    const todayTimeSec = todaySessions.reduce((s, h) => s + (h.duration || 0), 0);
+    const totalTimeSec = hist.reduce((s, h) => s + (h.duration || 0), 0);
+
+    const fmt = (sec) => {
+      if (sec < 60) return '<1 ' + T.get('rptMin');
+      if (sec < 3600) return Math.round(sec / 60) + ' ' + T.get('rptMin');
+      return Math.floor(sec / 3600) + ' ' + T.get('rptHr') + ' ' + Math.round((sec % 3600) / 60) + ' ' + T.get('rptMin');
+    };
+
+    el.innerHTML =
+      '<div class="rpt-exec-title">' + T.get('rptSummary') + '</div>' +
+      '<div class="rpt-exec-grid">' +
+        '<div class="rpt-kpi"><div class="rpt-kpi-val">' + known + '/' + d.totalWords + '</div><div class="rpt-kpi-label">' + T.get('rptWordsKnown') + '</div></div>' +
+        '<div class="rpt-kpi"><div class="rpt-kpi-val">' + avgAcc + '%</div><div class="rpt-kpi-label">' + T.get('rptAvgAccuracy') + '</div></div>' +
+        '<div class="rpt-kpi"><div class="rpt-kpi-val">' + fmt(todayTimeSec) + '</div><div class="rpt-kpi-label">' + T.get('rptTimeToday') + '</div></div>' +
+        '<div class="rpt-kpi"><div class="rpt-kpi-val">' + (d.streak || 0) + '🔥</div><div class="rpt-kpi-label">' + T.get('rptDayStreak') + '</div></div>' +
+        '<div class="rpt-kpi"><div class="rpt-kpi-val">' + totalSessions + '</div><div class="rpt-kpi-label">' + T.get('rptGamesPlayed') + '</div></div>' +
+        '<div class="rpt-kpi"><div class="rpt-kpi-val">' + fmt(totalTimeSec) + '</div><div class="rpt-kpi-label">' + T.get('rptTimeTotal') + '</div></div>' +
+      '</div>';
+  },
+
+  _renderMastery() {
+    const el = document.getElementById('pv-mastery');
+    const wds = this._data.wordData || [];
+    const total = wds.length;
+    const counts = { mastered: 0, good: 0, learning: 0, struggling: 0, unseen: 0 };
+    wds.forEach(w => counts[w.strengthLabel]++);
+    const colors = { mastered: '#a78bfa', good: '#22c55e', learning: '#fbbf24', struggling: '#ef4444', unseen: 'rgba(255,255,255,0.1)' };
+    const labels = { mastered: T.get('dashMastered'), good: T.get('dashGood'), learning: T.get('dashLearning'), struggling: T.get('dashStruggling'), unseen: T.get('dashUnseen') };
+
+    let bar = '<div class="rpt-mastery-bar">';
+    ['mastered', 'good', 'learning', 'struggling', 'unseen'].forEach(k => {
+      const pct = total > 0 ? (counts[k] / total) * 100 : 0;
+      if (pct > 0) bar += '<div class="rpt-mastery-seg" style="width:' + pct + '%;background:' + colors[k] + '"></div>';
+    });
+    bar += '</div>';
+
+    let legend = '<div class="rpt-mastery-legend">';
+    ['mastered', 'good', 'learning', 'struggling', 'unseen'].forEach(k => {
+      legend += '<div class="rpt-legend-item"><span class="rpt-legend-dot" style="background:' + colors[k] + '"></span><span>' + labels[k] + '</span><span class="rpt-legend-count">' + counts[k] + '</span></div>';
+    });
+    legend += '</div>';
+    el.innerHTML = bar + legend;
+  },
+
+  _renderDailyChart() {
+    const el = document.getElementById('pv-daily');
+    const hist = this._data.history || [];
+    const days = [];
+    for (let i = 13; i >= 0; i--) {
+      const d = new Date(); d.setDate(d.getDate() - i);
+      days.push(d.toDateString());
+    }
+    const dayData = days.map(dayStr => {
+      const sessions = hist.filter(s => new Date(s.ts).toDateString() === dayStr);
+      const totalMin = Math.round(sessions.reduce((s, h) => s + (h.duration || 0), 0) / 60);
+      const games = sessions.length;
+      return { dayStr, totalMin, games };
+    });
+    const maxMin = Math.max(1, ...dayData.map(d => d.totalMin));
+
+    let html = '';
+    dayData.forEach(d => {
+      const date = new Date(d.dayStr);
+      const label = (date.getMonth() + 1) + '/' + date.getDate();
+      const pct = Math.round((d.totalMin / maxMin) * 100);
+      html += '<div class="rpt-daily-row">' +
+        '<span class="rpt-daily-label">' + label + '</span>' +
+        '<div class="rpt-daily-bar-track"><div class="rpt-daily-bar-fill" style="width:' + pct + '%"></div></div>' +
+        '<span class="rpt-daily-val">' + d.totalMin + ' ' + T.get('rptMin') + '</span></div>';
+    });
+    el.innerHTML = html || '<div class="dash-empty">—</div>';
+  },
+
+  _renderWords() {
+    const el = document.getElementById('pv-words');
+    const wds = this._data.wordData || [];
+    wds.sort((a, b) => (a.pctToMastery || 0) - (b.pctToMastery || 0));
+
+    const levelLabels = {
+      mastered: T.get('spLvlMastered'), almost: T.get('spLvlAlmost'),
+      learning: T.get('spLvlLearning'), struggling: T.get('spLvlStruggling'),
+      not_started: T.get('spLvlNew')
+    };
+
+    let html = '';
+    wds.forEach(w => {
+      const lvl = w.confidenceLevel || 'not_started';
+      html += '<div class="sp-word-row" data-level="' + lvl + '">' +
+        '<div class="sp-word-texts"><div class="sp-word-en">' + w.english + '</div><div class="sp-word-he">' + w.hebrew + '</div></div>' +
+        '<div class="sp-word-meta"><span class="sp-word-badge sp-badge-' + lvl + '">' + (levelLabels[lvl] || lvl) + '</span>' +
+        '<div class="sp-word-bar-track"><div class="sp-word-bar-fill" style="width:' + (w.pctToMastery || 0) + '%"></div></div></div></div>';
+    });
+    el.innerHTML = html;
+  }
+};
+
 // ===== APP INIT =====
 const App = {
   init() {
+    if (ParentView.isActive()) {
+      ParentView.init();
+      return;
+    }
+
     WordManager.init();
     GameState.load();
     Particles.init();
     Achievements.resetFlags();
     DailyChallenge.generate();
+    CloudSync.init();
 
     const savedLang = localStorage.getItem('wordquest_lang') || 'en';
     T.setLang(savedLang);
@@ -4509,6 +4820,32 @@ const App = {
     document.getElementById('test-home-btn').addEventListener('click', () => {
       UI.showScreen('home');
     });
+
+    const parentLinkBtn = document.getElementById('btn-parent-link');
+    if (parentLinkBtn) {
+      parentLinkBtn.addEventListener('click', async () => {
+        const linkEl = document.getElementById('parent-link-url');
+        const link = CloudSync.getParentLink();
+        if (link) {
+          linkEl.textContent = link;
+          linkEl.classList.remove('hidden');
+          try { await navigator.clipboard.writeText(link); UI.showToast(T.get('parentLinkCopied'), 'teal'); }
+          catch (e) { linkEl.select && linkEl.select(); }
+        } else {
+          linkEl.textContent = T.get('parentLinkCreating');
+          linkEl.classList.remove('hidden');
+          const binId = await CloudSync.ensureBin();
+          if (binId) {
+            const newLink = CloudSync.getParentLink();
+            linkEl.textContent = newLink;
+            try { await navigator.clipboard.writeText(newLink); UI.showToast(T.get('parentLinkCopied'), 'teal'); }
+            catch (e) {}
+          } else {
+            linkEl.textContent = T.get('parentLinkError');
+          }
+        }
+      });
+    }
 
     document.querySelectorAll('.rpt-filter').forEach(btn => {
       btn.addEventListener('click', () => {

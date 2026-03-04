@@ -210,24 +210,39 @@ const WordManager = {
     return this._words.filter(w => this.getWordStrength(w.id).label === 'mastered').length;
   },
 
+  _recentMistakes: {},
+
   recordAnswer(wordId, correct, gameMode) {
     const wasMastered = this.getWordConfidence(wordId).level === 'mastered';
     const m = this.getMastery(wordId);
-    m.lastSeen = Date.now();
-    m.recentAnswers.push(correct);
-    if (m.recentAnswers.length > 8) m.recentAnswers.shift();
-    if (correct) {
-      m.timesCorrect++;
-      if (!m.gameModesCorrect.includes(gameMode)) {
-        m.gameModesCorrect.push(gameMode);
-      }
-      this._checkMasteryLevelUp(m);
-      m.srsInterval = Math.min((m.srsInterval || 1) * 2, 30);
-    } else {
+    const now = Date.now();
+    m.lastSeen = now;
+
+    if (!correct) {
+      this._recentMistakes[wordId] = now;
       m.timesWrong++;
       m.srsInterval = 1;
+      m.recentAnswers.push(false);
+      if (m.recentAnswers.length > 8) m.recentAnswers.shift();
+    } else {
+      const lastMistake = this._recentMistakes[wordId] || 0;
+      const isFreebie = (now - lastMistake) < 30000;
+
+      if (isFreebie) {
+        delete this._recentMistakes[wordId];
+      } else {
+        m.timesCorrect++;
+        m.recentAnswers.push(true);
+        if (m.recentAnswers.length > 8) m.recentAnswers.shift();
+        if (!m.gameModesCorrect.includes(gameMode)) {
+          m.gameModesCorrect.push(gameMode);
+        }
+        this._checkMasteryLevelUp(m);
+        m.srsInterval = Math.min((m.srsInterval || 1) * 2, 30);
+      }
     }
-    m.srsNextReview = Date.now() + (m.srsInterval * 86400000);
+
+    m.srsNextReview = now + (m.srsInterval * 86400000);
     this._saveMastery();
     const nowMastered = this.getWordConfidence(wordId).level === 'mastered';
     m.justMastered = !wasMastered && nowMastered;

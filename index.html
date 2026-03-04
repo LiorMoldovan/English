@@ -19,6 +19,36 @@
 <body>
   <canvas id="particle-canvas"></canvas>
 
+  <!-- ===== PARENT VIEW (read-only, shown via ?parent= URL) ===== -->
+  <div class="hidden" id="parent-view">
+    <div class="pv-header">
+      <div class="pv-title" id="pv-title">Progress Report (Live)</div>
+      <div class="pv-controls">
+        <button class="btn btn-primary pv-refresh" id="pv-refresh-btn">Refresh</button>
+        <button class="lang-toggle" id="pv-lang-btn">עברית</button>
+      </div>
+    </div>
+    <div class="pv-updated" id="pv-updated"></div>
+    <div class="pv-loading" id="pv-loading">Loading progress...</div>
+    <div class="pv-error hidden" id="pv-error"></div>
+    <div class="pv-content hidden" id="pv-content">
+      <div class="rpt-exec" id="pv-exec"></div>
+      <div class="rpt-section">
+        <h3 class="rpt-section-title" data-t="rptWordMastery">Word Mastery</h3>
+        <div class="rpt-mastery" id="pv-mastery"></div>
+      </div>
+      <div class="rpt-section">
+        <h3 class="rpt-section-title" data-t="rptDailyUse">Daily Usage — Last 14 Days</h3>
+        <div class="rpt-daily-chart" id="pv-daily"></div>
+      </div>
+      <div class="rpt-section">
+        <h3 class="rpt-section-title" data-t="spTitle">Word Progress</h3>
+        <div class="sp-word-list" id="pv-words"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="app-main">
   <!-- ===== WELCOME SCREEN ===== -->
   <div class="screen" id="screen-welcome">
     <div class="welcome-container">
@@ -675,6 +705,15 @@
       <div class="game-title" data-t="parentDashboard">Progress Report</div>
     </div>
     <div class="dashboard-scroll">
+      <!-- Parent Link -->
+      <div class="parent-link-card">
+        <button class="btn btn-parent-link" id="btn-parent-link">
+          <span class="pl-icon">🔗</span>
+          <span data-t="parentLink">Parent Link</span>
+        </button>
+        <div class="parent-link-desc" data-t="parentLinkDesc">Share this link to view progress from another device</div>
+        <div class="parent-link-url hidden" id="parent-link-url"></div>
+      </div>
       <!-- Executive Summary -->
       <div class="rpt-exec" id="rpt-exec"></div>
 
@@ -801,6 +840,8 @@
       <div class="achievement-unlock-desc" id="achievement-unlock-desc"></div>
     </div>
   </div>
+
+  </div><!-- /app-main -->
 
   <script src="words.js"></script>
   <script src="app.js"></script>
