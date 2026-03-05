@@ -1,6 +1,9 @@
 {
   "name": "word-quest",
-  "version": "1.9.1",
+  "version": "2.0.0",
   "description": "Word Quest - Fun English-Hebrew vocabulary learning games",
-  "private": true
+  "private": true,
+  "devDependencies": {
+    "@playwright/test": "^1.58.2"
+  }
 }

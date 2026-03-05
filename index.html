@@ -162,6 +162,11 @@
       </div>
 
       <div class="home-actions-row">
+        <button class="home-action-btn action-learn hidden" id="btn-learn-new">
+          <span class="action-icon">📖</span>
+          <span class="action-label" data-t="learnNewWords">Learn New Words</span>
+          <span class="action-desc" id="learn-new-count"></span>
+        </button>
         <button class="home-action-btn action-practice" id="btn-quick-practice">
           <span class="action-icon">🎯</span>
           <span class="action-label" data-t="quickPractice">Quick Practice</span>
@@ -206,11 +211,6 @@
           <div class="game-card-icon">🔍</div>
           <div class="game-card-name" data-t="gameWordSpy">Word Spy</div>
           <div class="game-card-name-he">מרגל מילים</div>
-        </button>
-        <button class="game-card featured" data-game="catsort">
-          <div class="game-card-icon">🪣</div>
-          <div class="game-card-name" data-t="gameCatSort">Category Sort</div>
-          <div class="game-card-name-he">מיון מילים</div>
         </button>
         <button class="game-card featured" data-game="fillin">
           <div class="game-card-icon">📝</div>
@@ -287,10 +287,7 @@
     <div class="game-header">
       <button class="back-btn" data-back>←</button>
       <div class="game-title" data-t="gameBubble">Bubble Pop</div>
-      <div class="game-score">
-        <span class="score-label" data-t="xpLabel">XP:</span>
-        <span class="score-value" id="bubble-score">0</span>
-      </div>
+      <div class="game-score"><span id="bubble-progress">0/10</span> · <span id="bubble-score">0</span> ⭐</div>
     </div>
     <div class="game-instructions" data-t="instrBubble">Pop the bubble with the correct translation!</div>
     <div class="direction-picker" id="bubble-direction-picker">
@@ -313,11 +310,7 @@
     <div class="game-header">
       <button class="back-btn" data-back>←</button>
       <div class="game-title" data-t="gameMemory">Memory Match</div>
-      <div class="game-stats-bar">
-        <span data-t="moves">Moves</span>: <span id="memory-moves">0</span>
-        <span class="stat-sep">|</span>
-        <span>⏱</span> <span id="memory-time">0:00</span>
-      </div>
+      <div class="game-score"><span id="memory-found">0/8</span> · <span id="memory-moves">0</span> <span data-t="moves">Moves</span></div>
     </div>
     <div class="game-instructions" data-t="instrMemory">Flip cards and find matching English-Hebrew pairs!</div>
     <div class="memory-grid" id="memory-grid"></div>
@@ -328,11 +321,7 @@
     <div class="game-header">
       <button class="back-btn" data-back>←</button>
       <div class="game-title" data-t="gameLightning">Lightning Quiz</div>
-      <div class="game-score">
-        <span id="lightning-progress">1/10</span>
-        <span class="stat-sep">|</span>
-        <span class="score-value" id="lightning-score">0</span> <span data-t="xpLabel">XP</span>
-      </div>
+      <div class="game-score"><span id="lightning-progress">1/10</span> · <span id="lightning-score">0</span> ⭐</div>
     </div>
     <div class="lightning-timer-bar">
       <div class="lightning-timer-fill" id="lightning-timer"></div>
@@ -371,11 +360,7 @@
     <div class="game-header">
       <button class="back-btn" data-back>←</button>
       <div class="game-title" data-t="gameScramble">Word Scramble</div>
-      <div class="game-score">
-        <span id="scramble-progress">1/8</span>
-        <span class="stat-sep">|</span>
-        <span class="score-value" id="scramble-score">0</span> XP
-      </div>
+      <div class="game-score"><span id="scramble-progress">1/8</span> · <span id="scramble-score">0</span> ⭐</div>
     </div>
     <div class="game-instructions" data-t="instrScramble">Unscramble the letters to spell the translation!</div>
     <div class="direction-picker" id="scramble-direction-picker">
@@ -398,11 +383,7 @@
     <div class="game-header">
       <button class="back-btn" data-back>←</button>
       <div class="game-title" data-t="gameFalling">Falling Words</div>
-      <div class="game-score">
-        <span class="score-value" id="falling-score">0</span> XP
-        <span class="stat-sep">|</span>
-        <span id="falling-lives">❤️❤️❤️</span>
-      </div>
+      <div class="game-score"><span id="falling-progress">0/0</span> · <span id="falling-lives">❤️❤️❤️</span></div>
     </div>
     <div class="pregame-setup" id="falling-setup">
       <div class="game-instructions" data-t="instrFalling">Type the translation before the word hits the bottom!</div>
@@ -435,11 +416,7 @@
     <div class="game-header">
       <button class="back-btn" data-back>←</button>
       <div class="game-title" data-t="gameTrueFalse">True or False</div>
-      <div class="game-score">
-        <span id="tf-progress">1/15</span>
-        <span class="score-divider">·</span>
-        <span id="tf-score">0</span> ⭐
-      </div>
+      <div class="game-score"><span id="tf-progress">1/15</span> · <span id="tf-score">0</span> ⭐</div>
     </div>
     <div class="game-instructions" data-t="instrTrueFalse">Is this translation correct? Tap Correct or Wrong!</div>
     <div class="tf-card-container">
@@ -461,11 +438,7 @@
     <div class="game-header">
       <button class="back-btn" data-back>←</button>
       <div class="game-title" data-t="gameMatchUp">Match Up</div>
-      <div class="game-score">
-        <span id="mu-round">1/3</span>
-        <span class="score-divider">·</span>
-        <span id="mu-score">0</span> ⭐
-      </div>
+      <div class="game-score"><span id="mu-round">1/3</span> · <span id="mu-score">0</span> ⭐</div>
     </div>
     <div class="pregame-setup" id="matchup-setup">
       <div class="game-instructions" data-t="instrMatchUp">Match each English word with its Hebrew translation!</div>
@@ -568,9 +541,6 @@
         <label class="import-option-label">
           <input type="checkbox" id="import-auto-select" checked> <span data-t="importAutoSelect">Auto-select for practice</span>
         </label>
-        <label class="import-option-label">
-          <input type="checkbox" id="import-learn-first" checked> <span data-t="importLearnNew">Learn new words first</span>
-        </label>
       </div>
       <div class="bulk-import-actions">
         <button class="btn btn-primary" id="btn-bulk-do" data-t="bulkImportBtn">Import</button>
@@ -619,7 +589,7 @@
     <div class="game-header">
       <button class="back-btn" data-back>←</button>
       <div class="game-title" data-t="gameBingo">Word Bingo</div>
-      <div class="game-score"><span id="bingo-found">0</span>/16</div>
+      <div class="game-score"><span id="bingo-found">0</span>/16 · <span id="bingo-score">0</span> ⭐</div>
     </div>
     <div class="pregame-setup" id="bingo-setup">
       <div class="game-instructions" data-t="instrBingo">Find the matching translation on the grid!</div>
@@ -641,7 +611,7 @@
     <div class="game-header">
       <button class="back-btn" data-back>←</button>
       <div class="game-title" data-t="gameSprint">Translation Sprint</div>
-      <div class="game-score"><span id="sprint-streak">0</span> 🔥</div>
+      <div class="game-score"><span id="sprint-progress">0/0</span> · <span id="sprint-streak">0</span> 🔥</div>
     </div>
     <div class="pregame-setup" id="sprint-setup">
       <div class="game-instructions" data-t="instrSprint">Pick the right translation — how long can you streak?</div>
@@ -674,7 +644,7 @@
     <div class="game-header">
       <button class="back-btn" data-back>←</button>
       <div class="game-title" data-t="gameWordSpy">Word Spy</div>
-      <div class="game-score"><span id="spy-found">0</span>/<span id="spy-total">8</span></div>
+      <div class="game-score"><span id="spy-found">0</span>/<span id="spy-total">8</span> · <span id="spy-score">0</span> ⭐</div>
     </div>
     <div class="pregame-setup" id="wordspy-setup">
       <div class="game-instructions" data-t="instrWordSpy">Find all English-Hebrew pairs hidden in the grid!</div>
@@ -691,29 +661,6 @@
     </div>
     <div class="spy-timer-bar"><div class="spy-timer-fill" id="spy-timer"></div></div>
     <div class="spy-grid" id="spy-grid"></div>
-  </div>
-
-  <!-- ===== CATEGORY SORT ===== -->
-  <div class="screen hidden" id="screen-catsort">
-    <div class="game-header">
-      <button class="back-btn" data-back>←</button>
-      <div class="game-title" data-t="gameCatSort">Category Sort</div>
-      <div class="game-score"><span id="cs-score">0</span> ⭐</div>
-    </div>
-    <div class="pregame-setup" id="catsort-setup">
-      <div class="game-instructions" data-t="instrCatSort">Tap the correct translation from the 3 options!</div>
-      <div class="setup-group">
-        <div class="setup-label" data-t="direction">Direction</div>
-        <div class="direction-picker">
-          <button class="dir-btn" data-dir="he-to-en" data-game="catsort" data-t="dirHeToEn">עברית → English</button>
-          <button class="dir-btn active" data-dir="en-to-he" data-game="catsort" data-t="dirEnToHe">English → עברית</button>
-        </div>
-      </div>
-      <button class="start-game-btn" id="catsort-start-btn" data-t="btnStart">▶ Start</button>
-    </div>
-    <div class="cs-prompt" id="cs-prompt"></div>
-    <div class="cs-buckets" id="cs-buckets"></div>
-    <div class="cs-progress" id="cs-progress"></div>
   </div>
 
   <!-- ===== SENTENCE FILL ===== -->
