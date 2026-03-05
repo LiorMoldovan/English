@@ -88,15 +88,22 @@ const WordManager = {
   STORAGE_KEY: 'wordquest_words',
   MASTERY_KEY: 'wordquest_mastery',
   SELECTION_KEY: 'wordquest_selection',
+  ARCHIVE_KEY: 'wordquest_archive',
+  DRIP_KEY: 'wordquest_drip',
 
   _words: null,
   _mastery: null,
   _selection: null,
+  _tempPool: null,
+  _archive: null,
+  _drip: null,
 
   init() {
     this._words = this._loadWords();
     this._mastery = this._loadMastery();
     this._selection = this._loadSelection();
+    this._archive = this._loadArchive();
+    this._drip = this._loadDrip();
   },
 
   _loadWords() {
@@ -166,7 +173,16 @@ const WordManager = {
     return this._selection.size > 0;
   },
 
+  setTempPool(words) {
+    this._tempPool = words && words.length > 0 ? words : null;
+  },
+
+  clearTempPool() {
+    this._tempPool = null;
+  },
+
   _getActivePool() {
+    if (this._tempPool) return [...this._tempPool];
     if (this._selection.size > 0) return this._words.filter(w => this._selection.has(w.id));
     return this._words;
   },
@@ -343,8 +359,9 @@ const WordManager = {
     const daysSinceSeen = m.lastSeen ? Math.floor((Date.now() - m.lastSeen) / 86400000) : 999;
     const decayPenalty = Math.min(daysSinceSeen * 3, 20);
     const score = Math.max(0, Math.min(100, accuracy - decayPenalty + m.masteryLevel * 4));
+    const conf = this.getWordConfidence(wordId);
     let label = 'struggling';
-    if (score >= 100) label = 'mastered';
+    if (conf.level === 'mastered') label = 'mastered';
     else if (score >= 70) label = 'good';
     else if (score >= 40) label = 'learning';
     return { score, label, accuracy, total, daysSinceSeen };
@@ -483,5 +500,119 @@ const WordManager = {
     this._saveWords();
     this._saveMastery();
     this._saveSelection();
+  },
+
+  // ===== ARCHIVE =====
+  _loadArchive() {
+    try {
+      const saved = localStorage.getItem(this.ARCHIVE_KEY);
+      if (saved) { const a = JSON.parse(saved); if (Array.isArray(a)) return a; }
+    } catch (e) {}
+    return [];
+  },
+
+  _saveArchive() {
+    try { localStorage.setItem(this.ARCHIVE_KEY, JSON.stringify(this._archive)); } catch (e) {}
+  },
+
+  getArchived() { return [...this._archive]; },
+  getArchivedCount() { return this._archive.length; },
+
+  archiveWord(wordId) {
+    const word = this._words.find(w => w.id === wordId);
+    if (!word) return false;
+    const mastery = this._mastery[wordId] || null;
+    this._archive.push({ word: { ...word }, mastery: mastery ? { ...mastery } : null, archivedAt: Date.now() });
+    this._words = this._words.filter(w => w.id !== wordId);
+    delete this._mastery[wordId];
+    this._selection.delete(wordId);
+    this._saveWords();
+    this._saveMastery();
+    this._saveSelection();
+    this._saveArchive();
+    return true;
+  },
+
+  archiveMultiple(wordIds) {
+    let count = 0;
+    wordIds.forEach(id => { if (this.archiveWord(id)) count++; });
+    return count;
+  },
+
+  restoreWord(archiveIndex) {
+    if (archiveIndex < 0 || archiveIndex >= this._archive.length) return false;
+    const entry = this._archive[archiveIndex];
+    const maxId = this._words.reduce((max, w) => Math.max(max, w.id), 0);
+    const newId = maxId + 1;
+    const restored = { id: newId, english: entry.word.english, hebrew: entry.word.hebrew };
+    this._words.push(restored);
+    if (entry.mastery) this._mastery[newId] = { ...entry.mastery };
+    this._archive.splice(archiveIndex, 1);
+    this._saveWords();
+    this._saveMastery();
+    this._saveArchive();
+    return restored;
+  },
+
+  restoreAll() {
+    let count = 0;
+    while (this._archive.length > 0) { if (this.restoreWord(0)) count++; }
+    return count;
+  },
+
+  // ===== DRIP SYSTEM =====
+  _loadDrip() {
+    try {
+      const saved = localStorage.getItem(this.DRIP_KEY);
+      if (saved) { const d = JSON.parse(saved); if (d && Array.isArray(d.queue)) return d; }
+    } catch (e) {}
+    return { queue: [], active: [], batchSize: 5 };
+  },
+
+  _saveDrip() {
+    try { localStorage.setItem(this.DRIP_KEY, JSON.stringify(this._drip)); } catch (e) {}
+  },
+
+  hasDripActive() { return this._drip.queue.length > 0 || this._drip.active.length > 0; },
+  getDripStatus() {
+    return {
+      queued: this._drip.queue.length,
+      active: this._drip.active.length,
+      total: this._drip.queue.length + this._drip.active.length
+    };
+  },
+
+  startDrip(wordIds, batchSize) {
+    const bs = batchSize || 5;
+    const first = wordIds.slice(0, bs);
+    const rest = wordIds.slice(bs);
+    this._drip = { queue: rest, active: first, batchSize: bs };
+    first.forEach(id => this._selection.add(id));
+    this._saveSelection();
+    this._saveDrip();
+  },
+
+  promoteDrip() {
+    if (this._drip.queue.length === 0) return 0;
+    const readyForMore = this._drip.active.every(id => {
+      const m = this.getMastery(id);
+      const total = m.timesCorrect + m.timesWrong;
+      if (total < 4) return false;
+      const accuracy = Math.round((m.timesCorrect / total) * 100);
+      return accuracy > 50;
+    });
+    if (!readyForMore) return 0;
+    const addCount = Math.min(3, this._drip.queue.length);
+    const newBatch = this._drip.queue.splice(0, addCount);
+    this._drip.active.push(...newBatch);
+    newBatch.forEach(id => this._selection.add(id));
+    this._saveSelection();
+    this._saveDrip();
+    return addCount;
+  },
+
+  clearDrip() {
+    this._drip = { queue: [], active: [], batchSize: 5 };
+    this._saveDrip();
   }
 };

@@ -491,51 +491,115 @@
       <button class="back-btn" data-back>←</button>
       <div class="game-title" data-t="navWords">My Words</div>
     </div>
-    <div class="words-controls">
-      <input type="text" class="words-search" id="words-search" data-t-placeholder="searchWords" placeholder="Search words...">
-      <div class="words-filters">
-        <button class="filter-btn active" data-filter="all" data-t="filterAll">All</button>
-        <button class="filter-btn" data-filter="new" data-t="filterNew">New</button>
-        <button class="filter-btn" data-filter="learning" data-t="filterLearning">Learning</button>
-        <button class="filter-btn" data-filter="mastered" data-t="filterMastered">Mastered</button>
+    <div class="words-tab-bar">
+      <button class="words-tab active" data-wtab="active" id="wtab-active" data-t="activeTab">Active</button>
+      <button class="words-tab" data-wtab="archived" id="wtab-archived">
+        <span data-t="archiveTab">Archived</span> <span class="archive-count" id="archive-count-badge"></span>
+      </button>
+    </div>
+    <div id="words-active-panel">
+      <div class="words-controls">
+        <input type="text" class="words-search" id="words-search" data-t-placeholder="searchWords" placeholder="Search words...">
+        <div class="words-filters">
+          <button class="filter-btn active" data-filter="all" data-t="filterAll">All</button>
+          <button class="filter-btn" data-filter="new" data-t="filterNew">New</button>
+          <button class="filter-btn" data-filter="learning" data-t="filterLearning">Learning</button>
+          <button class="filter-btn" data-filter="mastered" data-t="filterMastered">Mastered</button>
+        </div>
+        <div class="selection-bar" id="selection-bar">
+          <div class="selection-info">
+            <span class="selection-icon">🎯</span>
+            <span class="selection-label" id="selection-label" data-t="selPracticing">Practice selected words</span>
+            <span class="selection-count" id="selection-count"></span>
+          </div>
+          <div class="selection-actions">
+            <button class="sel-action-btn" id="btn-select-all" data-t="selSelectAll">Select All</button>
+            <button class="sel-action-btn" id="btn-clear-selection" data-t="selClear">Clear</button>
+            <button class="sel-action-btn sel-archive-btn" id="btn-archive-mastered" data-t="archiveAll">Archive Mastered</button>
+          </div>
+          <div class="bulk-select-row" id="bulk-select-row">
+            <span class="bulk-select-label" data-t="bulkSelectLabel">Select by level:</span>
+            <button class="bulk-sel-btn bulk-sel-struggling" data-conf="struggling" data-t="spLvlStruggling">Struggling</button>
+            <button class="bulk-sel-btn bulk-sel-learning" data-conf="learning" data-t="spLvlLearning">Learning</button>
+            <button class="bulk-sel-btn bulk-sel-almost" data-conf="almost" data-t="spLvlAlmost">Almost there</button>
+            <button class="bulk-sel-btn bulk-sel-new" data-conf="not_started" data-t="spLvlNew">New</button>
+          </div>
+        </div>
       </div>
-      <div class="selection-bar" id="selection-bar">
-        <div class="selection-info">
-          <span class="selection-icon">🎯</span>
-          <span class="selection-label" id="selection-label" data-t="selPracticing">Practice selected words</span>
-          <span class="selection-count" id="selection-count"></span>
-        </div>
-        <div class="selection-actions">
-          <button class="sel-action-btn" id="btn-select-all" data-t="selSelectAll">Select All</button>
-          <button class="sel-action-btn" id="btn-clear-selection" data-t="selClear">Clear</button>
-        </div>
-        <div class="bulk-select-row" id="bulk-select-row">
-          <span class="bulk-select-label" data-t="bulkSelectLabel">Select by level:</span>
-          <button class="bulk-sel-btn bulk-sel-struggling" data-conf="struggling" data-t="spLvlStruggling">Struggling</button>
-          <button class="bulk-sel-btn bulk-sel-learning" data-conf="learning" data-t="spLvlLearning">Learning</button>
-          <button class="bulk-sel-btn bulk-sel-almost" data-conf="almost" data-t="spLvlAlmost">Almost there</button>
-          <button class="bulk-sel-btn bulk-sel-new" data-conf="not_started" data-t="spLvlNew">New</button>
-        </div>
+      <div class="words-list" id="words-list"></div>
+      <div class="words-add-form">
+        <input type="text" class="add-input" id="add-english" placeholder="English" data-t-placeholder="addEnglish">
+        <input type="text" class="add-input" id="add-hebrew" placeholder="עברית" data-t-placeholder="addHebrew">
+        <button class="btn btn-primary" id="btn-add-word" data-t="addWord">Add</button>
+        <button class="btn btn-secondary btn-bulk" id="btn-bulk-import" data-t="bulkImport">Import Words</button>
       </div>
     </div>
-    <div class="words-list" id="words-list"></div>
-    <div class="words-add-form">
-      <input type="text" class="add-input" id="add-english" placeholder="English" data-t-placeholder="addEnglish">
-      <input type="text" class="add-input" id="add-hebrew" placeholder="עברית" data-t-placeholder="addHebrew">
-      <button class="btn btn-primary" id="btn-add-word" data-t="addWord">Add</button>
-      <button class="btn btn-secondary btn-bulk" id="btn-bulk-import" data-t="bulkImport">Bulk Import</button>
+    <div id="words-archive-panel" class="hidden">
+      <div class="archive-list" id="archive-list"></div>
+      <div class="archive-empty hidden" id="archive-empty" data-t="archiveEmpty">No archived words</div>
     </div>
   </div>
 
-  <!-- ===== BULK IMPORT MODAL ===== -->
+  <!-- ===== IMPORT MODAL ===== -->
   <div class="overlay hidden" id="bulk-import-modal">
     <div class="bulk-import-card">
-      <div class="bulk-import-title" data-t="bulkImportTitle">Bulk Import Words</div>
-      <textarea class="bulk-import-area" id="bulk-import-area" rows="10"></textarea>
+      <div class="bulk-import-title" data-t="bulkImportTitle">Import Words</div>
+      <div class="import-tabs">
+        <button class="import-tab active" data-itab="paste" data-t="importTabPaste">Paste</button>
+        <button class="import-tab" data-itab="photo" data-t="importTabPhoto">Photo</button>
+        <button class="import-tab" data-itab="file" data-t="importTabFile">File</button>
+      </div>
+      <div class="import-panel" id="import-paste-panel">
+        <textarea class="bulk-import-area" id="bulk-import-area" rows="8"></textarea>
+      </div>
+      <div class="import-panel hidden" id="import-photo-panel">
+        <input type="file" accept="image/*" capture="environment" id="import-photo-input" class="hidden">
+        <button class="btn btn-secondary import-photo-btn" id="btn-import-photo" data-t="importPhotoBtn">Take Photo or Choose</button>
+        <div class="import-photo-status hidden" id="import-photo-status" data-t="importPhotoProcessing">Reading text...</div>
+      </div>
+      <div class="import-panel hidden" id="import-file-panel">
+        <input type="file" accept=".txt,.csv,.tsv" id="import-file-input" class="hidden">
+        <button class="btn btn-secondary import-file-btn" id="btn-import-file" data-t="importFileBtn">Choose File (.txt / .csv)</button>
+      </div>
+      <div class="import-preview hidden" id="import-preview"></div>
+      <div class="import-options">
+        <label class="import-option-label">
+          <input type="checkbox" id="import-auto-select" checked> <span data-t="importAutoSelect">Auto-select for practice</span>
+        </label>
+        <label class="import-option-label">
+          <input type="checkbox" id="import-learn-first" checked> <span data-t="importLearnNew">Learn new words first</span>
+        </label>
+      </div>
       <div class="bulk-import-actions">
         <button class="btn btn-primary" id="btn-bulk-do" data-t="bulkImportBtn">Import</button>
         <button class="btn btn-secondary" id="btn-bulk-close" data-t="bulkImportClose">Close</button>
       </div>
+    </div>
+  </div>
+
+  <!-- ===== FLASHCARD INTRO ===== -->
+  <div class="screen hidden" id="screen-flashcards">
+    <div class="game-header">
+      <button class="back-btn" data-back>←</button>
+      <div class="game-title" data-t="flashcardTitle">New Words</div>
+      <button class="btn btn-sm" id="btn-fc-skip" data-t="flashcardSkip">Skip</button>
+    </div>
+    <div class="fc-instruction" id="fc-instruction" data-t="flashcardInstruction">Tap the card to flip it. Swipe right for next word.</div>
+    <div class="fc-progress" id="fc-progress">1 / 10</div>
+    <div class="fc-card-container" id="fc-card-container">
+      <div class="fc-card" id="fc-card">
+        <div class="fc-front">
+          <div class="fc-word" id="fc-front-word"></div>
+          <div class="fc-hint" data-t="flashcardTapToFlip">Tap to see translation</div>
+        </div>
+        <div class="fc-back">
+          <div class="fc-word" id="fc-back-word"></div>
+        </div>
+      </div>
+    </div>
+    <div class="fc-done hidden" id="fc-done">
+      <div class="fc-done-text" data-t="flashcardDone">Ready to practice!</div>
+      <button class="btn btn-primary" id="btn-fc-start" data-t="flashcardStart">Start Practicing</button>
     </div>
   </div>
 
