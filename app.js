@@ -5827,4 +5827,10 @@ const App = {
   }
 };
 
-document.addEventListener('DOMContentLoaded', () => App.init());
+document.addEventListener('DOMContentLoaded', () => {
+  App.init();
+  fetch('package.json').then(r => r.json()).then(pkg => {
+    const el = document.getElementById('app-version');
+    if (el) el.textContent = 'v' + pkg.version;
+  }).catch(() => {});
+});
