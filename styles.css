@@ -326,10 +326,11 @@ body.rtl .back-btn { transform: scaleX(-1); }
 
 /* ===== HOME ACTIONS ROW ===== */
 .home-actions-row {
-  display: flex; gap: 8px; margin-bottom: 10px; align-items: stretch;
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 6px; margin-bottom: 10px;
 }
 .home-action-btn {
-  flex: 1; min-width: 0;
+  min-width: 0;
   display: flex; align-items: center; justify-content: center; gap: 4px;
   flex-wrap: wrap;
   padding: 10px 8px;
@@ -356,14 +357,13 @@ body.rtl .back-btn { transform: scaleX(-1); }
   background: linear-gradient(135deg, rgba(234,179,8,0.12), rgba(239,68,68,0.08));
   border-color: rgba(234,179,8,0.25);
 }
-.action-stats {
-  cursor: default; flex: 0 0 auto; padding: 10px 14px;
-  gap: 4px; font-weight: 800;
+.goal-stats {
+  display: flex; align-items: center; justify-content: center; gap: 4px;
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
 }
-.action-stats:hover { transform: none; }
-.action-stat-val { font-size: 0.95rem; font-weight: 900; }
-.action-stat-emoji { font-size: 0.8rem; }
-.action-stat-sep { color: var(--text-dim); font-size: 0.7rem; margin: 0 2px; }
+.action-stat-val { font-size: 0.85rem; font-weight: 900; }
+.action-stat-emoji { font-size: 0.7rem; }
+.action-stat-sep { color: var(--text-dim); font-size: 0.6rem; margin: 0 2px; }
 
 /* ===== GAME MODE DIVERSITY HINT ===== */
 .game-mode-hint {
@@ -876,6 +876,7 @@ body.rtl .test-word-row.tw-wrong { border-left: none; border-right: 3px solid #e
   padding: 8px 0;
   padding-bottom: max(8px, env(safe-area-inset-bottom));
   z-index: 40;
+  /* for version label positioning */
 }
 .nav-btn {
   font-family: inherit;
@@ -975,6 +976,8 @@ body.rtl .combo-display { right: auto; left: 20px; }
   display: flex; align-items: center; justify-content: center;
   padding: 8px;
   will-change: transform;
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
   font-weight: 700;
   font-size: clamp(0.7rem, 2vw, 0.9rem);
   text-align: center;
@@ -1486,16 +1489,18 @@ body.rtl .memory-card-front { transform: rotateY(-180deg); }
   max-height: calc(100vh - 260px);
 }
 .word-row {
-  display: flex; align-items: center; gap: 10px;
-  padding: 12px 14px;
+  display: flex; align-items: center; gap: 6px;
+  padding: 10px 10px;
   background: var(--bg-card);
   border-radius: var(--radius-sm);
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   transition: background 0.2s;
+  min-width: 0;
+  overflow: hidden;
 }
 .word-row:hover { background: var(--bg-card-hover); }
-.word-english { flex: 1; font-weight: 700; font-size: 0.9rem; }
-.word-hebrew { flex: 1; font-weight: 600; font-size: 0.9rem; color: var(--text-secondary); text-align: end; }
+.word-english { flex: 1; font-weight: 700; font-size: 0.82rem; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.word-hebrew { flex: 1; font-weight: 600; font-size: 0.82rem; color: var(--text-secondary); text-align: end; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .word-confidence { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
 .conf-dot {
   width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
@@ -1521,7 +1526,7 @@ body.rtl .memory-card-front { transform: rotateY(-180deg); }
   -webkit-tap-highlight-color: transparent;
 }
 .word-delete:hover { color: var(--danger); }
-.word-actions { display: flex; gap: 4px; flex-shrink: 0; }
+.word-actions { display: flex; gap: 2px; flex-shrink: 0; }
 .word-edit {
   background: none; border: none;
   color: var(--text-dim); font-size: 1rem;
@@ -1530,6 +1535,15 @@ body.rtl .memory-card-front { transform: rotateY(-180deg); }
   -webkit-tap-highlight-color: transparent;
 }
 .word-edit:hover { color: var(--accent-teal); }
+.word-archive {
+  background: none; border: none;
+  color: var(--text-dim); font-size: 0.85rem;
+  cursor: pointer; padding: 3px 4px;
+  transition: color 0.2s;
+  -webkit-tap-highlight-color: transparent;
+  line-height: 1;
+}
+.word-archive:hover { color: var(--accent-gold); }
 
 .word-row.editing {
   background: rgba(168,85,247,0.08);
@@ -2154,7 +2168,19 @@ body.rtl .memory-card-front { transform: rotateY(-180deg); }
   .lightning-answers { gap: 8px; padding: 12px; }
   .answer-btn { padding: 14px 10px; }
   .scramble-slot, .scramble-tile { width: 36px; height: 42px; font-size: 1rem; }
-  .bubble { font-size: 0.75rem; }
+  .bubble { font-size: 0.85rem; }
+  .words-list { padding: 4px 8px; }
+  .word-row { gap: 3px; padding: 7px 5px; }
+  .word-english { font-size: 0.7rem; flex: 1 1 0; }
+  .word-hebrew { font-size: 0.7rem; flex: 1 1 0; }
+  .word-actions { gap: 0; }
+  .word-edit, .word-delete, .word-archive { font-size: 0.78rem; padding: 2px; min-width: 22px; text-align: center; }
+  .word-row .speak-btn { width: 28px; height: 28px; font-size: 0.75rem; margin-inline-start: 1px; }
+  .conf-label { font-size: 0.48rem; max-width: 38px; overflow: hidden; text-overflow: ellipsis; }
+  .conf-dot { width: 6px; height: 6px; }
+  .word-confidence { gap: 2px; }
+  .word-checkbox-custom { width: 15px; height: 15px; }
+  .word-checkbox-wrapper { flex-shrink: 0; }
 }
 
 @media (min-width: 768px) {
@@ -2165,11 +2191,11 @@ body.rtl .memory-card-front { transform: rotateY(-180deg); }
 /* ===== SPEAK BUTTON ===== */
 .speak-btn {
   display: inline-flex; align-items: center; justify-content: center;
-  width: 28px; height: 28px;
+  width: 34px; height: 34px;
   border: none; border-radius: 50%;
   background: rgba(78,205,196,0.15);
   color: var(--accent-teal);
-  font-size: 0.8rem;
+  font-size: 0.95rem;
   cursor: pointer;
   flex-shrink: 0;
   transition: all 0.15s ease;
@@ -2193,11 +2219,11 @@ body.rtl .memory-card-front { transform: rotateY(-180deg); }
   100% { transform: scale(1); }
 }
 .test-prompt .speak-btn {
-  margin-inline-start: 8px; width: 32px; height: 32px; font-size: 0.9rem;
+  margin-inline-start: 8px; width: 38px; height: 38px; font-size: 1.05rem;
 }
-.word-row .speak-btn { width: 24px; height: 24px; font-size: 0.7rem; }
-.test-word-row .speak-btn { width: 24px; height: 24px; font-size: 0.7rem; margin-inline-start: auto; }
-.dash-word-row .speak-btn { width: 22px; height: 22px; font-size: 0.65rem; }
+.word-row .speak-btn { width: 32px; height: 32px; font-size: 0.9rem; }
+.test-word-row .speak-btn { width: 32px; height: 32px; font-size: 0.9rem; margin-inline-start: auto; }
+.dash-word-row .speak-btn { width: 28px; height: 28px; font-size: 0.8rem; }
 
 /* ===== UTILITY ===== */
 /* ===== PARENT LINK ===== */
@@ -2282,7 +2308,11 @@ body.rtl .memory-card-front { transform: rotateY(-180deg); }
 .btn-sm { padding: 4px 10px; font-size: 0.65rem; font-weight: 700; border-radius: 6px; border: 1px solid var(--text-dim); color: var(--text-secondary); background: transparent; cursor: pointer; }
 
 /* ===== VERSION ===== */
-.app-version { text-align: center; padding: 8px 0 16px; font-size: 0.55rem; color: rgba(255,255,255,0.15); letter-spacing: 0.5px; }
+.app-version {
+  position: absolute; top: 2px; right: 6px;
+  font-size: 0.45rem; color: rgba(255,255,255,0.2);
+  letter-spacing: 0.3px; pointer-events: none;
+}
 
 .hidden { display: none !important; }
 .text-success { color: var(--success); }

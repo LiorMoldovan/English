@@ -703,16 +703,37 @@ const GameState = {
 
 // ===== SPEAK (Text-to-Speech) =====
 const Speak = {
+  _voices: null,
+  _loadVoices() {
+    this._voices = speechSynthesis.getVoices();
+  },
+  _pickVoice(langCode) {
+    if (!this._voices || this._voices.length === 0) this._loadVoices();
+    const vs = this._voices || [];
+    const preferred = vs.filter(v => v.lang.startsWith(langCode.split('-')[0]));
+    return preferred.find(v => /google|samantha|daniel|microsoft|natural/i.test(v.name))
+      || preferred.find(v => !v.localService)
+      || preferred[0] || null;
+  },
   say(text, lang) {
     if (!('speechSynthesis' in window)) return;
     window.speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
     u.lang = lang === 'he' ? 'he-IL' : 'en-US';
-    u.rate = 0.85;
-    u.pitch = 1;
+    const voice = this._pickVoice(u.lang);
+    if (voice) u.voice = voice;
+    u.rate = 0.72;
+    u.pitch = 1.08;
+    u.volume = 1;
     window.speechSynthesis.speak(u);
   },
 
+  init() {
+    if ('speechSynthesis' in window) {
+      this._loadVoices();
+      speechSynthesis.addEventListener('voiceschanged', () => this._loadVoices());
+    }
+  },
   english(text) { this.say(text, 'en'); },
   hebrew(text) { this.say(text, 'he'); },
 
@@ -1804,8 +1825,8 @@ const BubblePop = {
     const cw = this._container.clientWidth;
     const ch = this._container.clientHeight;
 
-    const maxBubbleSize = Math.min(cw, ch) * 0.28;
-    const minBubbleSize = Math.max(56, maxBubbleSize * 0.6);
+    const maxBubbleSize = Math.min(cw, ch) * 0.32;
+    const minBubbleSize = Math.max(64, maxBubbleSize * 0.6);
 
     const colors = [
       'rgba(255,107,107,0.85)', 'rgba(78,205,196,0.85)', 'rgba(168,85,247,0.85)',
@@ -1820,10 +1841,10 @@ const BubblePop = {
       bubble.style.background = colors[i % colors.length];
       bubble.dataset.wordId = w.id;
 
-      const size = Math.round(Math.min(maxBubbleSize, Math.max(minBubbleSize, bubbleText.length * 6 + 30)));
+      const size = Math.round(Math.min(maxBubbleSize, Math.max(minBubbleSize, bubbleText.length * 7 + 36)));
       bubble.style.width = size + 'px';
       bubble.style.height = size + 'px';
-      bubble.style.fontSize = Math.max(11, Math.min(15, size * 0.16)) + 'px';
+      bubble.style.fontSize = Math.max(14, Math.min(20, size * 0.22)) + 'px';
 
       const margin = 4;
       const bData = {
@@ -2845,7 +2866,7 @@ const WordManagerUI = {
         <span class="word-hebrew">${w.hebrew}</span>
         <div class="word-actions">
           <button class="word-edit" data-id="${w.id}" title="${T.get('editWord')}">✎</button>
-          <button class="word-archive" data-id="${w.id}" title="${T.get('archiveWord')}">📦</button>
+          <button class="word-archive" data-id="${w.id}" title="${T.get('archiveWord')}">↓</button>
           <button class="word-delete" data-id="${w.id}" title="${T.get('deleteWord')}">✕</button>
         </div>
       `;
@@ -5219,6 +5240,7 @@ const App = {
     WordManager.init();
     GameState.load();
     Particles.init();
+    Speak.init();
     Achievements.resetFlags();
     DailyChallenge.generate();
     CloudSync.init();
