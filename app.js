@@ -217,7 +217,6 @@ const T = {
     spLvlLearning: 'Learning', spLvlStruggling: 'Struggling', spLvlNew: 'New',
     parentLinkCopied: 'Link copied!',
     parentLinkError: 'Could not create link, try again later',
-    parentLinkRenewed: 'Cloud link was refreshed — copy the new parent link from Progress Report 🔗',
     restoreLink: 'Restore progress', restorePlaceholder: 'Paste your parent link here',
     restoreGo: 'Restore', restoreSuccess: 'Progress restored!', restoreFail: 'Could not restore, check the link',
     parentViewTitle: 'Progress Report (Live)',
@@ -450,7 +449,6 @@ const T = {
     spLvlLearning: 'לומדת', spLvlStruggling: 'מתקשה', spLvlNew: 'חדשה',
     parentLinkCopied: '!הקישור הועתק',
     parentLinkError: 'לא ניתן ליצור קישור, נסי שוב מאוחר יותר',
-    parentLinkRenewed: 'קישור הענן חודש — העתיקי את הקישור החדש מדוח ההתקדמות 🔗',
     restoreLink: 'שחזור התקדמות', restorePlaceholder: 'הדביקי את הקישור כאן',
     restoreGo: 'שחזור', restoreSuccess: '!ההתקדמות שוחזרה', restoreFail: 'לא ניתן לשחזר, בדקי את הקישור',
     parentViewTitle: 'דוח התקדמות - לייב',
@@ -4666,27 +4664,17 @@ const Dashboard = {
 // ===== CLOUD SYNC =====
 const CloudSync = {
   ENDPOINT: '/api/sync',
-  BIN_KEY: 'wordquest_sync_bin',
-  _binId: null,
   _pushTimer: null,
   _PUSH_DEBOUNCE_MS: 30000,
 
   init() {
-    this._binId = localStorage.getItem(this.BIN_KEY) || null;
-    if (this._binId) this._syncScreenTimeBank();
+    this._syncScreenTimeBank();
   },
 
   async _syncScreenTimeBank() {
     try {
-      const remote = await this.pull(this._binId);
-      if (!remote) {
-        const oldId = this._binId;
-        const newId = await this._createBin();
-        if (newId && oldId && newId !== oldId) {
-          setTimeout(() => UI.showToast(T.get('parentLinkRenewed'), 'coral', 5000), 3000);
-        }
-        return;
-      }
+      const remote = await this.pull();
+      if (!remote) return;
       const remoteST = remote.screenTimeBank || (remote.gameState && remote.gameState.screenTimeBank);
       if (!remoteST) return;
       const local = GameState.data.screenTimeBank;
@@ -4766,7 +4754,6 @@ const CloudSync = {
       selection: [...WordManager._selection],
       archive: WordManager.getArchived(),
       drip: WordManager._drip,
-      syncBin: this._binId,
       wordData, totalWords: words.length,
       streak: GameState.data.streak,
       latestTest: GameState.getLatestTest(),
@@ -4774,73 +4761,38 @@ const CloudSync = {
     };
   },
 
-  async _createBin() {
-    try {
-      const data = this._buildFullBackup();
-      const resp = await fetch(this.ENDPOINT, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-      if (!resp.ok) return null;
-      const result = await resp.json();
-      if (result && result.id) {
-        this._binId = result.id;
-        localStorage.setItem(this.BIN_KEY, result.id);
-        return result.id;
-      }
-      return null;
-    } catch (e) { return null; }
-  },
-
   push() {
-    if (!this._binId) return;
     if (this._pushTimer) clearTimeout(this._pushTimer);
     this._pushTimer = setTimeout(() => this._doPush(), this._PUSH_DEBOUNCE_MS);
   },
 
   async _doPush() {
-    if (!this._binId) return;
     try {
       const data = this._buildFullBackup();
-      const resp = await fetch(this.ENDPOINT + '?id=' + this._binId, {
+      await fetch(this.ENDPOINT, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
       });
-      if (!resp.ok) {
-        const newId = await this._createBin();
-        if (newId) console.log('CloudSync: bin recreated as', newId);
-      }
-    } catch (e) {
-      try { await this._createBin(); } catch (_) {}
-    }
+    } catch (e) {}
   },
 
-  async pull(binId) {
+  async pull() {
     try {
-      const resp = await fetch(this.ENDPOINT + '?id=' + binId);
+      const resp = await fetch(this.ENDPOINT);
       if (!resp.ok) return null;
       return await resp.json();
     } catch (e) { return null; }
   },
 
   getParentLink() {
-    if (!this._binId) return null;
     const base = window.location.origin + window.location.pathname;
-    return base + '?parent=' + this._binId;
+    return base + '?parent=1';
   },
 
-  async ensureBin() {
-    if (this._binId) return this._binId;
-    return await this._createBin();
-  },
-
-  async restore(input) {
-    const id = (input || '').trim().split('parent=').pop().split('&')[0].split('#')[0];
-    if (!id || id.length < 10) return false;
+  async restore() {
     try {
-      const data = await this.pull(id);
+      const data = await this.pull();
       if (!data) return false;
       if (data.version >= 2 && data.gameState) {
         GameState.data = { ...GameState.defaults(), ...data.gameState };
@@ -4868,10 +4820,6 @@ const CloudSync = {
           WordManager._drip = data.drip;
           WordManager._saveDrip();
         }
-        if (data.syncBin) {
-          this._binId = data.syncBin;
-          localStorage.setItem(this.BIN_KEY, data.syncBin);
-        }
         return true;
       }
       return false;
@@ -4882,25 +4830,19 @@ const CloudSync = {
 // ===== PARENT VIEW =====
 const ParentView = {
   _data: null,
-  _binId: null,
   _wordFilter: 'all',
 
   isActive() {
     return new URLSearchParams(window.location.search).has('parent');
   },
 
-  getBinId() {
-    return new URLSearchParams(window.location.search).get('parent');
-  },
-
   async init() {
-    this._binId = this.getBinId();
     document.getElementById('app-main').classList.add('hidden');
     document.getElementById('parent-view').classList.remove('hidden');
 
     const manifestLink = document.querySelector('link[rel="manifest"]');
     if (manifestLink) {
-      const m = { name: 'Word Quest - דוח הורים', short_name: 'WQ Report', description: 'Parent progress report', start_url: './index.html?parent=' + this._binId, display: 'standalone', orientation: 'portrait', background_color: '#0f0c29', theme_color: '#1a1a3e', icons: [{ src: 'icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' }] };
+      const m = { name: 'Word Quest - דוח הורים', short_name: 'WQ Report', description: 'Parent progress report', start_url: './index.html?parent=1', display: 'standalone', orientation: 'portrait', background_color: '#0f0c29', theme_color: '#1a1a3e', icons: [{ src: 'icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' }] };
       const blob = new Blob([JSON.stringify(m)], { type: 'application/json' });
       manifestLink.setAttribute('href', URL.createObjectURL(blob));
     }
@@ -4937,7 +4879,7 @@ const ParentView = {
     contentEl.classList.add('hidden');
     errorEl.classList.add('hidden');
 
-    const data = await CloudSync.pull(this._binId);
+    const data = await CloudSync.pull();
     if (!data || !data.ts) {
       loadingEl.classList.add('hidden');
       errorEl.classList.remove('hidden');
@@ -5073,16 +5015,15 @@ const ParentView = {
   },
 
   async _pushScreenTimeUpdate(stb) {
-    if (!this._binId) return;
     try {
-      const data = await CloudSync.pull(this._binId);
+      const data = await CloudSync.pull();
       if (!data) return;
       if (data.gameState) {
         data.gameState.screenTimeBank = stb;
       }
       data.screenTimeBank = stb;
       data.ts = Date.now();
-      await fetch(CloudSync.ENDPOINT + '?id=' + this._binId, {
+      await fetch(CloudSync.ENDPOINT, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
@@ -5432,7 +5373,7 @@ const App = {
     Achievements.resetFlags();
     DailyChallenge.generate();
     CloudSync.init();
-    setTimeout(() => CloudSync._doPush(), 2000);
+    setTimeout(() => CloudSync.push(), 2000);
 
     const savedLang = localStorage.getItem('wordquest_lang') || 'en';
     T.setLang(savedLang);
@@ -5548,21 +5489,8 @@ const App = {
     if (parentLinkBtn) {
       parentLinkBtn.addEventListener('click', async () => {
         const link = CloudSync.getParentLink();
-        if (link) {
-          try { await navigator.clipboard.writeText(link); } catch (e) {}
-          UI.showToast(T.get('parentLinkCopied'), 'teal');
-        } else {
-          parentLinkBtn.disabled = true;
-          const binId = await CloudSync.ensureBin();
-          parentLinkBtn.disabled = false;
-          if (binId) {
-            const newLink = CloudSync.getParentLink();
-            try { await navigator.clipboard.writeText(newLink); } catch (e) {}
-            UI.showToast(T.get('parentLinkCopied'), 'teal');
-          } else {
-            UI.showToast(T.get('parentLinkError'), 'danger');
-          }
-        }
+        try { await navigator.clipboard.writeText(link); } catch (e) {}
+        UI.showToast(T.get('parentLinkCopied'), 'teal');
       });
     }
 
