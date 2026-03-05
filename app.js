@@ -224,6 +224,20 @@ const T = {
     parentViewJustNow: 'just now', parentViewMinAgo: '%d min ago',
     parentViewHrAgo: '%d hr ago', parentViewLoading: 'Loading progress...',
     parentViewError: 'Could not load data. Check the link and try again.',
+    stBankTitle: 'Screen Time Bank',
+    stAvailable: 'Available',
+    stMin: 'min',
+    stEarnedGame: '+%m min earned!',
+    stMasteryBonus: '+3 min mastery bonus!',
+    stTier3: 'Amazing effort! You earned top time!',
+    stTier2: 'Great practice session!',
+    stTier1: 'Good start — keep going!',
+    stMilestone10: '10 min earned today! Keep it up!',
+    stMilestone30: '30 min earned today! Max reached!',
+    stRedeem: 'Give Screen Time',
+    stRedeemed: 'Screen time given! Bank reset.',
+    stDailyCap: 'Daily max reached (30 min)',
+    stParentReset: 'Reset Bank',
   },
   he: {
     welcomeMessage: '!מוכנה לשלוט ב-83 מילים באנגלית? בואי נשחק',
@@ -442,6 +456,20 @@ const T = {
     parentViewJustNow: 'עכשיו', parentViewMinAgo: 'לפני %d דק׳',
     parentViewHrAgo: 'לפני %d שע׳', parentViewLoading: '...טוען התקדמות',
     parentViewError: '.לא ניתן לטעון נתונים. בדקי את הקישור ונסי שוב',
+    stBankTitle: 'בנק זמן מסך',
+    stAvailable: 'זמין',
+    stMin: 'דק׳',
+    stEarnedGame: '!דק׳ %m+ הרווחת',
+    stMasteryBonus: '!דק׳ 3+ בונוס שליטה',
+    stTier3: '!מאמץ מדהים! הרווחת זמן מקסימלי',
+    stTier2: '!תרגול מעולה',
+    stTier1: '!התחלה טובה — המשיכי',
+    stMilestone10: '!דק׳ 10 הרווחת היום! המשיכי',
+    stMilestone30: '!דק׳ 30 הרווחת היום! הגעת למקסימום',
+    stRedeem: 'תני זמן מסך',
+    stRedeemed: '!זמן המסך ניתן! הבנק אופס',
+    stDailyCap: '(דק׳ 30) הגעת למקסימום היומי',
+    stParentReset: 'אפס בנק',
   },
   get(key) { return this[this._lang][key] || this.en[key] || key; },
   setLang(lang) {
@@ -639,13 +667,20 @@ const GameState = {
       testHistory: [],
       firstTime: true,
       milestonesShown: [],
+      screenTimeBank: { earned: 0, redeemed: 0, todayEarned: 0, todayDate: null },
     };
   },
 
   load() {
     try {
       const saved = localStorage.getItem(this.KEY);
-      if (saved) { this.data = { ...this.defaults(), ...JSON.parse(saved) }; }
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        this.data = { ...this.defaults(), ...parsed };
+        if (parsed.screenTimeBank) {
+          this.data.screenTimeBank = { ...this.defaults().screenTimeBank, ...parsed.screenTimeBank };
+        }
+      }
       else { this.data = this.defaults(); }
     } catch(e) { this.data = this.defaults(); }
   },
@@ -826,6 +861,35 @@ const Progress = {
     GameState.save();
   },
 
+  _calcScreenTimeEarned(correct, total, stars, durationSec) {
+    let min = 0;
+    const acc = total > 0 ? correct / total : 0;
+    if (acc >= 0.9) min += 3.0;
+    else if (acc >= 0.7) min += 2.0;
+    else if (acc >= 0.5) min += 1.0;
+    else min += 0.5;
+    if (stars === 3) min += 1.5;
+    else if (stars === 2) min += 0.5;
+    if (durationSec >= 120) min += 0.5;
+    return Math.round(min * 10) / 10;
+  },
+
+  _addScreenTime(amount) {
+    const stb = GameState.data.screenTimeBank;
+    const today = new Date().toDateString();
+    if (stb.todayDate !== today) {
+      stb.todayEarned = 0;
+      stb.todayDate = today;
+    }
+    const cap = 30;
+    const room = Math.max(0, cap - stb.todayEarned);
+    const capped = Math.min(amount, room);
+    if (capped <= 0) return 0;
+    stb.earned += capped;
+    stb.todayEarned += capped;
+    return capped;
+  },
+
   recordGameComplete(gameMode, stars, xpEarned, missedWords, correct, total) {
     const d = GameState.data;
     d.gamesPlayed[gameMode] = (d.gamesPlayed[gameMode] || 0) + 1;
@@ -846,6 +910,23 @@ const Progress = {
     const durationSec = App._gameStartTs ? Math.round((Date.now() - App._gameStartTs) / 1000) : 0;
     GameState.logSession(gameMode, correct || 0, total || 0, stars, xpEarned, durationSec);
     DailyChallenge.recordPlayTime(durationSec);
+
+    const stEarned = this._calcScreenTimeEarned(correct || 0, total || 0, stars, durationSec);
+    const stActual = this._addScreenTime(stEarned);
+    this._lastScreenTimeEarned = stActual;
+    this._lastScreenTimeCapped = stActual < stEarned;
+
+    const stb = d.screenTimeBank;
+    const stKey10 = 'st10_' + today;
+    const stKey30 = 'st30_' + today;
+    if (stb.todayEarned >= 10 && !d.milestonesShown.includes(stKey10)) {
+      d.milestonesShown.push(stKey10);
+      setTimeout(() => UI.showToast(T.get('stMilestone10'), 'gold'), 1500);
+    }
+    if (stb.todayEarned >= 30 && !d.milestonesShown.includes(stKey30)) {
+      d.milestonesShown.push(stKey30);
+      setTimeout(() => UI.showToast(T.get('stMilestone30'), 'gold'), 1500);
+    }
 
     this.updateStreak();
     this.addXP(xpEarned);
@@ -1362,7 +1443,7 @@ const UI = {
     const nav = document.querySelector('.bottom-nav');
     if (nav) nav.classList.toggle('hidden', !isHomeRelated);
     if (isHomeRelated) {
-      document.querySelectorAll('.nav-btn').forEach(b => {
+      document.querySelectorAll('.nav-btn[data-nav]').forEach(b => {
         b.classList.toggle('active', b.dataset.nav === id);
       });
     }
@@ -1379,7 +1460,8 @@ const UI = {
 
     const levelBadge = document.getElementById('level-badge');
     document.getElementById('level-number').textContent = d.level;
-    levelBadge.className = 'level-badge ' + GameState.getLevelColor();
+    const lvlColor = GameState.getLevelColor();
+    levelBadge.className = 'hsi-item hsi-level' + (lvlColor ? ' ' + lvlColor : '');
 
     const xpBar = document.getElementById('xp-bar');
     if (xpBar) xpBar.style.width = pct + '%';
@@ -1436,6 +1518,21 @@ const UI = {
     if (totalStars) totalStars.textContent = d.totalStars;
     const totalAch = document.getElementById('total-achievements');
     if (totalAch) totalAch.textContent = Achievements.getUnlockedCount();
+
+    const stb = d.screenTimeBank || { earned: 0, redeemed: 0 };
+    const stAvail = Math.max(0, Math.floor(stb.earned - stb.redeemed));
+    const stEl = document.getElementById('st-minutes');
+    if (stEl) {
+      const prev = parseInt(stEl.textContent) || 0;
+      stEl.textContent = stAvail;
+      if (stAvail > prev && prev >= 0) {
+        const badge = document.getElementById('screen-time-badge');
+        if (badge) {
+          badge.classList.add('st-pulse');
+          setTimeout(() => badge.classList.remove('st-pulse'), 2000);
+        }
+      }
+    }
   },
 
   updateHomeScreen() {
@@ -1561,6 +1658,29 @@ const UI = {
 
     const starsEl = document.getElementById('results-stars');
     starsEl.textContent = '⭐'.repeat(stars) + '☆'.repeat(3 - stars);
+
+    const stEl = document.getElementById('results-screen-time');
+    const stTierEl = document.getElementById('results-st-tier');
+    const earned = Progress._lastScreenTimeEarned || 0;
+    if (earned > 0) {
+      stEl.classList.remove('hidden');
+      stEl.textContent = '🕐 ' + T.get('stEarnedGame').replace('%m', earned.toFixed(1));
+      stTierEl.classList.remove('hidden');
+      if (Progress._lastScreenTimeCapped) {
+        stTierEl.textContent = T.get('stDailyCap');
+      } else if (earned >= 4) {
+        stTierEl.textContent = T.get('stTier3');
+      } else if (earned >= 2.5) {
+        stTierEl.textContent = T.get('stTier2');
+      } else {
+        stTierEl.textContent = T.get('stTier1');
+      }
+    } else {
+      stEl.classList.add('hidden');
+      stTierEl.classList.add('hidden');
+    }
+    Progress._lastScreenTimeEarned = 0;
+    Progress._lastScreenTimeCapped = false;
 
     const reviewSection = document.getElementById('results-review');
     const reviewList = document.getElementById('review-list');
@@ -1709,6 +1829,12 @@ const UI = {
       if (w) {
         this.showToast(T.get('wordMastered').replace('%w', w.english), 'green');
         Sound.achievement();
+        const bonus = Progress._addScreenTime(3.0);
+        if (bonus > 0) {
+          setTimeout(() => this.showToast(T.get('stMasteryBonus'), 'gold'), 1200);
+          GameState.data.todayGamesPlayed.masteredNewWord = true;
+          GameState.save();
+        }
       }
     }
   },
@@ -1989,7 +2115,7 @@ const BubblePop = {
       score: correct + '/' + this._words.length,
       xp: totalXP, stars,
       missedWords: this._missed,
-      onPlayAgain: () => { UI.showScreen('bubble'); BubblePop.start(); },
+      onPlayAgain: () => { UI.showScreen('bubble'); App._startGame('bubble'); },
       onHome: () => UI.showScreen('home')
     });
   },
@@ -2113,7 +2239,7 @@ const MemoryMatch = {
       title: T.get(stars === 3 ? 'perfect' : stars === 2 ? 'great' : 'good'),
       score: this._moves + ' ' + T.get('moves').toLowerCase(),
       xp, stars, missedWords: [],
-      onPlayAgain: () => { UI.showScreen('memory'); MemoryMatch.start(); },
+      onPlayAgain: () => { UI.showScreen('memory'); App._startGame('memory'); },
       onHome: () => UI.showScreen('home')
     });
   },
@@ -2327,7 +2453,7 @@ const LightningQuiz = {
       score: correct + '/10',
       xp: totalXP, stars,
       missedWords: this._missed,
-      onPlayAgain: () => { UI.showScreen('lightning'); LightningQuiz.start(); },
+      onPlayAgain: () => { UI.showScreen('lightning'); App._startGame('lightning'); },
       onHome: () => UI.showScreen('home')
     });
   },
@@ -2563,7 +2689,7 @@ const WordScramble = {
       score: this._correctFirstTry + '/8',
       xp: totalXP, stars,
       missedWords: this._missed,
-      onPlayAgain: () => { UI.showScreen('scramble'); WordScramble.start(); },
+      onPlayAgain: () => { UI.showScreen('scramble'); App._startGame('scramble'); },
       onHome: () => UI.showScreen('home')
     });
   },
@@ -2805,7 +2931,7 @@ const FallingWords = {
       title: T.get('gameOver'),
       score: T.get('highScore') + ': ' + GameState.data.fallingHighScore,
       xp: totalXP, stars, missedWords: [],
-      onPlayAgain: () => { UI.showScreen('falling'); FallingWords.start(); },
+      onPlayAgain: () => { UI.showScreen('falling'); App._startGame('falling'); },
       onHome: () => UI.showScreen('home')
     });
   },
@@ -3202,7 +3328,7 @@ const TrueFalse = {
       score: correct + '/' + this._total,
       xp: totalXP, stars,
       missedWords: this._missed,
-      onPlayAgain: () => { UI.showScreen('truefalse'); TrueFalse.start(); },
+      onPlayAgain: () => { UI.showScreen('truefalse'); App._startGame('truefalse'); },
       onHome: () => UI.showScreen('home')
     });
   },
@@ -3421,7 +3547,7 @@ const MatchUp = {
       score: correct + '/' + total,
       xp: totalXP, stars,
       missedWords: this._missed,
-      onPlayAgain: () => { UI.showScreen('matchup'); MatchUp.start(); },
+      onPlayAgain: () => { UI.showScreen('matchup'); App._startGame('matchup'); },
       onHome: () => UI.showScreen('home')
     });
   },
@@ -3544,7 +3670,7 @@ const WordBingo = {
       title: T.get(stars === 3 ? 'perfect' : stars === 2 ? 'great' : 'good'),
       score: correct + '/16', xp, stars,
       missedWords: this._missed,
-      onPlayAgain: () => { UI.showScreen('bingo'); WordBingo.start(); },
+      onPlayAgain: () => { UI.showScreen('bingo'); App._startGame('bingo'); },
       onHome: () => UI.showScreen('home')
     });
   },
@@ -3702,7 +3828,7 @@ const TranslationSprint = {
       title: T.get(stars === 3 ? 'perfect' : stars === 2 ? 'great' : 'good'),
       score: this._correct + '/' + this._total + ' · ' + T.get('highScore') + ' ' + this._best + '🔥',
       xp, stars, missedWords: this._missed,
-      onPlayAgain: () => { UI.showScreen('sprint'); TranslationSprint.start(); },
+      onPlayAgain: () => { UI.showScreen('sprint'); App._startGame('sprint'); },
       onHome: () => UI.showScreen('home')
     });
   },
@@ -3837,7 +3963,7 @@ const WordSpy = {
       title: T.get(stars === 3 ? 'perfect' : stars === 2 ? 'great' : 'good'),
       score: correct + '/' + this._totalPairs, xp, stars,
       missedWords: this._missed,
-      onPlayAgain: () => { UI.showScreen('wordspy'); WordSpy.start(); },
+      onPlayAgain: () => { UI.showScreen('wordspy'); App._startGame('wordspy'); },
       onHome: () => UI.showScreen('home')
     });
   },
@@ -4022,7 +4148,7 @@ const SentenceFill = {
       title: T.get(stars === 3 ? 'perfect' : stars === 2 ? 'great' : 'good'),
       score: this._correct + '/' + total, xp, stars,
       missedWords: this._missed,
-      onPlayAgain: () => { UI.showScreen('fillin'); SentenceFill.start(); },
+      onPlayAgain: () => { UI.showScreen('fillin'); App._startGame('fillin'); },
       onHome: () => UI.showScreen('home')
     });
   },
@@ -4536,9 +4662,32 @@ const CloudSync = {
   ENDPOINT: '/api/sync',
   BIN_KEY: 'wordquest_sync_bin',
   _binId: null,
+  _pushTimer: null,
+  _PUSH_DEBOUNCE_MS: 30000,
 
   init() {
     this._binId = localStorage.getItem(this.BIN_KEY) || null;
+    if (this._binId) this._syncScreenTimeBank();
+  },
+
+  async _syncScreenTimeBank() {
+    try {
+      const remote = await this.pull(this._binId);
+      if (!remote) return;
+      const remoteST = remote.screenTimeBank || (remote.gameState && remote.gameState.screenTimeBank);
+      if (!remoteST) return;
+      const local = GameState.data.screenTimeBank;
+      if (remoteST.redeemed > local.redeemed || remoteST.earned < local.earned) {
+        local.redeemed = remoteST.redeemed;
+        if (remoteST.earned < local.earned) {
+          local.earned = remoteST.earned;
+          local.todayEarned = remoteST.todayEarned || 0;
+          local.todayDate = remoteST.todayDate || null;
+        }
+        GameState.save();
+        UI.updateStats();
+      }
+    } catch(e) {}
   },
 
   _buildSnapshot() {
@@ -4572,7 +4721,8 @@ const CloudSync = {
       wordData,
       totalWords: words.length,
       archivedCount: WordManager.getArchivedCount(),
-      lang: T._lang
+      lang: T._lang,
+      screenTimeBank: d.screenTimeBank || { earned: 0, redeemed: 0, todayEarned: 0, todayDate: null }
     };
   },
 
@@ -4630,7 +4780,13 @@ const CloudSync = {
     } catch (e) { return null; }
   },
 
-  async push() {
+  push() {
+    if (!this._binId) return;
+    if (this._pushTimer) clearTimeout(this._pushTimer);
+    this._pushTimer = setTimeout(() => this._doPush(), this._PUSH_DEBOUNCE_MS);
+  },
+
+  async _doPush() {
     if (!this._binId) return;
     try {
       const data = this._buildFullBackup();
@@ -4802,6 +4958,7 @@ const ParentView = {
     document.getElementById('pv-refresh-btn').textContent = T.get('parentViewRefresh');
     this._renderUpdatedTime();
     this._renderExec();
+    this._renderScreenTime();
     this._renderMastery();
     this._renderTestHistory();
     this._renderDailyChart();
@@ -4856,6 +5013,63 @@ const ParentView = {
         '<div class="rpt-kpi"><div class="rpt-kpi-val">' + this._fmt(totalTimeSec) + '</div><div class="rpt-kpi-label">' + T.get('rptTimeTotal') + '</div></div>' +
       '</div>' +
       '<div class="rpt-exec-verdict">' + T.get(verdictKey) + '</div>';
+  },
+
+  _renderScreenTime() {
+    const el = document.getElementById('pv-screen-time');
+    if (!el) return;
+    const stb = this._data.screenTimeBank || this._data.gameState?.screenTimeBank || { earned: 0, redeemed: 0, todayEarned: 0, todayDate: null };
+    const avail = Math.max(0, Math.floor(stb.earned - stb.redeemed));
+    const todayStr = new Date().toDateString();
+    const todayEarned = stb.todayDate === todayStr ? Math.round(stb.todayEarned * 10) / 10 : 0;
+
+    el.innerHTML =
+      '<div class="pv-st-card">' +
+        '<div class="pv-st-title">🕐 ' + T.get('stBankTitle') + '</div>' +
+        '<div class="pv-st-amount">' + avail + '</div>' +
+        '<div class="pv-st-label">' + T.get('stMin') + ' ' + T.get('stAvailable') + '</div>' +
+        (todayEarned > 0 ? '<div class="pv-st-today">+' + todayEarned + ' ' + T.get('stMin') + ' today</div>' : '') +
+        (avail > 0 ? '<button class="pv-st-btn" id="pv-st-redeem">' + T.get('stRedeem') + '</button>' : '') +
+        '<button class="pv-st-btn" id="pv-st-reset" style="background:rgba(239,68,68,0.3);margin-top:6px;">' + T.get('stParentReset') + '</button>' +
+      '</div>';
+
+    const redeemBtn = document.getElementById('pv-st-redeem');
+    if (redeemBtn) {
+      redeemBtn.addEventListener('click', async () => {
+        stb.redeemed = stb.earned;
+        await this._pushScreenTimeUpdate(stb);
+        this._renderScreenTime();
+      });
+    }
+    const resetBtn = document.getElementById('pv-st-reset');
+    if (resetBtn) {
+      resetBtn.addEventListener('click', async () => {
+        stb.earned = 0;
+        stb.redeemed = 0;
+        stb.todayEarned = 0;
+        await this._pushScreenTimeUpdate(stb);
+        this._renderScreenTime();
+      });
+    }
+  },
+
+  async _pushScreenTimeUpdate(stb) {
+    if (!this._binId) return;
+    try {
+      const data = await CloudSync.pull(this._binId);
+      if (!data) return;
+      if (data.gameState) {
+        data.gameState.screenTimeBank = stb;
+      }
+      data.screenTimeBank = stb;
+      data.ts = Date.now();
+      await fetch(CloudSync.ENDPOINT + '?id=' + this._binId, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      this._data = data;
+    } catch (e) {}
   },
 
   _renderMastery() {
@@ -5203,12 +5417,16 @@ const App = {
 
     const savedLang = localStorage.getItem('wordquest_lang') || 'en';
     T.setLang(savedLang);
-    document.getElementById('btn-lang').textContent = savedLang === 'en' ? 'עברית' : 'EN';
+    const langBtn = document.getElementById('btn-lang');
+    const langLabel = langBtn.querySelector('span:last-child') || langBtn;
+    langLabel.textContent = savedLang === 'en' ? 'עברית' : 'EN';
 
     const savedSound = localStorage.getItem('wordquest_sound');
     if (savedSound === '1') {
       Sound._enabled = true;
-      document.getElementById('btn-sound').textContent = '🔊';
+      const sndBtn = document.getElementById('btn-sound');
+      const sndIcon = sndBtn.querySelector('.nav-icon') || sndBtn;
+      sndIcon.textContent = '🔊';
     }
 
     if (GameState.data.firstTime) {
@@ -5255,7 +5473,9 @@ const App = {
     document.getElementById('btn-lang').addEventListener('click', () => {
       const newLang = T._lang === 'en' ? 'he' : 'en';
       T.setLang(newLang);
-      document.getElementById('btn-lang').textContent = newLang === 'en' ? 'עברית' : 'EN';
+      const lb = document.getElementById('btn-lang');
+      const ll = lb.querySelector('span:last-child') || lb;
+      ll.textContent = newLang === 'en' ? 'עברית' : 'EN';
       UI.updateStats();
       if (UI._currentScreen === 'home') UI.updateHomeScreen();
       if (UI._currentScreen === 'words') WordManagerUI.render();
@@ -5265,7 +5485,9 @@ const App = {
 
     document.getElementById('btn-sound').addEventListener('click', () => {
       const on = Sound.toggle();
-      document.getElementById('btn-sound').textContent = on ? '🔊' : '🔇';
+      const sb = document.getElementById('btn-sound');
+      const si = sb.querySelector('.nav-icon') || sb;
+      si.textContent = on ? '🔊' : '🔇';
       if (on) Sound.pop();
     });
 
@@ -5332,7 +5554,7 @@ const App = {
       });
     });
 
-    document.querySelectorAll('.nav-btn').forEach(btn => {
+    document.querySelectorAll('.nav-btn[data-nav]').forEach(btn => {
       btn.addEventListener('click', () => {
         const nav = btn.dataset.nav;
         UI.showScreen(nav);
@@ -5750,17 +5972,57 @@ const App = {
           if (!window.Tesseract) {
             statusEl.textContent = 'Loading OCR engine...';
             const script = document.createElement('script');
-            script.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@4.1.4/dist/tesseract.min.js';
+            script.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
             document.head.appendChild(script);
             await new Promise((resolve, reject) => {
               script.onload = resolve;
               script.onerror = () => reject(new Error('Failed to load OCR library'));
-              setTimeout(() => reject(new Error('timeout')), 20000);
+              setTimeout(() => reject(new Error('timeout')), 30000);
             });
           }
 
+          statusEl.textContent = 'Preparing image...';
+          const ocrInput = await new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => {
+              const cvs = document.createElement('canvas');
+              const ctx = cvs.getContext('2d');
+              const w = img.naturalWidth, h = img.naturalHeight;
+              cvs.width = w; cvs.height = h;
+              ctx.drawImage(img, 0, 0);
+              const src = ctx.getImageData(0, 0, w, h);
+              const gray = new Float32Array(w * h);
+              for (let i = 0; i < gray.length; i++)
+                gray[i] = 0.299 * src.data[i*4] + 0.587 * src.data[i*4+1] + 0.114 * src.data[i*4+2];
+              const blurred = new Float32Array(w * h);
+              const r = 2;
+              for (let y = 0; y < h; y++) {
+                for (let x = 0; x < w; x++) {
+                  let sum = 0, cnt = 0;
+                  for (let dy = -r; dy <= r; dy++) {
+                    for (let dx = -r; dx <= r; dx++) {
+                      const ny = y + dy, nx = x + dx;
+                      if (ny >= 0 && ny < h && nx >= 0 && nx < w) { sum += gray[ny * w + nx]; cnt++; }
+                    }
+                  }
+                  blurred[y * w + x] = sum / cnt;
+                }
+              }
+              const out = ctx.createImageData(w, h);
+              for (let i = 0; i < blurred.length; i++) {
+                const bw = blurred[i] < 120 ? 0 : 255;
+                out.data[i*4] = out.data[i*4+1] = out.data[i*4+2] = bw;
+                out.data[i*4+3] = 255;
+              }
+              ctx.putImageData(out, 0, 0);
+              resolve(cvs);
+            };
+            img.onerror = () => resolve(file);
+            img.src = URL.createObjectURL(file);
+          });
+
           statusEl.textContent = 'Preparing OCR...';
-          const worker = await Tesseract.createWorker({
+          const worker = await Tesseract.createWorker('eng+heb', 1, {
             logger: m => {
               if (m.status === 'loading tesseract core') statusEl.textContent = 'Loading OCR core...';
               else if (m.status === 'initializing tesseract') statusEl.textContent = 'Initializing...';
@@ -5770,11 +6032,9 @@ const App = {
                 statusEl.textContent = 'Reading text... ' + Math.round((m.progress || 0) * 100) + '%';
             }
           });
-          await worker.loadLanguage('eng+heb');
-          await worker.initialize('eng+heb');
-          await worker.setParameters({ tessedit_pageseg_mode: '6' });
+          await worker.setParameters({ tessedit_pageseg_mode: '4' });
 
-          const { data: { text: rawText } } = await worker.recognize(file);
+          const { data: { text: rawText } } = await worker.recognize(ocrInput);
           await worker.terminate();
 
           let text = rawText.trim();
@@ -5894,18 +6154,25 @@ const App = {
       const added = WordManager.promoteDrip();
       if (added > 0) UI.showToast(T.get('dripNewWords').replace('%d', added), 'teal');
     }
-    switch(game) {
-      case 'bubble': BubblePop.start(); break;
-      case 'memory': MemoryMatch.start(); break;
-      case 'lightning': LightningQuiz.start(); break;
-      case 'scramble': WordScramble.start(); break;
-      case 'falling': FallingWords.start(); break;
-      case 'truefalse': TrueFalse.start(); break;
-      case 'matchup': MatchUp.start(); break;
-      case 'bingo': WordBingo.start(); break;
-      case 'sprint': TranslationSprint.start(); break;
-      case 'wordspy': WordSpy.start(); break;
-      case 'fillin': SentenceFill.start(); break;
+    try {
+      switch(game) {
+        case 'bubble': BubblePop.start(); break;
+        case 'memory': MemoryMatch.start(); break;
+        case 'lightning': LightningQuiz.start(); break;
+        case 'scramble': WordScramble.start(); break;
+        case 'falling': FallingWords.start(); break;
+        case 'truefalse': TrueFalse.start(); break;
+        case 'matchup': MatchUp.start(); break;
+        case 'bingo': WordBingo.start(); break;
+        case 'sprint': TranslationSprint.start(); break;
+        case 'wordspy': WordSpy.start(); break;
+        case 'fillin': SentenceFill.start(); break;
+      }
+    } catch (e) {
+      console.error('Game start failed:', game, e);
+      this._stopCurrentGame();
+      UI.showScreen('home');
+      UI.showToast('Something went wrong, try again!', 'danger');
     }
   },
 
