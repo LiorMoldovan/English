@@ -1,8 +1,15 @@
 {
   "name": "word-quest",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Word Quest - Fun English-Hebrew vocabulary learning games",
   "private": true,
+  "scripts": {
+    "test": "node tests/logic-tests.js && node tests/app-logic-tests.js && node tests/api-sync.test.js",
+    "test:logic": "node tests/logic-tests.js",
+    "test:app": "node tests/app-logic-tests.js",
+    "test:api": "node tests/api-sync.test.js",
+    "test:e2e": "npx playwright test tests/e2e.spec.js --reporter=line"
+  },
   "devDependencies": {
     "@playwright/test": "^1.58.2"
   }

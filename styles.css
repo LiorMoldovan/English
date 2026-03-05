@@ -243,6 +243,17 @@ body.rtl .back-btn { transform: scaleX(-1); }
   margin: 0 auto; width: 100%;
   overflow-y: auto;
 }
+.home-greeting-row {
+  display: flex; align-items: baseline; justify-content: space-between;
+  margin-bottom: 8px; padding: 0 2px;
+}
+.home-greeting {
+  font-size: 0.9rem; font-weight: 700; color: var(--text-primary);
+}
+.home-level-title {
+  font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.5px; color: var(--accent-teal); opacity: 0.8;
+}
 
 /* ===== TOP STRIP: Daily Challenge + XP side by side ===== */
 /* ===== DAILY GOALS GRID ===== */
@@ -332,7 +343,7 @@ body.rtl .back-btn { transform: scaleX(-1); }
 .home-action-btn {
   min-width: 0;
   display: flex; align-items: center; justify-content: center; gap: 4px;
-  flex-wrap: wrap;
+  flex-wrap: wrap; align-content: center;
   padding: 10px 8px;
   border-radius: 12px; border: 1px solid rgba(255,255,255,0.10);
   background: rgba(255,255,255,0.05);
@@ -2177,8 +2188,82 @@ body.rtl .memory-card-front { transform: rotateY(-180deg); }
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 480px) {
+  /* --- Home: Top Bar (2-row wrap) --- */
+  .top-bar { padding: 6px 10px 4px; gap: 6px; flex-wrap: wrap; }
+  .level-badge { width: 30px; height: 30px; font-size: 0.8rem; order: 0; }
+  .xp-bar-container { height: 18px; flex: 1; min-width: 0; order: 1; }
+  .xp-text { font-size: 0.6rem; }
+  .streak-badge { padding: 3px 7px; order: 2; }
+  .streak-icon { font-size: 0.9rem; }
+  .streak-count { font-size: 0.8rem; }
+  .header-controls {
+    order: 3; flex-basis: 100%;
+    justify-content: center; gap: 10px;
+    padding-top: 0;
+  }
+  .icon-btn { font-size: 1rem; padding: 3px; }
+  .lang-toggle { font-size: 0.68rem; padding: 3px 8px; }
+
+  /* --- Home: Content area --- */
+  .home-content { padding: 8px 10px; padding-bottom: 75px; }
+  .home-greeting-row { margin-bottom: 6px; }
+  .home-greeting { font-size: 0.82rem; }
+  .home-level-title { font-size: 0.58rem; }
+
+  /* --- Home: Goals Grid --- */
+  .goals-grid { gap: 5px; margin-bottom: 6px; }
+  .goal-item { padding: 6px 8px; border-radius: 8px; }
+  .goal-title { font-size: 0.5rem; }
+  .goal-desc { font-size: 0.58rem; }
+  .goal-nums { font-size: 0.65rem; }
+  .goal-bar { height: 3px; }
+  .goal-stats { padding: 5px 8px; }
+  .action-stat-val { font-size: 0.75rem; }
+  .action-stat-emoji { font-size: 0.6rem; }
+
+  /* --- Home: SP Badge --- */
+  .sp-badge { padding: 8px 12px; margin-bottom: 8px; font-size: 0.75rem; gap: 6px; }
+  .sp-badge-icon { font-size: 0.85rem; }
+
+  /* --- Home: Action Buttons --- */
+  .home-actions-row { gap: 5px; margin-bottom: 8px; }
+  .home-action-btn { padding: 8px 6px; border-radius: 10px; gap: 3px; }
+  .action-icon { font-size: 0.9rem; }
+  .action-label { font-size: 0.68rem; }
+  .action-desc { font-size: 0.52rem; margin-top: -1px; }
+  .home-actions-row:has(.action-learn:not(.hidden)) {
+    grid-template-columns: 1fr 1fr;
+  }
+  .home-actions-row:has(.action-learn:not(.hidden)) .action-learn {
+    grid-column: 1 / -1;
+  }
+
+  /* --- Home: Game Grid --- */
+  .game-grid { grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 8px; }
+  .game-card { padding: 10px 4px; border-radius: 10px; }
+  .game-card-icon { font-size: 1.4rem; margin-bottom: 2px; }
+  .game-card-name { font-size: 0.6rem; }
+  .game-card-name-he { font-size: 0.5rem; margin-top: 1px; }
+  .game-section-label { font-size: 0.6rem; margin-bottom: 4px; letter-spacing: 0.6px; }
+
+  /* --- Home: Progress Card --- */
+  .progress-card { padding: 8px 12px; margin-bottom: 10px; border-radius: 10px; }
+  .pc-title { font-size: 0.62rem; }
+  .pc-bar-track { height: 8px; }
+  .pc-leg-item { font-size: 0.52rem; }
+  .pc-leg-dot { width: 6px; height: 6px; }
+  .pc-legend { gap: 6px; margin-top: 5px; }
+
+  /* --- Home: Selection Badge --- */
+  .selection-badge { padding: 8px 12px; margin: 0 0 8px; gap: 6px; }
+  .selection-badge-text { font-size: 0.75rem; }
+
+  /* --- Home: Game Mode Hint --- */
+  .game-mode-hint { padding: 7px 10px; font-size: 0.68rem; margin-bottom: 6px; }
+  .gm-hint-icon { font-size: 0.85rem; }
+
+  /* --- Games --- */
   .memory-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 12px; }
-  .game-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
   .lightning-answers { gap: 8px; padding: 12px; }
   .answer-btn { padding: 14px 10px; }
   .scramble-slot, .scramble-tile { width: 36px; height: 42px; font-size: 1rem; }

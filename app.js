@@ -5748,19 +5748,36 @@ const App = {
         photoBtn.disabled = true;
         try {
           if (!window.Tesseract) {
+            statusEl.textContent = 'Loading OCR engine...';
             const script = document.createElement('script');
-            script.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
+            script.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@4.1.4/dist/tesseract.min.js';
             document.head.appendChild(script);
             await new Promise((resolve, reject) => {
               script.onload = resolve;
               script.onerror = () => reject(new Error('Failed to load OCR library'));
-              setTimeout(() => reject(new Error('timeout')), 15000);
+              setTimeout(() => reject(new Error('timeout')), 20000);
             });
           }
-          const ocrPromise = Tesseract.recognize(file, 'eng+heb');
-          const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 45000));
-          const result = await Promise.race([ocrPromise, timeoutPromise]);
-          let text = result.data.text.trim();
+
+          statusEl.textContent = 'Preparing OCR...';
+          const worker = await Tesseract.createWorker({
+            logger: m => {
+              if (m.status === 'loading tesseract core') statusEl.textContent = 'Loading OCR core...';
+              else if (m.status === 'initializing tesseract') statusEl.textContent = 'Initializing...';
+              else if (m.status === 'loading language traineddata')
+                statusEl.textContent = 'Loading language data... ' + Math.round((m.progress || 0) * 100) + '%';
+              else if (m.status === 'recognizing text')
+                statusEl.textContent = 'Reading text... ' + Math.round((m.progress || 0) * 100) + '%';
+            }
+          });
+          await worker.loadLanguage('eng+heb');
+          await worker.initialize('eng+heb');
+          await worker.setParameters({ tessedit_pageseg_mode: '6' });
+
+          const { data: { text: rawText } } = await worker.recognize(file);
+          await worker.terminate();
+
+          let text = rawText.trim();
           if (!text) { UI.showToast(T.get('importPhotoOcrTimeout'), 'coral'); return; }
 
           const parsed = _parseImportText(text);
@@ -5768,7 +5785,7 @@ const App = {
             const isHeb = parsed.singleWords.some(w => _isHebrew(w));
             const fromLang = isHeb ? 'he' : 'en';
             statusEl.textContent = T.get('importPhotoTranslating').replace('%d', parsed.singleWords.length);
-            const translated = await _translateWords(parsed.singleWords, fromLang, fromLang === 'he' ? 'en' : 'he');
+            const translated = await _translateWords(parsed.singleWords, fromLang);
             if (translated.length > 0) {
               text = translated.map(p => `${p.english} = ${p.hebrew}`).join('\n');
             } else {
@@ -5782,7 +5799,7 @@ const App = {
           document.getElementById('import-photo-panel').classList.add('hidden');
           _showPreview(_parseImportText(text));
         } catch (e) {
-          const msg = e.message === 'timeout' ? T.get('importPhotoOcrTimeout') : 'OCR failed — please paste manually';
+          const msg = e.message === 'timeout' ? T.get('importPhotoOcrTimeout') : 'OCR failed — try a clearer photo or paste manually';
           UI.showToast(msg, 'coral');
         }
         statusEl.classList.add('hidden');
