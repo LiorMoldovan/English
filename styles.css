@@ -2281,6 +2281,9 @@ body.rtl .memory-card-front { transform: rotateY(-180deg); }
 .fc-done-text { font-size: 1.1rem; font-weight: 800; color: var(--accent-gold); margin-bottom: 16px; }
 .btn-sm { padding: 4px 10px; font-size: 0.65rem; font-weight: 700; border-radius: 6px; border: 1px solid var(--text-dim); color: var(--text-secondary); background: transparent; cursor: pointer; }
 
+/* ===== VERSION ===== */
+.app-version { text-align: center; padding: 8px 0 16px; font-size: 0.55rem; color: rgba(255,255,255,0.15); letter-spacing: 0.5px; }
+
 .hidden { display: none !important; }
 .text-success { color: var(--success); }
 .text-danger { color: var(--danger); }
