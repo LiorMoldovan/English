@@ -217,6 +217,7 @@ const T = {
     spLvlLearning: 'Learning', spLvlStruggling: 'Struggling', spLvlNew: 'New',
     parentLinkCopied: 'Link copied!',
     parentLinkError: 'Could not create link, try again later',
+    parentLinkRenewed: 'Cloud link was refreshed — copy the new parent link from Progress Report 🔗',
     restoreLink: 'Restore progress', restorePlaceholder: 'Paste your parent link here',
     restoreGo: 'Restore', restoreSuccess: 'Progress restored!', restoreFail: 'Could not restore, check the link',
     parentViewTitle: 'Progress Report (Live)',
@@ -449,6 +450,7 @@ const T = {
     spLvlLearning: 'לומדת', spLvlStruggling: 'מתקשה', spLvlNew: 'חדשה',
     parentLinkCopied: '!הקישור הועתק',
     parentLinkError: 'לא ניתן ליצור קישור, נסי שוב מאוחר יותר',
+    parentLinkRenewed: 'קישור הענן חודש — העתיקי את הקישור החדש מדוח ההתקדמות 🔗',
     restoreLink: 'שחזור התקדמות', restorePlaceholder: 'הדביקי את הקישור כאן',
     restoreGo: 'שחזור', restoreSuccess: '!ההתקדמות שוחזרה', restoreFail: 'לא ניתן לשחזר, בדקי את הקישור',
     parentViewTitle: 'דוח התקדמות - לייב',
@@ -1638,7 +1640,7 @@ const UI = {
     this.updateHomeScreen();
   },
 
-  _showChallengeToast(text, reward, color) {
+  _showChallengeToast(text, reward, color, duration) {
     const existing = document.querySelector('.challenge-toast');
     if (existing) existing.remove();
     const toast = document.createElement('div');
@@ -1651,7 +1653,7 @@ const UI = {
     setTimeout(() => {
       toast.classList.remove('show');
       setTimeout(() => toast.remove(), 400);
-    }, 3000);
+    }, duration || 3000);
   },
 
   showResults(config) {
@@ -1823,8 +1825,8 @@ const UI = {
     setTimeout(() => el.remove(), 1000);
   },
 
-  showToast(msg, color) {
-    this._showChallengeToast(msg, '', color || 'gold');
+  showToast(msg, color, duration) {
+    this._showChallengeToast(msg, '', color || 'gold', duration);
   },
 
   checkWordMastered(result, wordId) {
@@ -4677,7 +4679,14 @@ const CloudSync = {
   async _syncScreenTimeBank() {
     try {
       const remote = await this.pull(this._binId);
-      if (!remote) return;
+      if (!remote) {
+        const oldId = this._binId;
+        const newId = await this._createBin();
+        if (newId && oldId && newId !== oldId) {
+          setTimeout(() => UI.showToast(T.get('parentLinkRenewed'), 'coral', 5000), 3000);
+        }
+        return;
+      }
       const remoteST = remote.screenTimeBank || (remote.gameState && remote.gameState.screenTimeBank);
       if (!remoteST) return;
       const local = GameState.data.screenTimeBank;
@@ -4794,12 +4803,18 @@ const CloudSync = {
     if (!this._binId) return;
     try {
       const data = this._buildFullBackup();
-      await fetch(this.ENDPOINT + '?id=' + this._binId, {
+      const resp = await fetch(this.ENDPOINT + '?id=' + this._binId, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
       });
-    } catch (e) {}
+      if (!resp.ok) {
+        const newId = await this._createBin();
+        if (newId) console.log('CloudSync: bin recreated as', newId);
+      }
+    } catch (e) {
+      try { await this._createBin(); } catch (_) {}
+    }
   },
 
   async pull(binId) {
@@ -5417,7 +5432,7 @@ const App = {
     Achievements.resetFlags();
     DailyChallenge.generate();
     CloudSync.init();
-    setTimeout(() => CloudSync.push(), 2000);
+    setTimeout(() => CloudSync._doPush(), 2000);
 
     const savedLang = localStorage.getItem('wordquest_lang') || 'en';
     T.setLang(savedLang);
