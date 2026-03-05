@@ -244,17 +244,17 @@ body.rtl .back-btn { transform: scaleX(-1); }
   overflow-y: auto;
 }
 .home-status-row {
-  display: flex; align-items: center; gap: 8px;
-  padding: 10px 6px; flex-wrap: nowrap;
+  display: flex; align-items: center; gap: 6px;
+  padding: 10px 8px; flex-wrap: nowrap;
   background: rgba(0,0,0,0.15);
   border-radius: 12px; margin-bottom: 6px;
 }
-.hsr-xp { flex: 1; min-width: 0; }
+.hsr-xp { flex: 0 1 40%; min-width: 60px; }
 .hsr-xp .xp-bar-container {
-  height: 22px; border-radius: 11px;
+  height: 18px; border-radius: 9px;
 }
-.hsr-xp .xp-text { font-size: 0.68rem; }
-.hsr-xp .xp-bar { border-radius: 11px; }
+.hsr-xp .xp-text { font-size: 0.6rem; }
+.hsr-xp .xp-bar { border-radius: 9px; }
 .home-level-title {
   font-size: 0.6rem; font-weight: 700; text-transform: uppercase;
   letter-spacing: 0.3px; color: var(--accent-teal); opacity: 0.9;
@@ -391,7 +391,7 @@ body.rtl .back-btn { transform: scaleX(-1); }
   display: flex; align-items: center; gap: 6px;
   margin-left: auto; white-space: nowrap;
 }
-html[dir="rtl"] .home-stats-inline { margin-left: 0; margin-right: auto; }
+[dir="rtl"] .home-stats-inline { margin-left: 0; margin-right: auto; }
 .hsi-item {
   display: inline-flex; align-items: center; gap: 2px;
   font-size: 0.68rem;
@@ -2249,10 +2249,11 @@ body.rtl .memory-card-front { transform: rotateY(-180deg); }
 /* ===== RESPONSIVE ===== */
 @media (max-width: 480px) {
   /* --- Home: Top Bar (2-row wrap) --- */
-  .home-status-row { gap: 5px; padding: 8px 5px; margin-bottom: 4px; }
-  .hsr-xp .xp-bar-container { height: 18px; border-radius: 9px; }
-  .hsr-xp .xp-text { font-size: 0.58rem; }
-  .hsr-xp .xp-bar { border-radius: 9px; }
+  .home-status-row { gap: 4px; padding: 8px 5px; margin-bottom: 4px; }
+  .hsr-xp { flex: 0 1 35%; }
+  .hsr-xp .xp-bar-container { height: 16px; border-radius: 8px; }
+  .hsr-xp .xp-text { font-size: 0.52rem; }
+  .hsr-xp .xp-bar { border-radius: 8px; }
   .icon-btn { font-size: 1rem; padding: 3px; }
   .lang-toggle { font-size: 0.68rem; padding: 3px 8px; }
 
@@ -2567,7 +2568,7 @@ body.rtl .memory-card-front { transform: rotateY(-180deg); }
   font-size: 0.8rem; color: rgba(255,255,255,0.55);
   letter-spacing: 0.3px; pointer-events: none;
 }
-html[dir="rtl"] .app-version { right: auto; left: 10px; }
+[dir="rtl"] .app-version { right: auto; left: 10px; }
 
 .hidden { display: none !important; }
 .text-success { color: var(--success); }

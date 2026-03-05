@@ -1428,7 +1428,7 @@ const UI = {
   _currentScreen: null,
   _currentGame: null,
 
-  showScreen(id) {
+  showScreen(id, {pushHistory = true} = {}) {
     document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
     const screen = document.getElementById('screen-' + id);
     if (screen) {
@@ -1436,6 +1436,10 @@ const UI = {
       screen.style.animation = 'none';
       screen.offsetHeight;
       screen.style.animation = '';
+    }
+
+    if (pushHistory && id !== this._currentScreen) {
+      history.pushState({screen: id}, '', '');
     }
     this._currentScreen = id;
 
@@ -5851,10 +5855,25 @@ const App = {
       UI.showToast(T.get('wordAdded'), 'teal');
     });
 
-    window.addEventListener('popstate', () => {
-      if (UI._currentScreen !== 'home') {
+    history.replaceState({screen: 'home'}, '', '');
+
+    window.addEventListener('popstate', (e) => {
+      const target = e.state && e.state.screen ? e.state.screen : 'home';
+
+      const overlay = document.querySelector('.overlay:not(.hidden)');
+      if (overlay) {
+        overlay.classList.add('hidden');
+        history.pushState({screen: UI._currentScreen}, '', '');
+        return;
+      }
+
+      if (UI._currentScreen !== 'home' && UI._currentScreen !== target) {
         this._stopCurrentGame();
-        UI.showScreen('home');
+      }
+      UI.showScreen(target, {pushHistory: false});
+
+      if (target === 'home') {
+        history.replaceState({screen: 'home'}, '', '');
       }
     });
 
@@ -5987,34 +6006,25 @@ const App = {
             img.onload = () => {
               const cvs = document.createElement('canvas');
               const ctx = cvs.getContext('2d');
-              const w = img.naturalWidth, h = img.naturalHeight;
+              let w = img.naturalWidth, h = img.naturalHeight;
+              const MAX = 2400;
+              if (Math.max(w, h) > MAX) {
+                const scale = MAX / Math.max(w, h);
+                w = Math.round(w * scale); h = Math.round(h * scale);
+              } else if (Math.max(w, h) < 1000) {
+                const scale = 1000 / Math.max(w, h);
+                w = Math.round(w * scale); h = Math.round(h * scale);
+              }
               cvs.width = w; cvs.height = h;
-              ctx.drawImage(img, 0, 0);
+              ctx.drawImage(img, 0, 0, w, h);
               const src = ctx.getImageData(0, 0, w, h);
-              const gray = new Float32Array(w * h);
-              for (let i = 0; i < gray.length; i++)
-                gray[i] = 0.299 * src.data[i*4] + 0.587 * src.data[i*4+1] + 0.114 * src.data[i*4+2];
-              const blurred = new Float32Array(w * h);
-              const r = 2;
-              for (let y = 0; y < h; y++) {
-                for (let x = 0; x < w; x++) {
-                  let sum = 0, cnt = 0;
-                  for (let dy = -r; dy <= r; dy++) {
-                    for (let dx = -r; dx <= r; dx++) {
-                      const ny = y + dy, nx = x + dx;
-                      if (ny >= 0 && ny < h && nx >= 0 && nx < w) { sum += gray[ny * w + nx]; cnt++; }
-                    }
-                  }
-                  blurred[y * w + x] = sum / cnt;
-                }
+              const d = src.data;
+              for (let i = 0; i < d.length; i += 4) {
+                let g = 0.299 * d[i] + 0.587 * d[i+1] + 0.114 * d[i+2];
+                g = Math.min(255, Math.max(0, ((g - 128) * 1.5) + 128));
+                d[i] = d[i+1] = d[i+2] = g;
               }
-              const out = ctx.createImageData(w, h);
-              for (let i = 0; i < blurred.length; i++) {
-                const bw = blurred[i] < 120 ? 0 : 255;
-                out.data[i*4] = out.data[i*4+1] = out.data[i*4+2] = bw;
-                out.data[i*4+3] = 255;
-              }
-              ctx.putImageData(out, 0, 0);
+              ctx.putImageData(src, 0, 0);
               resolve(cvs);
             };
             img.onerror = () => resolve(file);
@@ -6032,12 +6042,30 @@ const App = {
                 statusEl.textContent = 'Reading text... ' + Math.round((m.progress || 0) * 100) + '%';
             }
           });
-          await worker.setParameters({ tessedit_pageseg_mode: '4' });
+          await worker.setParameters({ tessedit_pageseg_mode: '3' });
 
           const { data: { text: rawText } } = await worker.recognize(ocrInput);
           await worker.terminate();
 
-          let text = rawText.trim();
+          const _cleanOcrLine = line => {
+            return line
+              .replace(/[|{}\[\]<>~`^\\]/g, '')
+              .replace(/[+]+/g, '')
+              .replace(/[.]{3,}/g, '')
+              .replace(/\s{2,}/g, ' ')
+              .trim();
+          };
+
+          const _isRealWord = w => /^[a-zA-Z\u0590-\u05FF]{2,}$/.test(w);
+          let text = rawText.split('\n')
+            .map(_cleanOcrLine)
+            .filter(l => l.length >= 2)
+            .filter(l => {
+              const words = l.split(/[\s=\-–,;:]+/).filter(w => w.length >= 2);
+              return words.some(_isRealWord);
+            })
+            .join('\n')
+            .trim();
           if (!text) { UI.showToast(T.get('importPhotoOcrTimeout'), 'coral'); return; }
 
           const parsed = _parseImportText(text);
@@ -6199,4 +6227,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const el = document.getElementById('app-version');
     if (el) el.textContent = 'v' + pkg.version;
   }).catch(() => {});
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  }
 });
