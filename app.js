@@ -5922,6 +5922,10 @@ const App = {
         document.getElementById('import-paste-panel').classList.remove('hidden');
         document.getElementById('import-photo-panel').classList.add('hidden');
         document.getElementById('import-file-panel').classList.add('hidden');
+        const _photoBtn = document.getElementById('btn-import-photo');
+        if (_photoBtn) _photoBtn.disabled = false;
+        const _photoStatus = document.getElementById('import-photo-status');
+        if (_photoStatus) _photoStatus.classList.add('hidden');
       });
     }
 
@@ -6089,10 +6093,11 @@ const App = {
         } catch (e) {
           const msg = e.message === 'timeout' ? T.get('importPhotoOcrTimeout') : 'OCR failed — try a clearer photo or paste manually';
           UI.showToast(msg, 'coral');
+        } finally {
+          statusEl.classList.add('hidden');
+          photoBtn.disabled = false;
+          photoInput.value = '';
         }
-        statusEl.classList.add('hidden');
-        photoBtn.disabled = false;
-        photoInput.value = '';
       });
     }
 
