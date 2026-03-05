@@ -1,10 +1,17 @@
 const REPO = 'LiorMoldovan/English';
-const FILE_PATH = 'data/sync.json';
 const BRANCH = 'main';
 const GH_API = 'https://api.github.com';
 
-async function getFile(token) {
-  const resp = await fetch(`${GH_API}/repos/${REPO}/contents/${FILE_PATH}?ref=${BRANCH}`, {
+function filePath(id) {
+  return `data/sync-${id}.json`;
+}
+
+function isValidId(id) {
+  return /^[a-zA-Z0-9_-]{4,64}$/.test(id);
+}
+
+async function getFile(token, path) {
+  const resp = await fetch(`${GH_API}/repos/${REPO}/contents/${path}?ref=${BRANCH}`, {
     headers: { Authorization: `token ${token}`, Accept: 'application/vnd.github.v3+json' }
   });
   if (!resp.ok) return null;
@@ -16,26 +23,33 @@ export default async function handler(req, res) {
   if (!token) return res.status(500).json({ error: 'GITHUB_TOKEN not configured' });
 
   const { method } = req;
+  const id = req.query.id;
+
+  if (!id || !isValidId(id)) {
+    return res.status(400).json({ error: 'missing or invalid id parameter' });
+  }
+
+  const path = filePath(id);
 
   try {
     if (method === 'GET') {
-      const file = await getFile(token);
+      const file = await getFile(token, path);
       if (!file || !file.content) return res.status(404).json({ error: 'not found' });
       const decoded = Buffer.from(file.content, 'base64').toString('utf-8');
       return res.json(JSON.parse(decoded));
     }
 
     if (method === 'PUT' || method === 'POST') {
-      const file = await getFile(token);
+      const file = await getFile(token, path);
       const content = Buffer.from(JSON.stringify(req.body)).toString('base64');
       const body = {
-        message: 'sync: update progress data',
+        message: `sync: update ${id}`,
         content,
         branch: BRANCH
       };
       if (file && file.sha) body.sha = file.sha;
 
-      const resp = await fetch(`${GH_API}/repos/${REPO}/contents/${FILE_PATH}`, {
+      const resp = await fetch(`${GH_API}/repos/${REPO}/contents/${path}`, {
         method: 'PUT',
         headers: {
           Authorization: `token ${token}`,

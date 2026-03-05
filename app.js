@@ -4664,10 +4664,17 @@ const Dashboard = {
 // ===== CLOUD SYNC =====
 const CloudSync = {
   ENDPOINT: '/api/sync',
+  DEVICE_KEY: 'wordquest_device_id',
+  _deviceId: null,
   _pushTimer: null,
   _PUSH_DEBOUNCE_MS: 30000,
 
   init() {
+    this._deviceId = localStorage.getItem(this.DEVICE_KEY);
+    if (!this._deviceId) {
+      this._deviceId = crypto.randomUUID();
+      localStorage.setItem(this.DEVICE_KEY, this._deviceId);
+    }
     this._syncScreenTimeBank();
   },
 
@@ -4767,9 +4774,10 @@ const CloudSync = {
   },
 
   async _doPush() {
+    if (!this._deviceId) return;
     try {
       const data = this._buildFullBackup();
-      await fetch(this.ENDPOINT, {
+      await fetch(this.ENDPOINT + '?id=' + this._deviceId, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
@@ -4777,9 +4785,11 @@ const CloudSync = {
     } catch (e) {}
   },
 
-  async pull() {
+  async pull(deviceId) {
+    const id = deviceId || this._deviceId;
+    if (!id) return null;
     try {
-      const resp = await fetch(this.ENDPOINT);
+      const resp = await fetch(this.ENDPOINT + '?id=' + id);
       if (!resp.ok) return null;
       return await resp.json();
     } catch (e) { return null; }
@@ -4787,7 +4797,7 @@ const CloudSync = {
 
   getParentLink() {
     const base = window.location.origin + window.location.pathname;
-    return base + '?parent=1';
+    return base + '?parent=' + this._deviceId;
   },
 
   async restore() {
@@ -4830,6 +4840,7 @@ const CloudSync = {
 // ===== PARENT VIEW =====
 const ParentView = {
   _data: null,
+  _deviceId: null,
   _wordFilter: 'all',
 
   isActive() {
@@ -4837,12 +4848,13 @@ const ParentView = {
   },
 
   async init() {
+    this._deviceId = new URLSearchParams(window.location.search).get('parent');
     document.getElementById('app-main').classList.add('hidden');
     document.getElementById('parent-view').classList.remove('hidden');
 
     const manifestLink = document.querySelector('link[rel="manifest"]');
     if (manifestLink) {
-      const m = { name: 'Word Quest - דוח הורים', short_name: 'WQ Report', description: 'Parent progress report', start_url: './index.html?parent=1', display: 'standalone', orientation: 'portrait', background_color: '#0f0c29', theme_color: '#1a1a3e', icons: [{ src: 'icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' }] };
+      const m = { name: 'Word Quest - דוח הורים', short_name: 'WQ Report', description: 'Parent progress report', start_url: './index.html?parent=' + this._deviceId, display: 'standalone', orientation: 'portrait', background_color: '#0f0c29', theme_color: '#1a1a3e', icons: [{ src: 'icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' }] };
       const blob = new Blob([JSON.stringify(m)], { type: 'application/json' });
       manifestLink.setAttribute('href', URL.createObjectURL(blob));
     }
@@ -4879,7 +4891,7 @@ const ParentView = {
     contentEl.classList.add('hidden');
     errorEl.classList.add('hidden');
 
-    const data = await CloudSync.pull();
+    const data = await CloudSync.pull(this._deviceId);
     if (!data || !data.ts) {
       loadingEl.classList.add('hidden');
       errorEl.classList.remove('hidden');
@@ -5015,15 +5027,16 @@ const ParentView = {
   },
 
   async _pushScreenTimeUpdate(stb) {
+    if (!this._deviceId) return;
     try {
-      const data = await CloudSync.pull();
+      const data = await CloudSync.pull(this._deviceId);
       if (!data) return;
       if (data.gameState) {
         data.gameState.screenTimeBank = stb;
       }
       data.screenTimeBank = stb;
       data.ts = Date.now();
-      await fetch(CloudSync.ENDPOINT, {
+      await fetch(CloudSync.ENDPOINT + '?id=' + this._deviceId, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
