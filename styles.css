@@ -597,8 +597,7 @@ body.rtl .back-btn { transform: scaleX(-1); }
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 12px;
   padding: 10px 8px;
-  display: flex; align-items: center; justify-content: center; gap: 5px;
-  flex-wrap: wrap; align-content: center;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
   color: var(--text-primary);
@@ -610,9 +609,9 @@ body.rtl .back-btn { transform: scaleX(-1); }
   border-color: rgba(255,255,255,0.18);
 }
 .game-card:active { transform: scale(0.97); }
-.game-card-icon { font-size: 1rem; }
-.game-card-name { font-weight: 700; font-size: 0.72rem; line-height: 1.2; }
-.game-card-name-he { width: 100%; text-align: center; font-size: 0.55rem; color: var(--text-secondary); margin-top: -2px; }
+.game-card-icon { font-size: 1.15rem; }
+.game-card-name { font-weight: 700; font-size: 0.72rem; line-height: 1.2; text-align: center; }
+.game-card-name-he { text-align: center; font-size: 0.55rem; color: var(--text-secondary); }
 body.rtl .game-card-name-he { display: none; }
 
 .game-card.suggested {
@@ -2281,10 +2280,10 @@ body.rtl .memory-card-front { transform: rotateY(-180deg); }
 
   /* --- Home: Game Grid --- */
   .game-grid { grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 8px; }
-  .game-card { padding: 8px 6px; border-radius: 10px; gap: 4px; }
-  .game-card-icon { font-size: 0.9rem; }
+  .game-card { padding: 8px 6px; border-radius: 10px; gap: 2px; }
+  .game-card-icon { font-size: 1rem; }
   .game-card-name { font-size: 0.6rem; }
-  .game-card-name-he { font-size: 0.48rem; margin-top: -1px; }
+  .game-card-name-he { font-size: 0.48rem; }
   .game-section-label { font-size: 0.6rem; margin-bottom: 4px; letter-spacing: 0.6px; }
 
   /* --- Home: Progress Card --- */
