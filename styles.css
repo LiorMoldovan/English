@@ -348,8 +348,7 @@ body.rtl .back-btn { transform: scaleX(-1); }
 }
 .home-action-btn {
   min-width: 0;
-  display: flex; align-items: center; justify-content: center; gap: 4px;
-  flex-wrap: wrap; align-content: center;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
   padding: 10px 8px;
   border-radius: 12px; border: 1px solid rgba(255,255,255,0.10);
   background: rgba(255,255,255,0.05);
@@ -363,9 +362,9 @@ body.rtl .back-btn { transform: scaleX(-1); }
   transform: translateY(-1px);
 }
 .home-action-btn:active { transform: scale(0.97); }
-.action-icon { font-size: 1rem; }
-.action-label { font-size: 0.75rem; font-weight: 700; }
-.action-desc { width: 100%; text-align: center; font-size: 0.58rem; font-weight: 500; color: var(--text-dim); opacity: 0.8; margin-top: -2px; }
+.action-icon { font-size: 1.15rem; }
+.action-label { font-size: 0.75rem; font-weight: 700; text-align: center; }
+.action-desc { text-align: center; font-size: 0.58rem; font-weight: 500; color: var(--text-dim); opacity: 0.8; }
 .action-practice {
   background: linear-gradient(135deg, rgba(168,85,247,0.12), rgba(78,205,196,0.10));
   border-color: rgba(168,85,247,0.20);
@@ -597,22 +596,23 @@ body.rtl .back-btn { transform: scaleX(-1); }
   background: var(--bg-card);
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 12px;
-  padding: 12px 6px;
-  text-align: center;
+  padding: 10px 8px;
+  display: flex; align-items: center; justify-content: center; gap: 5px;
+  flex-wrap: wrap; align-content: center;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
   color: var(--text-primary);
   -webkit-tap-highlight-color: transparent;
 }
 .game-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.2);
   border-color: rgba(255,255,255,0.18);
 }
 .game-card:active { transform: scale(0.97); }
-.game-card-icon { font-size: 1.6rem; margin-bottom: 4px; }
+.game-card-icon { font-size: 1rem; }
 .game-card-name { font-weight: 700; font-size: 0.72rem; line-height: 1.2; }
-.game-card-name-he { font-size: 0.62rem; color: var(--text-secondary); margin-top: 2px; }
+.game-card-name-he { width: 100%; text-align: center; font-size: 0.55rem; color: var(--text-secondary); margin-top: -2px; }
 body.rtl .game-card-name-he { display: none; }
 
 .game-card.suggested {
@@ -2272,19 +2272,19 @@ body.rtl .memory-card-front { transform: rotateY(-180deg); }
   .goal-bar { height: 3px; }
   /* --- Home: Action Buttons --- */
   .home-actions-row { gap: 5px; margin-bottom: 8px; }
-  .home-action-btn { padding: 8px 6px; border-radius: 10px; gap: 3px; }
-  .action-icon { font-size: 0.9rem; }
+  .home-action-btn { padding: 8px 6px; border-radius: 10px; gap: 2px; }
+  .action-icon { font-size: 1rem; }
   .action-label { font-size: 0.68rem; }
-  .action-desc { font-size: 0.52rem; margin-top: -1px; }
+  .action-desc { font-size: 0.52rem; }
   .home-actions-row { grid-template-columns: 1fr 1fr 1fr; }
   .home-actions-row:not(:has(.action-learn:not(.hidden))) { grid-template-columns: 1fr 1fr; }
 
   /* --- Home: Game Grid --- */
   .game-grid { grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 8px; }
-  .game-card { padding: 10px 4px; border-radius: 10px; }
-  .game-card-icon { font-size: 1.4rem; margin-bottom: 2px; }
+  .game-card { padding: 8px 6px; border-radius: 10px; gap: 4px; }
+  .game-card-icon { font-size: 0.9rem; }
   .game-card-name { font-size: 0.6rem; }
-  .game-card-name-he { font-size: 0.5rem; margin-top: 1px; }
+  .game-card-name-he { font-size: 0.48rem; margin-top: -1px; }
   .game-section-label { font-size: 0.6rem; margin-bottom: 4px; letter-spacing: 0.6px; }
 
   /* --- Home: Progress Card --- */
