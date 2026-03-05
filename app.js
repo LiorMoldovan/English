@@ -711,7 +711,8 @@ const Speak = {
     if (!this._voices || this._voices.length === 0) this._loadVoices();
     const vs = this._voices || [];
     const preferred = vs.filter(v => v.lang.startsWith(langCode.split('-')[0]));
-    return preferred.find(v => /google|samantha|daniel|microsoft|natural/i.test(v.name))
+    return preferred.find(v => /google|samantha|daniel|natural|enhanced|premium|neural/i.test(v.name))
+      || preferred.find(v => /microsoft/i.test(v.name))
       || preferred.find(v => !v.localService)
       || preferred[0] || null;
   },
@@ -1825,8 +1826,8 @@ const BubblePop = {
     const cw = this._container.clientWidth;
     const ch = this._container.clientHeight;
 
-    const maxBubbleSize = Math.min(cw, ch) * 0.32;
-    const minBubbleSize = Math.max(64, maxBubbleSize * 0.6);
+    const maxBubbleSize = Math.min(cw, ch) * 0.34;
+    const minBubbleSize = Math.max(70, maxBubbleSize * 0.62);
 
     const colors = [
       'rgba(255,107,107,0.85)', 'rgba(78,205,196,0.85)', 'rgba(168,85,247,0.85)',
@@ -1841,10 +1842,11 @@ const BubblePop = {
       bubble.style.background = colors[i % colors.length];
       bubble.dataset.wordId = w.id;
 
-      const size = Math.round(Math.min(maxBubbleSize, Math.max(minBubbleSize, bubbleText.length * 7 + 36)));
+      const size = Math.round(Math.min(maxBubbleSize, Math.max(minBubbleSize, bubbleText.length * 7 + 42)));
       bubble.style.width = size + 'px';
       bubble.style.height = size + 'px';
-      bubble.style.fontSize = Math.max(14, Math.min(20, size * 0.22)) + 'px';
+      bubble.style.fontSize = Math.max(15, Math.min(22, size * 0.24)) + 'px';
+      bubble.style.fontWeight = '700';
 
       const margin = 4;
       const bData = {
