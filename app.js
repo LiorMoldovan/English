@@ -93,7 +93,7 @@ const T = {
     dashNoStruggling: 'No struggling words — great job!',
     dashNoCategory: 'No words in this category',
     dashFilterAll: 'All', dashStruggling: 'Struggling', dashLearning: 'Learning',
-    dashGood: 'Good', dashMastered: 'Mastered', dashUnseen: 'Not Seen',
+    dashGood: 'Good', dashMastered: 'Mastered', dashUnseen: 'Not Seen', dashArchived: 'Archived',
     dashToday: 'today', dashYesterday: 'yesterday', dashDaysAgo: 'd ago', dashNever: 'never',
     levelPrefix: 'Level ',
     deleteConfirm: 'Delete this word?', minWords: 'Need at least 20 words',
@@ -339,7 +339,7 @@ const T = {
     dashNoStruggling: '!אין מילים קשות — כל הכבוד',
     dashNoCategory: 'אין מילים בקטגוריה זו',
     dashFilterAll: 'הכל', dashStruggling: 'מתקשה', dashLearning: 'לומדת',
-    dashGood: 'יודעת', dashMastered: 'שולטת', dashUnseen: 'לא נראה',
+    dashGood: 'יודעת', dashMastered: 'שולטת', dashUnseen: 'לא נראה', dashArchived: 'ארכיון',
     dashToday: 'היום', dashYesterday: 'אתמול', dashDaysAgo: ' ימים', dashNever: 'אף פעם',
     levelPrefix: 'רמה ',
     deleteConfirm: 'למחוק מילה זו?', minWords: 'צריך לפחות 20 מילים',
@@ -1544,7 +1544,7 @@ const UI = {
       const hasNew = counts.unseen > 0;
       learnNewBtn.classList.toggle('hidden', !hasNew);
       const row = learnNewBtn.parentElement;
-      if (row) row.style.gridTemplateColumns = hasNew ? '1fr 1fr 1fr' : '1fr 1fr';
+      if (row) row.style.gridTemplateColumns = hasNew ? '1fr 1fr' : '1fr 1fr 1fr';
       if (hasNew) {
         const countEl = document.getElementById('learn-new-count');
         if (countEl) countEl.textContent = T.get('learnNewDesc').replace('%d', counts.unseen);
@@ -4531,6 +4531,19 @@ const Dashboard = {
         lastSeen: m.lastSeen, daysSince: strength.daysSinceSeen
       };
     });
+    WordManager.getArchived().forEach(entry => {
+      const m = entry.mastery || { timesCorrect: 0, timesWrong: 0, lastSeen: null };
+      const correct = m.timesCorrect || 0;
+      const wrong = m.timesWrong || 0;
+      const total = correct + wrong;
+      this._wordData.push({
+        word: entry.word, mastery: m,
+        correct, wrong, total,
+        accuracy: total > 0 ? Math.round((correct / total) * 100) : 0,
+        strength: 100, label: 'archived',
+        lastSeen: m.lastSeen || null, daysSince: null
+      });
+    });
   },
 
   _formatTime(totalSec) {
@@ -4820,7 +4833,7 @@ const Dashboard = {
     if (!el) return;
     el.innerHTML = '';
 
-    const counts = { all: 0, struggling: 0, learning: 0, good: 0, mastered: 0, unseen: 0 };
+    const counts = { all: 0, struggling: 0, learning: 0, good: 0, mastered: 0, unseen: 0, archived: 0 };
     this._wordData.forEach(w => { counts.all++; counts[w.label]++; });
 
     document.querySelectorAll('#screen-dashboard .rpt-filter').forEach(btn => {
@@ -4850,7 +4863,7 @@ const Dashboard = {
     filtered.forEach(item => {
       const row = document.createElement('div');
       row.className = 'dash-word-row dash-wlabel-' + item.label;
-      const statusIcon = { unseen: '⬜', struggling: '🔴', learning: '🟡', good: '🟢', mastered: '⭐' }[item.label];
+      const statusIcon = { unseen: '⬜', struggling: '🔴', learning: '🟡', good: '🟢', mastered: '⭐', archived: '📦' }[item.label];
       const lastSeenStr = item.lastSeen
         ? (item.daysSince === 0 ? T.get('dashToday') : item.daysSince === 1 ? T.get('dashYesterday') : item.daysSince + T.get('dashDaysAgo'))
         : T.get('dashNever');
@@ -4859,15 +4872,13 @@ const Dashboard = {
         '<span class="dash-w-eng">' + item.word.english + '</span>' +
         '<span class="dash-w-heb">' + item.word.hebrew + '</span>' +
         '<span class="dash-w-stats">' + (item.total > 0 ? item.accuracy + '% · ' + item.correct + '✓ ' + item.wrong + '✗' : '—') + '</span>' +
-        '<span class="dash-w-seen">' + lastSeenStr + '</span>' +
-        '<span class="dash-w-bar"><span class="dash-w-bar-fill dash-wlabel-' + item.label + '" style="width:' + item.strength + '%"></span></span>';
-      row.appendChild(Speak.btn(item.word.english, 'en'));
+        '<span class="dash-w-seen">' + lastSeenStr + '</span>';
       el.appendChild(row);
     });
   },
 
   _filterLabel(f) {
-    const keys = { all: 'dashFilterAll', struggling: 'dashStruggling', learning: 'dashLearning', good: 'dashGood', mastered: 'dashMastered', unseen: 'dashUnseen' };
+    const keys = { all: 'dashFilterAll', struggling: 'dashStruggling', learning: 'dashLearning', good: 'dashGood', mastered: 'dashMastered', unseen: 'dashUnseen', archived: 'dashArchived' };
     return keys[f] ? T.get(keys[f]) : f;
   }
 };
@@ -4928,6 +4939,20 @@ const CloudSync = {
         gameModesCorrect: m.gameModesCorrect,
         lastSeen: m.lastSeen, daysSince: s.daysSinceSeen
       };
+    });
+
+    WordManager.getArchived().forEach(entry => {
+      const m = entry.mastery || { timesCorrect: 0, timesWrong: 0, lastSeen: null };
+      const correct = m.timesCorrect || 0;
+      const wrong = m.timesWrong || 0;
+      const total = correct + wrong;
+      wordData.push({
+        english: entry.word.english, hebrew: entry.word.hebrew,
+        correct, wrong,
+        accuracy: total > 0 ? Math.round((correct / total) * 100) : 0,
+        strengthLabel: 'archived', strengthScore: 100,
+        lastSeen: m.lastSeen || null, daysSince: null
+      });
     });
 
     return {
@@ -5444,14 +5469,14 @@ const ParentView = {
     if (!el) return;
     el.innerHTML = '';
 
-    const counts = { all: 0, struggling: 0, learning: 0, good: 0, mastered: 0, unseen: 0 };
+    const counts = { all: 0, struggling: 0, learning: 0, good: 0, mastered: 0, unseen: 0, archived: 0 };
     this._wordData.forEach(w => { counts.all++; counts[w.label]++; });
 
     document.querySelectorAll('#pv-filters .rpt-filter').forEach(btn => {
       const f = btn.dataset.wf;
       btn.classList.toggle('active', f === this._wordFilter);
       const c = counts[f] !== undefined ? ' (' + counts[f] + ')' : '';
-      const keys = { all: 'dashFilterAll', struggling: 'dashStruggling', learning: 'dashLearning', good: 'dashGood', mastered: 'dashMastered', unseen: 'dashUnseen' };
+      const keys = { all: 'dashFilterAll', struggling: 'dashStruggling', learning: 'dashLearning', good: 'dashGood', mastered: 'dashMastered', unseen: 'dashUnseen', archived: 'dashArchived' };
       btn.textContent = (keys[f] ? T.get(keys[f]) : f) + c;
     });
 
@@ -5475,7 +5500,7 @@ const ParentView = {
     filtered.forEach(item => {
       const row = document.createElement('div');
       row.className = 'dash-word-row dash-wlabel-' + item.label;
-      const statusIcon = { unseen: '⬜', struggling: '🔴', learning: '🟡', good: '🟢', mastered: '⭐' }[item.label];
+      const statusIcon = { unseen: '⬜', struggling: '🔴', learning: '🟡', good: '🟢', mastered: '⭐', archived: '📦' }[item.label];
       let lastSeenStr;
       if (item.lastSeen) {
         lastSeenStr = item.daysSince === 0 ? T.get('dashToday') : item.daysSince === 1 ? T.get('dashYesterday') : item.daysSince + T.get('dashDaysAgo');
@@ -5490,8 +5515,7 @@ const ParentView = {
         '<span class="dash-w-eng">' + item.word.english + '</span>' +
         '<span class="dash-w-heb">' + item.word.hebrew + '</span>' +
         '<span class="dash-w-stats">' + statsStr + '</span>' +
-        '<span class="dash-w-seen">' + lastSeenStr + '</span>' +
-        '<span class="dash-w-bar"><span class="dash-w-bar-fill dash-wlabel-' + item.label + '" style="width:' + item.strength + '%"></span></span>';
+        '<span class="dash-w-seen">' + lastSeenStr + '</span>';
       el.appendChild(row);
     });
   }
