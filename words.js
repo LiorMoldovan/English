@@ -275,7 +275,7 @@ const WordManager = {
 
   _recentMistakes: {},
 
-  recordAnswer(wordId, correct, gameMode) {
+  recordAnswer(wordId, correct, gameMode, count = 1) {
     const archivedIdx = this._archive.findIndex(e => e.word.id === wordId);
     if (archivedIdx !== -1) {
       this.recordArchivedAnswer(wordId, correct, gameMode);
@@ -306,9 +306,9 @@ const WordManager = {
         m.justMastered = false;
         return m;
       } else {
-        m.timesCorrect++;
-        m.recentAnswers.push(true);
-        if (m.recentAnswers.length > 10) m.recentAnswers.shift();
+        m.timesCorrect += count;
+        for (let i = 0; i < count; i++) m.recentAnswers.push(true);
+        while (m.recentAnswers.length > 10) m.recentAnswers.shift();
         if (!m.gameModesCorrect.includes(gameMode)) {
           m.gameModesCorrect.push(gameMode);
         }
@@ -766,9 +766,9 @@ const WordManager = {
   recordMappingResult(wordId, correct) {
     const m = this.getMastery(wordId);
     if (correct) {
-      m.timesCorrect = Math.max(m.timesCorrect, 4);
-      if (m.recentAnswers.length < 4) {
-        m.recentAnswers = [true, true, true, true];
+      m.timesCorrect = Math.max(m.timesCorrect, 6);
+      if (m.recentAnswers.length < 6) {
+        m.recentAnswers = [true, true, true, true, true, true];
       }
       m.gameModesCorrect = [...new Set([...m.gameModesCorrect, 'mapping'])];
       m.lastSeen = Date.now();
@@ -783,5 +783,33 @@ const WordManager = {
 
   getNotStartedWords() {
     return this._words.filter(w => this.getWordConfidence(w.id).level === 'not_started');
+  },
+
+  SNAPSHOT_KEY: 'wordquest_daily_snapshot',
+
+  _ensureDailySnapshot() {
+    const today = new Date().toDateString();
+    try {
+      const saved = localStorage.getItem(this.SNAPSHOT_KEY);
+      if (saved) {
+        const snap = JSON.parse(saved);
+        if (snap.date === today) return;
+      }
+    } catch(e) {}
+    const categories = {};
+    this._words.forEach(w => {
+      categories[w.english] = this.getWordStrength(w.id).label;
+    });
+    try {
+      localStorage.setItem(this.SNAPSHOT_KEY, JSON.stringify({ date: today, categories }));
+    } catch(e) {}
+  },
+
+  getDailySnapshot() {
+    try {
+      const saved = localStorage.getItem(this.SNAPSHOT_KEY);
+      if (saved) return JSON.parse(saved);
+    } catch(e) {}
+    return null;
   }
 };

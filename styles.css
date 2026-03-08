@@ -2053,31 +2053,36 @@ body.rtl .memory-card-front { transform: rotateY(-180deg); }
   font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px;
   color: var(--accent-teal); font-weight: 700; margin-bottom: 8px;
 }
-.rpt-wm-total {
-  font-size: 0.9rem; font-weight: 700; color: var(--text-primary); margin-bottom: 8px;
-}
 .rpt-wm-empty {
   font-size: 0.8rem; color: var(--text-secondary); font-style: italic;
 }
 .rpt-wm-group {
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 .rpt-wm-group:last-child { margin-bottom: 0; }
 .rpt-wm-group-header {
-  display: flex; align-items: center; gap: 5px; font-size: 0.8rem; margin-bottom: 3px;
+  display: flex; align-items: center; gap: 5px; font-size: 0.8rem; margin-bottom: 5px;
 }
-.rpt-wm-dot {
-  width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+.rpt-wm-arrow {
+  font-size: 0.85rem; font-weight: 800;
 }
+.rpt-wm-arrow.up { color: #22c55e; }
+.rpt-wm-arrow.down { color: #ef4444; }
 .rpt-wm-count {
   font-weight: 800; color: var(--text-primary);
 }
 .rpt-wm-label {
   color: var(--text-secondary); font-weight: 600;
 }
-.rpt-wm-words {
-  font-size: 0.75rem; color: var(--text-secondary); padding-inline-start: 15px;
-  line-height: 1.4; font-style: italic; direction: ltr; unicode-bidi: embed;
+.rpt-wm-change {
+  font-size: 0.78rem; padding-inline-start: 20px; line-height: 1.7;
+  direction: ltr; unicode-bidi: embed;
+}
+.rpt-wm-word {
+  font-weight: 700; color: var(--text-primary);
+}
+.rpt-wm-arrow-sm {
+  color: var(--text-secondary); font-size: 0.7rem;
 }
 .rpt-exec-verdict {
   margin-top: 14px; padding: 12px 14px;
@@ -2206,13 +2211,17 @@ body.rtl .memory-card-front { transform: rotateY(-180deg); }
 .dash-hard-eng { font-weight: 700; min-width: 80px; flex: 1; }
 .dash-hard-heb { font-size: 0.8rem; color: var(--text-secondary); }
 .dash-hard-acc {
-  font-weight: 800; font-size: 0.78rem; min-width: 38px; text-align: center;
+  font-weight: 800; font-size: 0.78rem; min-width: 40px; text-align: end; flex-shrink: 0;
 }
 .dash-hard-acc.low { color: var(--accent-coral); }
 .dash-hard-acc.mid { color: var(--accent-gold); }
 .dash-hard-acc.ok { color: var(--accent-teal); }
 .dash-hard-detail {
   font-size: 0.7rem; color: var(--text-dim); white-space: nowrap;
+  min-width: 46px; text-align: center;
+}
+.dash-hard-row .speak-btn {
+  width: 28px; height: 28px; font-size: 0.78rem; flex-shrink: 0;
 }
 .dash-hard-bar {
   width: 45px; height: 5px; background: rgba(255,255,255,0.08);
@@ -2642,31 +2651,33 @@ body.rtl .memory-card-front { transform: rotateY(-180deg); }
 .pv-st-card {
   background: linear-gradient(135deg, rgba(245,158,11,0.12), rgba(217,119,6,0.08));
   border: 1px solid rgba(245,158,11,0.25);
-  border-radius: var(--radius); padding: 16px; margin-bottom: 12px;
+  border-radius: var(--radius); padding: 10px 14px; margin-bottom: 10px;
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px;
 }
 .pv-st-title {
-  font-size: 0.85rem; font-weight: 800; color: #f59e0b;
-  margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
+  font-size: 0.75rem; font-weight: 800; color: #f59e0b;
+  display: flex; align-items: center; gap: 5px; margin: 0;
+  width: 100%;
 }
 .pv-st-amount {
-  font-size: 2rem; font-weight: 900; color: #fbbf24;
-  text-align: center; margin: 8px 0;
+  font-size: 1.4rem; font-weight: 900; color: #fbbf24;
+  margin: 0;
 }
 .pv-st-label {
-  font-size: 0.72rem; color: rgba(251,191,36,0.6);
-  text-align: center; text-transform: uppercase; letter-spacing: 0.5px;
+  font-size: 0.65rem; color: rgba(251,191,36,0.6);
+  text-transform: uppercase; letter-spacing: 0.5px;
 }
 .pv-st-btn {
-  display: block; width: 100%; margin-top: 12px;
-  padding: 10px; font-size: 0.8rem; font-weight: 800;
+  margin-inline-start: auto;
+  padding: 6px 14px; font-size: 0.72rem; font-weight: 800;
   background: linear-gradient(135deg, #f59e0b, #d97706);
   color: #fff; border: none; border-radius: var(--radius-sm);
   cursor: pointer; transition: opacity 0.2s;
 }
 .pv-st-btn:hover { opacity: 0.85; }
 .pv-st-today {
-  font-size: 0.68rem; color: var(--text-dim);
-  text-align: center; margin-top: 6px;
+  font-size: 0.62rem; color: var(--text-dim);
+  width: 100%; text-align: center; margin-top: 2px;
 }
 
 @media (max-width: 480px) {

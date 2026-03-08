@@ -76,8 +76,8 @@ const T = {
     rptGamesPlayed: 'Games Played', rptWordsKnown: 'Mastered Words',
     rptDailyAccuracy: 'Today Accuracy', rptDailyGames: 'Today Games',
     rptStarsToday: 'Stars Today',
-    rptWordMovement: 'Words Practiced Today', rptNoWordsToday: 'No words practiced today',
-    rptWordsPracticed: 'words practiced',
+    rptWordMovement: 'Category Changes Today', rptNoWordsToday: 'No category changes today',
+    rptMovedUp: 'moved up', rptMovedDown: 'moved down',
     rptMin: 'min', rptHr: 'hr',
     rptDailyUse: 'Daily Usage — Last 14 Days',
     rptDay: 'Day', rptSessions: 'Games', rptTimePlayed: 'Time', rptDayAccuracy: 'Accuracy',
@@ -323,8 +323,8 @@ const T = {
     rptGamesPlayed: 'משחקים', rptWordsKnown: 'מילים ששולטת',
     rptDailyAccuracy: 'דיוק היום', rptDailyGames: 'משחקים היום',
     rptStarsToday: 'כוכבים היום',
-    rptWordMovement: 'מילים שתורגלו היום', rptNoWordsToday: 'לא תורגלו מילים היום',
-    rptWordsPracticed: 'מילים תורגלו',
+    rptWordMovement: 'שינויי קטגוריה היום', rptNoWordsToday: 'אין שינויי קטגוריה היום',
+    rptMovedUp: 'עלו', rptMovedDown: 'ירדו',
     rptMin: 'דק׳', rptHr: 'שע׳',
     rptDailyUse: 'שימוש יומי — 14 ימים אחרונים',
     rptDay: 'יום', rptSessions: 'משחקים', rptTimePlayed: 'זמן', rptDayAccuracy: 'דיוק',
@@ -901,11 +901,10 @@ const Progress = {
   _calcScreenTimeEarned(correct, total, stars, durationSec) {
     let min = 0;
     const acc = total > 0 ? correct / total : 0;
-    if (acc >= 0.95) min += 2.0;
-    else if (acc >= 0.85) min += 1.0;
-    else if (acc >= 0.7) min += 0.5;
+    if (acc >= 0.95) min += 1.0;
+    else if (acc >= 0.85) min += 0.5;
     if (stars === 3) min += 0.5;
-    if (durationSec >= 180) min += 0.5;
+    if (durationSec >= 300) min += 0.5;
     return Math.round(min * 10) / 10;
   },
 
@@ -1879,7 +1878,7 @@ const UI = {
       if (w) {
         this.showToast(T.get('wordMastered').replace('%w', w.english), 'green');
         Sound.achievement();
-        const bonus = Progress._addScreenTime(1.0);
+        const bonus = Progress._addScreenTime(0.5);
         if (bonus > 0) {
           setTimeout(() => this.showToast(T.get('stMasteryBonus'), 'gold'), 1200);
           GameState.data.todayGamesPlayed.masteredNewWord = true;
@@ -3526,7 +3525,7 @@ const MatchUp = {
       UI.floatXP(rect.left + rect.width / 2, rect.top - 10, xp);
 
       document.getElementById('mu-score').textContent = this._score;
-      const _mur = WordManager.recordAnswer(left.word.id, true, 'matchup');
+      const _mur = WordManager.recordAnswer(left.word.id, true, 'matchup', 6);
       UI.checkWordMastered(_mur, left.word.id);
       this._totalCorrect++;
 
@@ -4599,7 +4598,7 @@ const Dashboard = {
     else if (history.length > 0) verdictKey = 'rptVerdictWork';
     else verdictKey = 'rptVerdictStart';
 
-    const wordMovement = this._buildWordMovementHtml(todayWords);
+    const wordMovement = this._buildWordMovementHtml(todayWords, WordManager.getDailySnapshot());
 
     el.innerHTML =
       '<div class="rpt-exec-title">' + T.get('rptSummary') + '</div>' +
@@ -4615,31 +4614,70 @@ const Dashboard = {
       '<div class="rpt-exec-verdict">' + T.get(verdictKey) + '</div>';
   },
 
-  _buildWordMovementHtml(todayWords) {
+  _buildWordMovementHtml(todayWords, snapshot) {
+    const levelOrder = { unseen: 0, struggling: 1, learning: 2, good: 3, mastered: 4, archived: 5 };
+    const colors = { unseen: 'rgba(255,255,255,0.3)', struggling: '#ef4444', learning: '#facc15', good: '#6ee7b7', mastered: '#22c55e', archived: '#6b7280' };
+    const labels = { unseen: T.get('dashUnseen'), struggling: T.get('dashStruggling'), learning: T.get('dashLearning'), good: T.get('dashGood'), mastered: T.get('dashMastered'), archived: T.get('dashArchived') };
+
     let html = '<div class="rpt-word-movement">' +
       '<div class="rpt-wm-title">' + T.get('rptWordMovement') + '</div>';
-    if (todayWords.length === 0) {
+
+    if (!snapshot || todayWords.length === 0) {
       return html + '<div class="rpt-wm-empty">' + T.get('rptNoWordsToday') + '</div></div>';
     }
-    html += '<div class="rpt-wm-total">' + todayWords.length + ' ' + T.get('rptWordsPracticed') + '</div>';
-    const groups = { mastered: [], good: [], learning: [], struggling: [] };
+
+    const movedUp = [];
+    const movedDown = [];
+
     todayWords.forEach(w => {
-      const k = w.label;
-      if (groups[k]) groups[k].push(w.word.english);
+      const currentLabel = w.label;
+      const prevLabel = snapshot.categories[w.word.english] || 'unseen';
+      const cur = levelOrder[currentLabel] !== undefined ? levelOrder[currentLabel] : 0;
+      const prev = levelOrder[prevLabel] !== undefined ? levelOrder[prevLabel] : 0;
+      if (cur > prev) movedUp.push({ word: w.word, from: prevLabel, to: currentLabel });
+      else if (cur < prev) movedDown.push({ word: w.word, from: prevLabel, to: currentLabel });
     });
-    const colors = { mastered: '#22c55e', good: '#6ee7b7', learning: '#facc15', struggling: '#ef4444' };
-    const labels = { mastered: T.get('dashMastered'), good: T.get('dashGood'), learning: T.get('dashLearning'), struggling: T.get('dashStruggling') };
-    ['mastered', 'good', 'learning', 'struggling'].forEach(k => {
-      if (groups[k].length === 0) return;
+
+    if (movedUp.length === 0 && movedDown.length === 0) {
+      return html + '<div class="rpt-wm-empty">' + T.get('rptNoWordsToday') + '</div></div>';
+    }
+
+    if (movedUp.length > 0) {
       html += '<div class="rpt-wm-group">' +
         '<div class="rpt-wm-group-header">' +
-          '<span class="rpt-wm-dot" style="background:' + colors[k] + '"></span>' +
-          '<span class="rpt-wm-count">' + groups[k].length + '</span> ' +
-          '<span class="rpt-wm-label">' + labels[k] + '</span>' +
-        '</div>' +
-        '<div class="rpt-wm-words">' + groups[k].join(', ') + '</div>' +
-      '</div>';
-    });
+          '<span class="rpt-wm-arrow up">▲</span>' +
+          '<span class="rpt-wm-count">' + movedUp.length + '</span> ' +
+          '<span class="rpt-wm-label">' + T.get('rptMovedUp') + '</span>' +
+        '</div>';
+      movedUp.forEach(m => {
+        html += '<div class="rpt-wm-change">' +
+          '<span class="rpt-wm-word">' + m.word.english + '</span> ' +
+          '<span style="color:' + colors[m.from] + '">' + labels[m.from] + '</span>' +
+          ' <span class="rpt-wm-arrow-sm">→</span> ' +
+          '<span style="color:' + colors[m.to] + '">' + labels[m.to] + '</span>' +
+        '</div>';
+      });
+      html += '</div>';
+    }
+
+    if (movedDown.length > 0) {
+      html += '<div class="rpt-wm-group">' +
+        '<div class="rpt-wm-group-header">' +
+          '<span class="rpt-wm-arrow down">▼</span>' +
+          '<span class="rpt-wm-count">' + movedDown.length + '</span> ' +
+          '<span class="rpt-wm-label">' + T.get('rptMovedDown') + '</span>' +
+        '</div>';
+      movedDown.forEach(m => {
+        html += '<div class="rpt-wm-change">' +
+          '<span class="rpt-wm-word">' + m.word.english + '</span> ' +
+          '<span style="color:' + colors[m.from] + '">' + labels[m.from] + '</span>' +
+          ' <span class="rpt-wm-arrow-sm">→</span> ' +
+          '<span style="color:' + colors[m.to] + '">' + labels[m.to] + '</span>' +
+        '</div>';
+      });
+      html += '</div>';
+    }
+
     return html + '</div>';
   },
 
@@ -4820,7 +4858,7 @@ const Dashboard = {
 
     const struggled = this._wordData
       .filter(w => w.total >= 2 && (w.label === 'struggling' || w.label === 'learning') && w.accuracy < 90)
-      .sort((a, b) => a.strength - b.strength)
+      .sort((a, b) => a.accuracy - b.accuracy || a.correct - b.correct)
       .slice(0, 10);
 
     if (struggled.length === 0) {
@@ -5015,7 +5053,8 @@ const CloudSync = {
       wordData, totalWords: words.length,
       streak: GameState.data.streak,
       latestTest: GameState.getLatestTest(),
-      lang: T._lang
+      lang: T._lang,
+      dailySnapshot: WordManager.getDailySnapshot()
     };
   },
 
@@ -5247,7 +5286,7 @@ const ParentView = {
     else if (hist.length > 0) verdictKey = 'rptVerdictWork';
     else verdictKey = 'rptVerdictStart';
 
-    const wordMovement = Dashboard._buildWordMovementHtml(todayWords);
+    const wordMovement = Dashboard._buildWordMovementHtml(todayWords, this._data.dailySnapshot || null);
 
     el.innerHTML =
       '<div class="rpt-exec-title">' + T.get('rptSummary') + '</div>' +
@@ -5473,7 +5512,7 @@ const ParentView = {
     el.innerHTML = '';
     const struggled = this._wordData
       .filter(w => w.total >= 2 && (w.label === 'struggling' || w.label === 'learning') && w.accuracy < 90)
-      .sort((a, b) => a.strength - b.strength)
+      .sort((a, b) => a.accuracy - b.accuracy || a.correct - b.correct)
       .slice(0, 10);
 
     if (struggled.length === 0) {
@@ -5645,6 +5684,7 @@ const App = {
     }
 
     WordManager.init();
+    WordManager._ensureDailySnapshot();
     WordManager.autoArchiveMastered();
     GameState.load();
     Particles.init();
