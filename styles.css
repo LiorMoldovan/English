@@ -1871,6 +1871,8 @@ body.rtl .memory-card-front { transform: rotateY(-180deg); }
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 12px;
   padding: 16px;
+  padding-bottom: 80px;
+  overflow-y: auto;
 }
 .achievement-card {
   background: var(--bg-card);
@@ -2014,8 +2016,9 @@ body.rtl .memory-card-front { transform: rotateY(-180deg); }
 
 /* ===== PROGRESS REPORT ===== */
 .dashboard-scroll {
-  overflow-y: auto; padding: 16px; padding-bottom: 40px;
-  max-height: calc(100vh - 60px);
+  overflow-y: auto; padding: 16px; padding-bottom: 80px;
+  max-height: calc(100vh - 48px);
+  flex: 1;
 }
 
 /* Executive Summary Card */
@@ -2083,6 +2086,10 @@ body.rtl .memory-card-front { transform: rotateY(-180deg); }
 }
 .rpt-wm-arrow-sm {
   color: var(--text-secondary); font-size: 0.7rem;
+  display: inline-block;
+}
+[dir="rtl"] .rpt-wm-arrow-sm {
+  transform: scaleX(-1);
 }
 .rpt-exec-verdict {
   margin-top: 14px; padding: 12px 14px;
@@ -2486,6 +2493,27 @@ body.rtl .memory-card-front { transform: rotateY(-180deg); }
   .words-add-form { padding: 6px 8px; gap: 4px; }
   .add-input { font-size: 0.75rem; padding: 8px 8px; }
   .words-add-form .btn { font-size: 0.65rem; padding: 8px 6px; }
+
+  /* --- Dashboard --- */
+  .dashboard-scroll { padding: 10px; }
+  .rpt-exec { padding: 14px; margin-bottom: 14px; }
+  .rpt-exec-grid { gap: 6px; }
+  .rpt-kpi { padding: 8px 4px; }
+  .rpt-kpi-val { font-size: 0.95rem; }
+  .rpt-kpi-label { font-size: 0.55rem; }
+  .rpt-exec-verdict { font-size: 0.75rem; padding: 10px; }
+  .rpt-section-title { font-size: 0.7rem; }
+  .dash-hard-row { padding: 8px 8px; gap: 5px; font-size: 0.75rem; }
+  .dash-hard-eng { min-width: 60px; font-size: 0.75rem; }
+  .dash-hard-heb { font-size: 0.72rem; }
+  .dash-hard-acc { font-size: 0.7rem; min-width: 32px; }
+  .dash-hard-detail { font-size: 0.6rem; min-width: 36px; }
+  .dash-hard-bar { width: 30px; }
+  .dash-word-row { grid-template-columns: 16px 2fr 2fr 70px; padding: 6px 8px; font-size: 0.75rem; }
+  .dash-w-stats { font-size: 0.62rem; }
+  .rpt-filter { padding: 4px 7px; font-size: 0.62rem; }
+  .rpt-mastery { padding: 12px; }
+  .rpt-legend-item { font-size: 0.68rem; }
 }
 
 @media (min-width: 768px) {
@@ -2565,8 +2593,13 @@ body.rtl .memory-card-front { transform: rotateY(-180deg); }
 }
 .pv-content {
   padding: 12px 16px 60px;
-  overflow-y: auto; max-height: calc(100vh - 100px);
+  overflow-y: auto; max-height: calc(100vh - 90px);
   -webkit-overflow-scrolling: touch;
+}
+@media (max-width: 480px) {
+  .pv-content { padding: 10px 10px 60px; }
+  .pv-title { font-size: 0.85rem; }
+  .pv-header { padding: 10px 12px; }
 }
 
 /* ===== WORD BANK TABS ===== */
