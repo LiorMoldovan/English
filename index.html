@@ -157,6 +157,11 @@
           <span class="action-label" data-t="takeTest">Take a Test</span>
           <span class="action-desc" data-t="takeTestDesc">Test your selected words</span>
         </button>
+        <button class="home-action-btn action-mapping" id="btn-quick-check">
+          <span class="action-icon">🔍</span>
+          <span class="action-label" data-t="mappingQuickCheck">Quick Check</span>
+          <span class="action-desc" data-t="mappingQuickCheckDesc">Map words you already know</span>
+        </button>
       </div>
 
 
@@ -270,7 +275,7 @@
         <span class="nav-icon">🌐</span>
         <span>עברית</span>
       </button>
-      <span class="app-version" id="app-version">v2.9.0</span>
+      <span class="app-version" id="app-version">v3.0.0</span>
     </nav>
   </div>
 
@@ -718,6 +723,38 @@
       <div class="test-results-actions">
         <button class="btn btn-primary" id="test-retry-btn" data-t="testRetry">Retry Mistakes</button>
         <button class="btn btn-secondary" id="test-home-btn" data-t="testBackHome">Back Home</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== WORD MAPPING (Quick Check) ===== -->
+  <div class="screen hidden" id="screen-mapping">
+    <div class="game-header">
+      <button class="back-btn" data-back>←</button>
+      <div class="game-title" data-t="mappingTitle">Quick Check</div>
+      <div class="game-score"><span id="mapping-progress">1 / 10</span></div>
+    </div>
+    <div class="game-instructions" data-t="mappingInstr">Do you already know these words? Let's find out!</div>
+    <div class="mapping-progress-bar">
+      <div class="mapping-progress-fill" id="mapping-progress-fill"></div>
+    </div>
+    <div class="mapping-body">
+      <div class="mapping-prompt" id="mapping-prompt"></div>
+      <div class="mapping-choices" id="mapping-choices"></div>
+    </div>
+  </div>
+
+  <!-- ===== MAPPING RESULTS ===== -->
+  <div class="screen hidden" id="screen-mapping-results">
+    <div class="game-header">
+      <button class="back-btn" data-back>←</button>
+      <div class="game-title" data-t="mappingResultTitle">Quick Check Done!</div>
+    </div>
+    <div class="mapping-results-scroll">
+      <div class="mapping-results-summary" id="mapping-results-summary"></div>
+      <div class="mapping-results-list" id="mapping-results-list"></div>
+      <div class="mapping-results-actions">
+        <button class="btn btn-primary" id="mapping-done-btn" data-t="mappingDone">Done</button>
       </div>
     </div>
   </div>

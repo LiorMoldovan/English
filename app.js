@@ -73,6 +73,10 @@ const T = {
     rptThisWeek: 'This Week', rptActiveDays: 'Active Days',
     rptTimeToday: 'Today', rptTimeTotal: 'Total Time',
     rptGamesPlayed: 'Games Played', rptWordsKnown: 'Mastered Words',
+    rptDailyAccuracy: 'Today Accuracy', rptDailyGames: 'Today Games',
+    rptStarsToday: 'Stars Today',
+    rptWordMovement: 'Words Practiced Today', rptNoWordsToday: 'No words practiced today',
+    rptWordsPracticed: 'words practiced',
     rptMin: 'min', rptHr: 'hr',
     rptDailyUse: 'Daily Usage — Last 14 Days',
     rptDay: 'Day', rptSessions: 'Games', rptTimePlayed: 'Time', rptDayAccuracy: 'Accuracy',
@@ -237,7 +241,17 @@ const T = {
     stRedeem: 'Give Screen Time',
     stRedeemed: 'Screen time given! Bank reset.',
     stDailyCap: 'Daily max reached (30 min)',
-    stParentReset: 'Reset Bank',
+    mappingTitle: 'Quick Check',
+    mappingInstr: 'Do you already know these words? Let\'s find out!',
+    mappingProgress: '%d of %t',
+    mappingResultTitle: 'Quick Check Done!',
+    mappingResultKnew: 'You already knew %d out of %t words!',
+    mappingResultAllNew: 'All new words — let\'s start learning!',
+    mappingResultAllKnown: 'You knew them all! Great job!',
+    mappingDone: 'Done',
+    mappingQuickCheck: 'Quick Check',
+    mappingQuickCheckDesc: 'Map words you already know',
+    mappingNoNew: 'Need at least 4 words!',
   },
   he: {
     welcomeMessage: '!מוכנה לשלוט ב-83 מילים באנגלית? בואי נשחק',
@@ -305,6 +319,10 @@ const T = {
     rptThisWeek: 'השבוע', rptActiveDays: 'ימים פעילים',
     rptTimeToday: 'היום', rptTimeTotal: 'זמן כולל',
     rptGamesPlayed: 'משחקים', rptWordsKnown: 'מילים ששולטת',
+    rptDailyAccuracy: 'דיוק היום', rptDailyGames: 'משחקים היום',
+    rptStarsToday: 'כוכבים היום',
+    rptWordMovement: 'מילים שתורגלו היום', rptNoWordsToday: 'לא תורגלו מילים היום',
+    rptWordsPracticed: 'מילים תורגלו',
     rptMin: 'דק׳', rptHr: 'שע׳',
     rptDailyUse: 'שימוש יומי — 14 ימים אחרונים',
     rptDay: 'יום', rptSessions: 'משחקים', rptTimePlayed: 'זמן', rptDayAccuracy: 'דיוק',
@@ -469,7 +487,17 @@ const T = {
     stRedeem: 'תני זמן מסך',
     stRedeemed: '!זמן המסך ניתן! הבנק אופס',
     stDailyCap: '(דק׳ 30) הגעת למקסימום היומי',
-    stParentReset: 'אפס בנק',
+    mappingTitle: 'בדיקה מהירה',
+    mappingInstr: '?את כבר מכירה את המילים האלה? בואי נבדוק',
+    mappingProgress: '%t / %d',
+    mappingResultTitle: '!הבדיקה הסתיימה',
+    mappingResultKnew: '!כבר ידעת %d מתוך %t מילים',
+    mappingResultAllNew: '!כל המילים חדשות — בואי נתחיל ללמוד',
+    mappingResultAllKnown: '!ידעת את כולן! כל הכבוד',
+    mappingDone: 'סיום',
+    mappingQuickCheck: 'בדיקה מהירה',
+    mappingQuickCheckDesc: 'סמני מילים שאת כבר מכירה',
+    mappingNoNew: '!צריך לפחות 4 מילים',
   },
   get(key) { return this[this._lang][key] || this.en[key] || key; },
   setLang(lang) {
@@ -764,7 +792,7 @@ const Speak = {
     u.lang = lang === 'he' ? 'he-IL' : 'en-US';
     const voice = this._pickVoice(u.lang);
     if (voice) u.voice = voice;
-    u.rate = 0.72;
+    u.rate = 0.68;
     u.pitch = 1.08;
     u.volume = 1;
     window.speechSynthesis.speak(u);
@@ -778,6 +806,13 @@ const Speak = {
   },
   english(text) { this.say(text, 'en'); },
   hebrew(text) { this.say(text, 'he'); },
+
+  _autoTimer: null,
+  auto(text, lang) {
+    if (!('speechSynthesis' in window)) return;
+    clearTimeout(this._autoTimer);
+    this._autoTimer = setTimeout(() => this.say(text, lang), 300);
+  },
 
   btn(text, lang) {
     const b = document.createElement('button');
@@ -864,13 +899,11 @@ const Progress = {
   _calcScreenTimeEarned(correct, total, stars, durationSec) {
     let min = 0;
     const acc = total > 0 ? correct / total : 0;
-    if (acc >= 0.9) min += 3.0;
-    else if (acc >= 0.7) min += 2.0;
-    else if (acc >= 0.5) min += 1.0;
-    else min += 0.5;
-    if (stars === 3) min += 1.5;
-    else if (stars === 2) min += 0.5;
-    if (durationSec >= 120) min += 0.5;
+    if (acc >= 0.95) min += 2.0;
+    else if (acc >= 0.85) min += 1.0;
+    else if (acc >= 0.7) min += 0.5;
+    if (stars === 3) min += 0.5;
+    if (durationSec >= 180) min += 0.5;
     return Math.round(min * 10) / 10;
   },
 
@@ -1672,9 +1705,9 @@ const UI = {
       stTierEl.classList.remove('hidden');
       if (Progress._lastScreenTimeCapped) {
         stTierEl.textContent = T.get('stDailyCap');
-      } else if (earned >= 4) {
-        stTierEl.textContent = T.get('stTier3');
       } else if (earned >= 2.5) {
+        stTierEl.textContent = T.get('stTier3');
+      } else if (earned >= 1.5) {
         stTierEl.textContent = T.get('stTier2');
       } else {
         stTierEl.textContent = T.get('stTier1');
@@ -1833,7 +1866,7 @@ const UI = {
       if (w) {
         this.showToast(T.get('wordMastered').replace('%w', w.english), 'green');
         Sound.achievement();
-        const bonus = Progress._addScreenTime(3.0);
+        const bonus = Progress._addScreenTime(1.0);
         if (bonus > 0) {
           setTimeout(() => this.showToast(T.get('stMasteryBonus'), 'gold'), 1200);
           GameState.data.todayGamesPlayed.masteredNewWord = true;
@@ -1912,7 +1945,7 @@ const BubblePop = {
   start() {
     this._container = document.getElementById('bubble-container');
     this._container.innerHTML = '';
-    this._words = WordManager.getWeightedRandom(10);
+    this._words = WordManager.getWeightedRandom(15);
     this._currentIdx = 0;
     this._score = 0;
     this._combo = 0;
@@ -1973,6 +2006,7 @@ const BubblePop = {
     const oldSpeak = target.parentNode.querySelector('.speak-btn');
     if (oldSpeak) oldSpeak.remove();
     target.after(Speak.btn(isHeToEn ? correct.hebrew : correct.english, isHeToEn ? 'he' : 'en'));
+    Speak.auto(isHeToEn ? correct.hebrew : correct.english, isHeToEn ? 'he' : 'en');
 
     const cw = this._container.clientWidth;
     const ch = this._container.clientHeight;
@@ -2133,7 +2167,7 @@ const BubblePop = {
 // ===== MEMORY MATCH GAME =====
 const MemoryMatch = {
   _cards: [], _flipped: [], _matched: 0, _moves: 0,
-  _totalPairs: 6, _locked: false, _timer: null, _seconds: 0,
+  _totalPairs: 8, _locked: false, _timer: null, _seconds: 0,
 
   start() {
     const grid = document.getElementById('memory-grid');
@@ -2260,7 +2294,7 @@ const LightningQuiz = {
   _timeLevels: { easy: 15000, medium: 8000, hard: 4000 },
 
   start() {
-    this._words = WordManager.getWeightedRandom(10);
+    this._words = WordManager.getWeightedRandom(15);
     this._currentIdx = 0;
     this._score = 0;
     this._streak = 0;
@@ -2318,6 +2352,7 @@ const LightningQuiz = {
     const oldSpk = wordEl.parentNode.querySelector('.speak-btn');
     if (oldSpk) oldSpk.remove();
     wordEl.after(Speak.btn(questionText, dir === 'en-to-he' ? 'en' : 'he'));
+    Speak.auto(questionText, dir === 'en-to-he' ? 'en' : 'he');
 
     document.getElementById('lightning-progress').textContent =
       (this._currentIdx + 1) + '/' + this._words.length;
@@ -2472,7 +2507,7 @@ const WordScramble = {
   _correctFirstTry: 0, _attempted: false, _direction: 'en-to-he', _started: false,
 
   start() {
-    this._words = WordManager.getWeightedRandom(8);
+    this._words = WordManager.getWeightedRandom(15);
     this._currentIdx = 0;
     this._score = 0;
     this._hintsLeft = 2;
@@ -2520,6 +2555,7 @@ const WordScramble = {
     const oldSpk = clueEl.parentNode.querySelector('.speak-btn');
     if (oldSpk) oldSpk.remove();
     clueEl.after(Speak.btn(clueText, isHeToEn ? 'he' : 'en'));
+    Speak.auto(clueText, isHeToEn ? 'he' : 'en');
 
     document.getElementById('scramble-progress').textContent =
       (this._currentIdx + 1) + '/' + this._words.length;
@@ -3254,6 +3290,7 @@ const TrueFalse = {
     const oldSpk = engEl.querySelector('.speak-btn');
     if (oldSpk) oldSpk.remove();
     engEl.appendChild(Speak.btn(word.english, 'en'));
+    Speak.auto(word.english, 'en');
 
     document.getElementById('tf-hebrew').textContent = hebrewShown;
     document.getElementById('tf-progress').textContent =
@@ -3615,6 +3652,7 @@ const WordBingo = {
     const oldSpk = promptEl.querySelector('.speak-btn');
     if (oldSpk) oldSpk.remove();
     promptEl.appendChild(Speak.btn(promptWord, isHeToEn ? 'he' : 'en'));
+    Speak.auto(promptWord, isHeToEn ? 'he' : 'en');
   },
 
   _onCellClick(i, cell) {
@@ -3728,6 +3766,7 @@ const TranslationSprint = {
     const oldSpk = sprintWordEl.querySelector('.speak-btn');
     if (oldSpk) oldSpk.remove();
     sprintWordEl.appendChild(Speak.btn(sprintText, isHeToEn ? 'he' : 'en'));
+    Speak.auto(sprintText, isHeToEn ? 'he' : 'en');
 
     const distractors = WordManager.getRandom(1, [this._current.id]);
     const options = distractors.length > 0
@@ -3842,7 +3881,7 @@ const TranslationSprint = {
 
 // ===== WORD SPY =====
 const WordSpy = {
-  _pairs: [], _cells: [], _selected: null, _found: 0, _totalPairs: 8,
+  _pairs: [], _cells: [], _selected: null, _found: 0, _totalPairs: 10,
   _active: false, _started: false, _missed: [],
   _level: 'medium', _timerInterval: null, _timeLeft: 100,
   _drainRates: { easy: 0.15, medium: 0.35, hard: 0.7 },
@@ -3979,7 +4018,7 @@ const WordSpy = {
 // ===== SENTENCE FILL =====
 const SentenceFill = {
   _words: [], _idx: 0, _score: 0, _current: null, _active: false,
-  _started: false, _missed: [], _correct: 0, _total: 10,
+  _started: false, _missed: [], _correct: 0, _total: 15,
   _level: 'easy', _timerInterval: null, _timeLeft: 0,
   _timeLevels: { easy: 15000, medium: 8000, hard: 4000 },
   _sentences: {},
@@ -4060,6 +4099,7 @@ const SentenceFill = {
     const oldSpk = fiHintEl.querySelector('.speak-btn');
     if (oldSpk) oldSpk.remove();
     fiHintEl.appendChild(Speak.btn(this._current.hebrew, 'he'));
+    Speak.auto(this._current.hebrew, 'he');
 
     const distractors = WordManager.getRandom(2, [this._current.id]);
     const options = [this._current, ...distractors].sort(() => Math.random() - 0.5);
@@ -4206,6 +4246,7 @@ const WordTest = {
     const promptEl = document.getElementById('test-prompt');
     promptEl.textContent = isEnToHe ? word.english : word.hebrew;
     promptEl.appendChild(Speak.btn(isEnToHe ? word.english : word.hebrew, isEnToHe ? 'en' : 'he'));
+    Speak.auto(isEnToHe ? word.english : word.hebrew, isEnToHe ? 'en' : 'he');
 
     const distractors = WordManager.getRandom(5, [word]);
     const choices = WordManager._shuffleArray([word, ...distractors]);
@@ -4326,6 +4367,140 @@ const WordTest = {
   }
 };
 
+// ===== WORD MAPPING (Quick Check) =====
+const WordMapping = {
+  _words: [],
+  _currentIdx: 0,
+  _results: [],
+  _pendingTimeout: null,
+
+  stop() {
+    if (this._pendingTimeout) { clearTimeout(this._pendingTimeout); this._pendingTimeout = null; }
+  },
+
+  start(wordList) {
+    const pool = wordList || WordManager._getActivePool();
+    if (pool.length < 4) {
+      UI.showToast(T.get('mappingNoNew'), 'gold');
+      return;
+    }
+    this._words = WordManager._shuffleArray([...pool]);
+    this._currentIdx = 0;
+    this._results = [];
+    UI.showScreen('mapping');
+    this._showQuestion();
+  },
+
+  _showQuestion() {
+    const total = this._words.length;
+    const idx = this._currentIdx;
+    if (idx >= total) { this._finish(); return; }
+
+    const progressText = T.get('mappingProgress')
+      .replace('%d', idx + 1).replace('%t', total);
+    document.getElementById('mapping-progress').textContent = progressText;
+    document.getElementById('mapping-progress-fill').style.width =
+      ((idx / total) * 100) + '%';
+
+    const word = this._words[idx];
+    const isEnToHe = Math.random() < 0.5;
+
+    const promptEl = document.getElementById('mapping-prompt');
+    promptEl.textContent = isEnToHe ? word.english : word.hebrew;
+    promptEl.appendChild(Speak.btn(isEnToHe ? word.english : word.hebrew, isEnToHe ? 'en' : 'he'));
+    Speak.auto(isEnToHe ? word.english : word.hebrew, isEnToHe ? 'en' : 'he');
+
+    const distractors = WordManager.getRandom(3, [word]);
+    const choices = WordManager._shuffleArray([word, ...distractors]);
+
+    const choicesEl = document.getElementById('mapping-choices');
+    choicesEl.innerHTML = '';
+    choices.forEach(c => {
+      const btn = document.createElement('button');
+      btn.className = 'mapping-choice-btn';
+      btn.textContent = isEnToHe ? c.hebrew : c.english;
+      btn.dataset.wordId = c.id;
+      btn.addEventListener('click', () => this._onAnswer(btn, word, c, isEnToHe, choicesEl));
+      choicesEl.appendChild(btn);
+    });
+  },
+
+  _onAnswer(btn, correctWord, chosenWord, isEnToHe, choicesEl) {
+    const isCorrect = chosenWord.id === correctWord.id;
+
+    this._results.push({
+      word: correctWord,
+      correct: isCorrect,
+      direction: isEnToHe ? 'en-to-he' : 'he-to-en'
+    });
+
+    const allBtns = choicesEl.querySelectorAll('.mapping-choice-btn');
+    allBtns.forEach(b => {
+      b.style.pointerEvents = 'none';
+      if (Number(b.dataset.wordId) === correctWord.id) {
+        b.classList.add('correct-reveal');
+      }
+    });
+    if (!isCorrect) {
+      btn.classList.add('wrong-reveal');
+    }
+
+    WordManager.recordMappingResult(correctWord.id, isCorrect);
+
+    this._pendingTimeout = setTimeout(() => {
+      this._pendingTimeout = null;
+      this._currentIdx++;
+      this._showQuestion();
+    }, isCorrect ? 400 : 1200);
+  },
+
+  _finish() {
+    const total = this._results.length;
+    const known = this._results.filter(r => r.correct).length;
+
+    document.getElementById('mapping-progress-fill').style.width = '100%';
+    UI.showScreen('mapping-results');
+
+    const summary = document.getElementById('mapping-results-summary');
+    let emoji, text;
+    if (known === 0) {
+      emoji = '📚';
+      text = T.get('mappingResultAllNew');
+    } else if (known === total) {
+      emoji = '🌟';
+      text = T.get('mappingResultAllKnown');
+    } else {
+      emoji = '👍';
+      text = T.get('mappingResultKnew').replace('%d', known).replace('%t', total);
+    }
+    summary.innerHTML =
+      '<div class="mapping-results-emoji">' + emoji + '</div>' +
+      '<div class="mapping-results-count">' + text + '</div>' +
+      '<div class="mapping-results-subtitle">' + known + ' ✓ · ' + (total - known) + ' ✗</div>';
+
+    const list = document.getElementById('mapping-results-list');
+    list.innerHTML = '';
+    this._results.forEach(r => {
+      const row = document.createElement('div');
+      const cls = r.correct ? 'mr-known' : 'mr-new';
+      row.className = 'mapping-result-row ' + cls;
+      const icon = r.correct ? '✓' : '✗';
+      const iconColor = r.correct ? '#22c55e' : 'rgba(255,255,255,0.3)';
+      const pair = r.word.english + ' = ' + r.word.hebrew;
+      row.innerHTML =
+        '<span class="mr-icon" style="color:' + iconColor + '">' + icon + '</span>' +
+        '<div class="mr-words"><div class="mr-pair">' + pair + '</div></div>';
+      row.appendChild(Speak.btn(r.word.english, 'en'));
+      list.appendChild(row);
+    });
+
+    document.getElementById('mapping-done-btn').onclick = () => {
+      UI.showScreen('home');
+    };
+  },
+
+};
+
 const Dashboard = {
   render() {
     this._buildWordData();
@@ -4359,6 +4534,7 @@ const Dashboard = {
   },
 
   _formatTime(totalSec) {
+    if (totalSec <= 0) return '0 ' + T.get('rptMin');
     if (totalSec < 60) return '<1 ' + T.get('rptMin');
     if (totalSec < 3600) return Math.round(totalSec / 60) + ' ' + T.get('rptMin');
     const hrs = Math.floor(totalSec / 3600);
@@ -4375,34 +4551,69 @@ const Dashboard = {
     this._wordData.forEach(w => counts[w.label]++);
 
     const mastered = counts.mastered;
-    const totalSessions = history.length;
-    const avgAcc = totalSessions > 0 ? Math.round(history.reduce((s, h) => s + h.accuracy, 0) / totalSessions) : 0;
     const streak = GameState.data.streak || 0;
 
     const todayStr = new Date().toDateString();
     const todaySessions = history.filter(s => new Date(s.ts).toDateString() === todayStr);
+    const todayGames = todaySessions.length;
+    const todayAcc = todayGames > 0 ? Math.round(todaySessions.reduce((s, h) => s + h.accuracy, 0) / todayGames) : 0;
     const todayTimeSec = todaySessions.reduce((s, h) => s + (h.duration || 0), 0);
-    const totalTimeSec = history.reduce((s, h) => s + (h.duration || 0), 0);
+    const todayStars = todaySessions.reduce((s, h) => s + (h.stars || 0), 0);
+
+    const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0);
+    const todayMs = todayStart.getTime();
+    const todayWords = this._wordData.filter(w => w.lastSeen && w.lastSeen >= todayMs);
 
     const masteredPct = totalWords > 0 ? Math.round((mastered / totalWords) * 100) : 0;
 
     let verdictKey;
     if (masteredPct >= 70) verdictKey = 'rptVerdictGreat';
     else if (masteredPct >= 40) verdictKey = 'rptVerdictGood';
-    else if (totalSessions > 0) verdictKey = 'rptVerdictWork';
+    else if (history.length > 0) verdictKey = 'rptVerdictWork';
     else verdictKey = 'rptVerdictStart';
+
+    const wordMovement = this._buildWordMovementHtml(todayWords);
 
     el.innerHTML =
       '<div class="rpt-exec-title">' + T.get('rptSummary') + '</div>' +
       '<div class="rpt-exec-grid">' +
         '<div class="rpt-kpi"><div class="rpt-kpi-val">' + mastered + '/' + totalWords + '</div><div class="rpt-kpi-label">' + T.get('rptWordsKnown') + '</div></div>' +
-        '<div class="rpt-kpi"><div class="rpt-kpi-val">' + avgAcc + '%</div><div class="rpt-kpi-label">' + T.get('rptAvgAccuracy') + '</div></div>' +
+        '<div class="rpt-kpi"><div class="rpt-kpi-val">' + todayAcc + '%</div><div class="rpt-kpi-label">' + T.get('rptDailyAccuracy') + '</div></div>' +
         '<div class="rpt-kpi"><div class="rpt-kpi-val">' + this._formatTime(todayTimeSec) + '</div><div class="rpt-kpi-label">' + T.get('rptTimeToday') + '</div></div>' +
         '<div class="rpt-kpi"><div class="rpt-kpi-val">' + streak + '🔥</div><div class="rpt-kpi-label">' + T.get('rptDayStreak') + '</div></div>' +
-        '<div class="rpt-kpi"><div class="rpt-kpi-val">' + totalSessions + '</div><div class="rpt-kpi-label">' + T.get('rptGamesPlayed') + '</div></div>' +
-        '<div class="rpt-kpi"><div class="rpt-kpi-val">' + this._formatTime(totalTimeSec) + '</div><div class="rpt-kpi-label">' + T.get('rptTimeTotal') + '</div></div>' +
+        '<div class="rpt-kpi"><div class="rpt-kpi-val">' + todayGames + '</div><div class="rpt-kpi-label">' + T.get('rptDailyGames') + '</div></div>' +
+        '<div class="rpt-kpi"><div class="rpt-kpi-val">' + todayStars + '⭐</div><div class="rpt-kpi-label">' + T.get('rptStarsToday') + '</div></div>' +
       '</div>' +
+      wordMovement +
       '<div class="rpt-exec-verdict">' + T.get(verdictKey) + '</div>';
+  },
+
+  _buildWordMovementHtml(todayWords) {
+    let html = '<div class="rpt-word-movement">' +
+      '<div class="rpt-wm-title">' + T.get('rptWordMovement') + '</div>';
+    if (todayWords.length === 0) {
+      return html + '<div class="rpt-wm-empty">' + T.get('rptNoWordsToday') + '</div></div>';
+    }
+    html += '<div class="rpt-wm-total">' + todayWords.length + ' ' + T.get('rptWordsPracticed') + '</div>';
+    const groups = { mastered: [], good: [], learning: [], struggling: [] };
+    todayWords.forEach(w => {
+      const k = w.label;
+      if (groups[k]) groups[k].push(w.word.english);
+    });
+    const colors = { mastered: '#a78bfa', good: '#22c55e', learning: '#fbbf24', struggling: '#ef4444' };
+    const labels = { mastered: T.get('dashMastered'), good: T.get('dashGood'), learning: T.get('dashLearning'), struggling: T.get('dashStruggling') };
+    ['mastered', 'good', 'learning', 'struggling'].forEach(k => {
+      if (groups[k].length === 0) return;
+      html += '<div class="rpt-wm-group">' +
+        '<div class="rpt-wm-group-header">' +
+          '<span class="rpt-wm-dot" style="background:' + colors[k] + '"></span>' +
+          '<span class="rpt-wm-count">' + groups[k].length + '</span> ' +
+          '<span class="rpt-wm-label">' + labels[k] + '</span>' +
+        '</div>' +
+        '<div class="rpt-wm-words">' + groups[k].join(', ') + '</div>' +
+      '</div>';
+    });
+    return html + '</div>';
   },
 
   _renderMasteryBar() {
@@ -4921,6 +5132,7 @@ const ParentView = {
   },
 
   _fmt(sec) {
+    if (sec <= 0) return '0 ' + T.get('rptMin');
     if (sec < 60) return '<1 ' + T.get('rptMin');
     if (sec < 3600) return Math.round(sec / 60) + ' ' + T.get('rptMin');
     return Math.floor(sec / 3600) + ' ' + T.get('rptHr') + ' ' + Math.round((sec % 3600) / 60) + ' ' + T.get('rptMin');
@@ -4960,31 +5172,38 @@ const ParentView = {
     const mastered = counts.mastered;
     const totalWords = d.totalWords || this._wordData.length;
     const hist = d.history || [];
-    const totalSessions = hist.length;
-    const avgAcc = totalSessions > 0 ? Math.round(hist.reduce((s, h) => s + h.accuracy, 0) / totalSessions) : 0;
 
     const todayStr = new Date().toDateString();
     const todaySessions = hist.filter(s => new Date(s.ts).toDateString() === todayStr);
+    const todayGames = todaySessions.length;
+    const todayAcc = todayGames > 0 ? Math.round(todaySessions.reduce((s, h) => s + h.accuracy, 0) / todayGames) : 0;
     const todayTimeSec = todaySessions.reduce((s, h) => s + (h.duration || 0), 0);
-    const totalTimeSec = hist.reduce((s, h) => s + (h.duration || 0), 0);
+    const todayStars = todaySessions.reduce((s, h) => s + (h.stars || 0), 0);
+
+    const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0);
+    const todayMs = todayStart.getTime();
+    const todayWords = this._wordData.filter(w => w.lastSeen && w.lastSeen >= todayMs);
 
     const masteredPct = totalWords > 0 ? Math.round((mastered / totalWords) * 100) : 0;
     let verdictKey;
     if (masteredPct >= 70) verdictKey = 'rptVerdictGreat';
     else if (masteredPct >= 40) verdictKey = 'rptVerdictGood';
-    else if (totalSessions > 0) verdictKey = 'rptVerdictWork';
+    else if (hist.length > 0) verdictKey = 'rptVerdictWork';
     else verdictKey = 'rptVerdictStart';
+
+    const wordMovement = Dashboard._buildWordMovementHtml(todayWords);
 
     el.innerHTML =
       '<div class="rpt-exec-title">' + T.get('rptSummary') + '</div>' +
       '<div class="rpt-exec-grid">' +
         '<div class="rpt-kpi"><div class="rpt-kpi-val">' + mastered + '/' + totalWords + '</div><div class="rpt-kpi-label">' + T.get('rptWordsKnown') + '</div></div>' +
-        '<div class="rpt-kpi"><div class="rpt-kpi-val">' + avgAcc + '%</div><div class="rpt-kpi-label">' + T.get('rptAvgAccuracy') + '</div></div>' +
+        '<div class="rpt-kpi"><div class="rpt-kpi-val">' + todayAcc + '%</div><div class="rpt-kpi-label">' + T.get('rptDailyAccuracy') + '</div></div>' +
         '<div class="rpt-kpi"><div class="rpt-kpi-val">' + this._fmt(todayTimeSec) + '</div><div class="rpt-kpi-label">' + T.get('rptTimeToday') + '</div></div>' +
         '<div class="rpt-kpi"><div class="rpt-kpi-val">' + (d.streak || 0) + '🔥</div><div class="rpt-kpi-label">' + T.get('rptDayStreak') + '</div></div>' +
-        '<div class="rpt-kpi"><div class="rpt-kpi-val">' + totalSessions + '</div><div class="rpt-kpi-label">' + T.get('rptGamesPlayed') + '</div></div>' +
-        '<div class="rpt-kpi"><div class="rpt-kpi-val">' + this._fmt(totalTimeSec) + '</div><div class="rpt-kpi-label">' + T.get('rptTimeTotal') + '</div></div>' +
+        '<div class="rpt-kpi"><div class="rpt-kpi-val">' + todayGames + '</div><div class="rpt-kpi-label">' + T.get('rptDailyGames') + '</div></div>' +
+        '<div class="rpt-kpi"><div class="rpt-kpi-val">' + todayStars + '⭐</div><div class="rpt-kpi-label">' + T.get('rptStarsToday') + '</div></div>' +
       '</div>' +
+      wordMovement +
       '<div class="rpt-exec-verdict">' + T.get(verdictKey) + '</div>';
   },
 
@@ -5003,23 +5222,12 @@ const ParentView = {
         '<div class="pv-st-label">' + T.get('stMin') + ' ' + T.get('stAvailable') + '</div>' +
         (todayEarned > 0 ? '<div class="pv-st-today">+' + todayEarned + ' ' + T.get('stMin') + ' today</div>' : '') +
         (avail > 0 ? '<button class="pv-st-btn" id="pv-st-redeem">' + T.get('stRedeem') + '</button>' : '') +
-        '<button class="pv-st-btn" id="pv-st-reset" style="background:rgba(239,68,68,0.3);margin-top:6px;">' + T.get('stParentReset') + '</button>' +
       '</div>';
 
     const redeemBtn = document.getElementById('pv-st-redeem');
     if (redeemBtn) {
       redeemBtn.addEventListener('click', async () => {
         stb.redeemed = stb.earned;
-        await this._pushScreenTimeUpdate(stb);
-        this._renderScreenTime();
-      });
-    }
-    const resetBtn = document.getElementById('pv-st-reset');
-    if (resetBtn) {
-      resetBtn.addEventListener('click', async () => {
-        stb.earned = 0;
-        stb.redeemed = 0;
-        stb.todayEarned = 0;
         await this._pushScreenTimeUpdate(stb);
         this._renderScreenTime();
       });
@@ -5316,6 +5524,7 @@ const FlashcardIntro = {
     const oldSpk1 = frontWord.parentNode.querySelector('.speak-btn');
     if (oldSpk1) oldSpk1.remove();
     frontWord.parentNode.insertBefore(Speak.btn(w.english, 'en'), frontWord.nextSibling);
+    Speak.auto(w.english, 'en');
     document.getElementById('fc-back-word').textContent = w.hebrew;
     const backWord = document.getElementById('fc-back-word');
     const oldSpk2 = backWord.parentNode.querySelector('.speak-btn');
@@ -5380,6 +5589,7 @@ const App = {
     }
 
     WordManager.init();
+    WordManager.autoArchiveMastered();
     GameState.load();
     Particles.init();
     Speak.init();
@@ -5480,6 +5690,15 @@ const App = {
 
     document.getElementById('btn-take-test').addEventListener('click', () => {
       WordTest.start();
+    });
+
+    document.getElementById('btn-quick-check').addEventListener('click', () => {
+      const pool = WordManager._getActivePool();
+      if (pool.length < 4) {
+        UI.showToast(T.get('mappingNoNew'), 'gold');
+        return;
+      }
+      WordMapping.start(pool);
     });
 
     const spBadge = document.getElementById('sp-badge');
@@ -6178,6 +6397,7 @@ const App = {
     WordSpy.stop();
     SentenceFill.stop();
     WordTest.stop();
+    WordMapping.stop();
     UI._currentGame = null;
   }
 };
