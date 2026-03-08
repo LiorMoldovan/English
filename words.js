@@ -104,6 +104,53 @@ const WordManager = {
     this._selection = this._loadSelection();
     this._archive = this._loadArchive();
     this._drip = this._loadDrip();
+    this._repairRecentAnswers();
+  },
+
+  _repairRecentAnswers() {
+    let changed = false;
+    for (const id in this._mastery) {
+      const m = this._mastery[id];
+      const total = (m.timesCorrect || 0) + (m.timesWrong || 0);
+      if (total > 0 && (!m.recentAnswers || m.recentAnswers.length === 0)) {
+        changed = true;
+        const count = Math.min(total, 10);
+        const correctRatio = (m.timesCorrect || 0) / total;
+        const correctCount = Math.round(count * correctRatio);
+        m.recentAnswers = [
+          ...Array(count - correctCount).fill(false),
+          ...Array(correctCount).fill(true)
+        ];
+        this._syncMasteryLevel(m);
+      }
+      if (total > 0 && !m.masteredSince) {
+        const recent = (m.recentAnswers || []).slice(-6);
+        const recentCorrect = recent.filter(Boolean).length;
+        if (recentCorrect >= 6) {
+          changed = true;
+          m.masteredSince = m.lastSeen || Date.now();
+        }
+      }
+    }
+    if (changed) this._saveMastery();
+
+    let archiveChanged = false;
+    this._archive.forEach(entry => {
+      if (!entry.mastery) return;
+      const m = entry.mastery;
+      const total = (m.timesCorrect || 0) + (m.timesWrong || 0);
+      if (total > 0 && (!m.recentAnswers || m.recentAnswers.length === 0)) {
+        archiveChanged = true;
+        const count = Math.min(total, 10);
+        const correctRatio = (m.timesCorrect || 0) / total;
+        const correctCount = Math.round(count * correctRatio);
+        m.recentAnswers = [
+          ...Array(count - correctCount).fill(false),
+          ...Array(correctCount).fill(true)
+        ];
+      }
+    });
+    if (archiveChanged) this._saveArchive();
   },
 
   _loadWords() {
@@ -255,6 +302,9 @@ const WordManager = {
 
       if (isFreebie) {
         delete this._recentMistakes[wordId];
+        this._saveMastery();
+        m.justMastered = false;
+        return m;
       } else {
         m.timesCorrect++;
         m.recentAnswers.push(true);
@@ -333,7 +383,12 @@ const WordManager = {
     const recentAccuracy = last6.length > 0 ? Math.round((recentCorrect / last6.length) * 100) : accuracy;
 
     let level;
-    if (recentCorrect >= 6) level = 'mastered';
+    if (last6.length === 0) {
+      if (accuracy >= 90 && total >= 5) level = 'mastered';
+      else if (accuracy >= 80 && total >= 3) level = 'almost';
+      else if (accuracy >= 50) level = 'learning';
+      else level = 'struggling';
+    } else if (recentCorrect >= 6) level = 'mastered';
     else if (recentCorrect >= 5) level = 'almost';
     else if (recentCorrect >= 3) level = 'learning';
     else level = 'struggling';
@@ -469,24 +524,28 @@ const WordManager = {
 
   getRandom(count, exclude) {
     const excludeIds = new Set((exclude || []).map(e => typeof e === 'object' ? e.id : Number(e)));
-    const pool = this._words.filter(w => !excludeIds.has(w.id));
-    if (pool.length <= count) return this._shuffleArray([...pool]);
-
     const firstExclude = exclude && exclude.length > 0 ? exclude[0] : null;
     const targetId = firstExclude ? (typeof firstExclude === 'object' ? firstExclude.id : Number(firstExclude)) : null;
-    if (targetId !== null) {
-      const target = this._words.find(w => w.id === targetId);
-      if (target) {
-        const scored = pool.map(w => {
-          let similarity = 0;
-          if (Math.abs(w.english.length - target.english.length) <= 2) similarity += 2;
-          if (w.english[0] === target.english[0]) similarity += 1;
-          similarity += Math.random() * 3;
-          return { word: w, score: similarity };
-        });
-        scored.sort((a, b) => b.score - a.score);
-        return scored.slice(0, count).map(s => s.word);
-      }
+    const target = targetId !== null ? this._words.find(w => w.id === targetId) : null;
+    const excludeTexts = target ? new Set([target.english.toLowerCase(), target.hebrew]) : new Set();
+
+    const pool = this._words.filter(w =>
+      !excludeIds.has(w.id) &&
+      !excludeTexts.has(w.english.toLowerCase()) &&
+      !excludeTexts.has(w.hebrew)
+    );
+    if (pool.length <= count) return this._shuffleArray([...pool]);
+
+    if (target) {
+      const scored = pool.map(w => {
+        let similarity = 0;
+        if (Math.abs(w.english.length - target.english.length) <= 2) similarity += 2;
+        if (w.english[0] === target.english[0]) similarity += 1;
+        similarity += Math.random() * 3;
+        return { word: w, score: similarity };
+      });
+      scored.sort((a, b) => b.score - a.score);
+      return scored.slice(0, count).map(s => s.word);
     }
     return this._shuffleArray(pool).slice(0, count);
   },
@@ -560,6 +619,11 @@ const WordManager = {
     this._words = this._words.filter(w => w.id !== wordId);
     delete this._mastery[wordId];
     this._selection.delete(wordId);
+    if (this._drip) {
+      this._drip.active = this._drip.active.filter(id => id !== wordId);
+      this._drip.queue = this._drip.queue.filter(id => id !== wordId);
+      this._saveDrip();
+    }
     this._saveWords();
     this._saveMastery();
     this._saveSelection();
@@ -633,14 +697,14 @@ const WordManager = {
     if (correct) {
       m.timesCorrect++;
       m.recentAnswers.push(true);
+      if (m.recentAnswers.length > 10) m.recentAnswers.shift();
+      this._saveArchive();
     } else {
       m.timesWrong++;
       m.recentAnswers.push(false);
+      if (m.recentAnswers.length > 10) m.recentAnswers.shift();
       this.restoreWord(idx);
-      return;
     }
-    if (m.recentAnswers.length > 10) m.recentAnswers.shift();
-    this._saveArchive();
   },
 
   // ===== DRIP SYSTEM =====
@@ -682,7 +746,7 @@ const WordManager = {
       const total = m.timesCorrect + m.timesWrong;
       if (total < 4) return false;
       const accuracy = Math.round((m.timesCorrect / total) * 100);
-      return accuracy > 50;
+      return accuracy >= 50;
     });
     if (!readyForMore) return 0;
     const addCount = Math.min(3, this._drip.queue.length);
@@ -702,12 +766,14 @@ const WordManager = {
   recordMappingResult(wordId, correct) {
     const m = this.getMastery(wordId);
     if (correct) {
-      m.timesCorrect = 4;
-      m.recentAnswers = [true, true, true, true];
+      m.timesCorrect = Math.max(m.timesCorrect, 4);
+      if (m.recentAnswers.length < 4) {
+        m.recentAnswers = [true, true, true, true];
+      }
       m.gameModesCorrect = [...new Set([...m.gameModesCorrect, 'mapping'])];
       m.lastSeen = Date.now();
-      m.srsInterval = 2;
-      m.srsNextReview = Date.now() + (2 * 86400000);
+      m.srsInterval = Math.max(m.srsInterval || 1, 2);
+      m.srsNextReview = Date.now() + (m.srsInterval * 86400000);
       this._syncMasteryLevel(m);
     } else {
       m.lastSeen = Date.now();

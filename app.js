@@ -1349,28 +1349,31 @@ const DailyChallenge = {
     }
   },
 
-  reportCombo(n) {
+  _ensureToday() {
     const today = new Date().toDateString();
     const td = GameState.data.todayGamesPlayed;
-    if (td.date !== today) return;
+    if (td.date !== today) {
+      GameState.data.todayGamesPlayed = { date: today, modes: [], rounds: 0, maxCombo: 0, maxStreak: 0, gotStars3: false, masteredNewWord: false };
+    }
+    return GameState.data.todayGamesPlayed;
+  },
+
+  reportCombo(n) {
+    const td = this._ensureToday();
     if (n > td.maxCombo) td.maxCombo = n;
     GameState.save();
     this.checkProgress();
   },
 
   reportStreak(n) {
-    const today = new Date().toDateString();
-    const td = GameState.data.todayGamesPlayed;
-    if (td.date !== today) return;
+    const td = this._ensureToday();
     if (n > td.maxStreak) td.maxStreak = n;
     GameState.save();
     this.checkProgress();
   },
 
   reportMastery() {
-    const today = new Date().toDateString();
-    const td = GameState.data.todayGamesPlayed;
-    if (td.date !== today) return;
+    const td = this._ensureToday();
     td.masteredNewWord = true;
     GameState.save();
     this.checkProgress();
@@ -1830,7 +1833,12 @@ const UI = {
     };
   },
 
+  _correctionTimer1: null,
+  _correctionTimer2: null,
+
   showCorrection(word, duration, callback) {
+    if (this._correctionTimer1) clearTimeout(this._correctionTimer1);
+    if (this._correctionTimer2) clearTimeout(this._correctionTimer2);
     const existing = document.querySelector('.correction-banner');
     if (existing) existing.remove();
     const isHe = T._lang === 'he';
@@ -1842,9 +1850,9 @@ const UI = {
       '<div class="correction-translation">' + word.hebrew + '</div>' +
       '<div class="correction-hint">' + T.get('tryRemember') + '</div>';
     document.body.appendChild(banner);
-    setTimeout(() => {
+    this._correctionTimer1 = setTimeout(() => {
       banner.classList.add('hiding');
-      setTimeout(() => {
+      this._correctionTimer2 = setTimeout(() => {
         banner.remove();
         if (callback) callback();
       }, 300);
@@ -2257,6 +2265,7 @@ const MemoryMatch = {
           this._endRound();
         }
       } else {
+        Sound.wrong();
         setTimeout(() => {
           cardA.flipped = false;
           cardB.flipped = false;
@@ -4810,7 +4819,7 @@ const Dashboard = {
     el.innerHTML = '';
 
     const struggled = this._wordData
-      .filter(w => w.total >= 2 && (w.label === 'struggling' || w.label === 'learning'))
+      .filter(w => w.total >= 2 && (w.label === 'struggling' || w.label === 'learning') && w.accuracy < 90)
       .sort((a, b) => a.strength - b.strength)
       .slice(0, 10);
 
@@ -4898,7 +4907,7 @@ const CloudSync = {
   _PUSH_DEBOUNCE_MS: 30000,
 
   init() {
-    this._deviceId = localStorage.getItem(this.DEVICE_KEY);
+    try { this._deviceId = localStorage.getItem(this.DEVICE_KEY); } catch(e) {}
     if (!this._deviceId) {
       this._deviceId = crypto.randomUUID();
       localStorage.setItem(this.DEVICE_KEY, this._deviceId);
@@ -5042,11 +5051,25 @@ const CloudSync = {
     return base + '?parent=' + this._deviceId;
   },
 
-  async restore() {
+  async restore(inputIdOrUrl) {
     try {
-      const data = await this.pull();
+      let pullId = null;
+      if (inputIdOrUrl) {
+        const str = inputIdOrUrl.trim();
+        const match = str.match(/[?&]parent=([^&]+)/);
+        pullId = match ? match[1] : str;
+      }
+      const data = await this.pull(pullId);
       if (!data) return false;
       if (data.version >= 2 && data.gameState) {
+        const localTs = GameState.data.lastSaved || 0;
+        const remoteTs = data.ts || 0;
+        if (localTs > remoteTs && GameState.data.gamesPlayed) {
+          const totalLocal = Object.values(GameState.data.gamesPlayed).reduce((a, b) => a + b, 0);
+          if (totalLocal > 10 && !confirm(T.get('restoreOlderConfirm') || 'Remote data is older than local. Overwrite anyway?')) {
+            return false;
+          }
+        }
         GameState.data = { ...GameState.defaults(), ...data.gameState };
         GameState.save();
         if (data.history) {
@@ -5072,6 +5095,7 @@ const CloudSync = {
           WordManager._drip = data.drip;
           WordManager._saveDrip();
         }
+        WordManager._repairRecentAnswers();
         return true;
       }
       return false;
@@ -5101,10 +5125,11 @@ const ParentView = {
       manifestLink.setAttribute('href', URL.createObjectURL(blob));
     }
 
-    const savedLang = localStorage.getItem('wordquest_lang') || 'en';
-    T.setLang(savedLang);
+    let pvLang = 'en';
+    try { pvLang = localStorage.getItem('wordquest_lang') || 'en'; } catch(e) {}
+    T.setLang(pvLang);
 
-    document.getElementById('pv-lang-btn').textContent = savedLang === 'en' ? 'עברית' : 'EN';
+    document.getElementById('pv-lang-btn').textContent = pvLang === 'en' ? 'עברית' : 'EN';
     document.getElementById('pv-lang-btn').addEventListener('click', () => {
       const newLang = T._lang === 'en' ? 'he' : 'en';
       T.setLang(newLang);
@@ -5447,7 +5472,7 @@ const ParentView = {
     if (!el) return;
     el.innerHTML = '';
     const struggled = this._wordData
-      .filter(w => w.label === 'struggling' || w.label === 'learning')
+      .filter(w => w.total >= 2 && (w.label === 'struggling' || w.label === 'learning') && w.accuracy < 90)
       .sort((a, b) => a.strength - b.strength)
       .slice(0, 10);
 
@@ -5629,13 +5654,15 @@ const App = {
     CloudSync.init();
     setTimeout(() => CloudSync.push(), 2000);
 
-    const savedLang = localStorage.getItem('wordquest_lang') || 'en';
+    let savedLang = 'en';
+    let savedSound = null;
+    try { savedLang = localStorage.getItem('wordquest_lang') || 'en'; } catch(e) {}
+    try { savedSound = localStorage.getItem('wordquest_sound'); } catch(e) {}
     T.setLang(savedLang);
     const langBtn = document.getElementById('btn-lang');
     const langLabel = langBtn.querySelector('span:last-child') || langBtn;
     langLabel.textContent = savedLang === 'en' ? 'עברית' : 'EN';
 
-    const savedSound = localStorage.getItem('wordquest_sound');
     if (savedSound === '1') {
       Sound._enabled = true;
       const sndBtn = document.getElementById('btn-sound');
@@ -6396,6 +6423,14 @@ const App = {
   _gameStartTs: 0,
 
   _startGame(game) {
+    const minWords = { memory: 4, matchup: 4, bingo: 8, wordspy: 4 };
+    const needed = minWords[game] || 2;
+    const available = WordManager.getActiveCount() + WordManager.getArchivedWordsForGame().length;
+    if (available < needed) {
+      UI.showToast(T.get('needMoreWords') || 'Add more words first!', 'coral');
+      UI.showScreen('home');
+      return;
+    }
     this._stopCurrentGame();
     this._gameStartTs = Date.now();
     UI._currentGame = game;
