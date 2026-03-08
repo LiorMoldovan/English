@@ -1,4 +1,4 @@
-const CACHE_NAME = 'wordquest-v3.4.0';
+const CACHE_NAME = 'wordquest-v3.5.0';
 const ASSETS = [
   './',
   './index.html',
