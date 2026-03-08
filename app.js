@@ -233,7 +233,7 @@ const T = {
     stAvailable: 'Available',
     stMin: 'min',
     stEarnedGame: '+%m min earned!',
-    stMasteryBonus: '+3 min mastery bonus!',
+    stMasteryBonus: '+%m min mastery bonus!',
     stTier3: 'Amazing effort! You earned top time!',
     stTier2: 'Great practice session!',
     stTier1: 'Good start — keep going!',
@@ -480,7 +480,7 @@ const T = {
     stAvailable: 'זמין',
     stMin: 'דק׳',
     stEarnedGame: '!דק׳ %m+ הרווחת',
-    stMasteryBonus: '!דק׳ 3+ בונוס שליטה',
+    stMasteryBonus: '!דק׳ %m+ בונוס שליטה',
     stTier3: '!מאמץ מדהים! הרווחת זמן מקסימלי',
     stTier2: '!תרגול מעולה',
     stTier1: '!התחלה טובה — המשיכי',
@@ -787,10 +787,18 @@ const Speak = {
       || preferred.find(v => !v.localService)
       || preferred[0] || null;
   },
+  _pronOverrides: {
+    'until': 'un til',
+  },
   say(text, lang) {
     if (!('speechSynthesis' in window)) return;
     window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
+    let spoken = text;
+    if (lang === 'en') {
+      const key = text.toLowerCase().trim();
+      if (this._pronOverrides[key]) spoken = this._pronOverrides[key];
+    }
+    const u = new SpeechSynthesisUtterance(spoken);
     u.lang = lang === 'he' ? 'he-IL' : 'en-US';
     const voice = this._pickVoice(u.lang);
     if (voice) u.voice = voice;
@@ -1480,7 +1488,7 @@ const UI = {
     }
     this._currentScreen = id;
 
-    const isHomeRelated = ['home', 'words', 'achievements'].includes(id);
+    const isHomeRelated = ['home', 'words', 'achievements', 'dashboard'].includes(id);
     const nav = document.querySelector('.bottom-nav');
     if (nav) nav.classList.toggle('hidden', !isHomeRelated);
     if (isHomeRelated) {
@@ -1564,11 +1572,12 @@ const UI = {
     if (totalAch) totalAch.textContent = Achievements.getUnlockedCount();
 
     const stb = d.screenTimeBank || { earned: 0, redeemed: 0 };
-    const stAvail = Math.max(0, Math.floor(stb.earned - stb.redeemed));
+    const stAvailRaw = Math.max(0, stb.earned - stb.redeemed);
+    const stAvail = Math.round(stAvailRaw * 10) / 10;
     const stEl = document.getElementById('st-minutes');
     if (stEl) {
-      const prev = parseInt(stEl.textContent) || 0;
-      stEl.textContent = stAvail;
+      const prev = parseFloat(stEl.textContent) || 0;
+      stEl.textContent = stAvail % 1 === 0 ? stAvail : stAvail.toFixed(1);
       if (stAvail > prev && prev >= 0) {
         const badge = document.getElementById('screen-time-badge');
         if (badge) {
@@ -1711,9 +1720,9 @@ const UI = {
       stTierEl.classList.remove('hidden');
       if (Progress._lastScreenTimeCapped) {
         stTierEl.textContent = T.get('stDailyCap');
-      } else if (earned >= 2.5) {
-        stTierEl.textContent = T.get('stTier3');
       } else if (earned >= 1.5) {
+        stTierEl.textContent = T.get('stTier3');
+      } else if (earned >= 1.0) {
         stTierEl.textContent = T.get('stTier2');
       } else {
         stTierEl.textContent = T.get('stTier1');
@@ -1879,7 +1888,7 @@ const UI = {
         Sound.achievement();
         const bonus = Progress._addScreenTime(0.5);
         if (bonus > 0) {
-          setTimeout(() => this.showToast(T.get('stMasteryBonus'), 'gold'), 1200);
+          setTimeout(() => this.showToast(T.get('stMasteryBonus').replace('%m', bonus.toFixed(1)), 'gold'), 1200);
           GameState.data.todayGamesPlayed.masteredNewWord = true;
           GameState.save();
         }
@@ -1956,7 +1965,7 @@ const BubblePop = {
   start() {
     this._container = document.getElementById('bubble-container');
     this._container.innerHTML = '';
-    this._words = WordManager.getWeightedRandom(15);
+    this._words = WordManager.getWeightedRandom(10);
     this._currentIdx = 0;
     this._score = 0;
     this._combo = 0;
@@ -2318,7 +2327,7 @@ const LightningQuiz = {
     this._level = 'medium';
 
     document.getElementById('lightning-score').textContent = '0';
-    document.getElementById('lightning-progress').textContent = '1/10';
+    document.getElementById('lightning-progress').textContent = '1/' + this._words.length;
     document.getElementById('lightning-streak').classList.add('hidden');
 
     const setup = document.getElementById('lightning-setup');
@@ -2490,18 +2499,19 @@ const LightningQuiz = {
 
   _endRound() {
     clearInterval(this._timerInterval);
-    const correct = this._words.length - this._missed.length;
-    const stars = correct >= 9 ? 3 : correct >= 7 ? 2 : 1;
-    const bonusXP = correct === 10 ? 20 : 0;
+    const total = this._words.length;
+    const correct = total - this._missed.length;
+    const stars = correct >= Math.ceil(total * 0.9) ? 3 : correct >= Math.ceil(total * 0.7) ? 2 : 1;
+    const bonusXP = correct === total ? 20 : 0;
     const totalXP = this._score + bonusXP;
 
-    if (correct === 10) Achievements._flags.lightningPerfect = true;
+    if (correct === total) Achievements._flags.lightningPerfect = true;
 
-    Progress.recordGameComplete('lightning', stars, totalXP, this._missed, correct, this._words.length);
+    Progress.recordGameComplete('lightning', stars, totalXP, this._missed, correct, total);
 
     UI.showResults({
       title: T.get(stars === 3 ? 'perfect' : stars === 2 ? 'great' : 'good'),
-      score: correct + '/10',
+      score: correct + '/' + total,
       xp: totalXP, stars,
       missedWords: this._missed,
       onPlayAgain: () => { UI.showScreen('lightning'); App._startGame('lightning'); },
@@ -2519,7 +2529,7 @@ const WordScramble = {
   _correctFirstTry: 0, _attempted: false, _direction: 'en-to-he', _started: false,
 
   start() {
-    this._words = WordManager.getWeightedRandom(15);
+    this._words = WordManager.getWeightedRandom(8);
     this._currentIdx = 0;
     this._score = 0;
     this._hintsLeft = 2;
@@ -4030,7 +4040,7 @@ const WordSpy = {
 // ===== SENTENCE FILL =====
 const SentenceFill = {
   _words: [], _idx: 0, _score: 0, _current: null, _active: false,
-  _started: false, _missed: [], _correct: 0, _total: 15,
+  _started: false, _missed: [], _correct: 0, _total: 10,
   _level: 'easy', _timerInterval: null, _timeLeft: 0,
   _timeLevels: { easy: 15000, medium: 8000, hard: 4000 },
   _sentences: {},
@@ -4524,6 +4534,8 @@ const Dashboard = {
     this._renderAccuracyChart(history);
     this._renderHardWords();
     this._renderAllWords();
+    const scroll = document.querySelector('.dashboard-scroll');
+    if (scroll) scroll.scrollTop = 0;
   },
 
   _wordData: null,
@@ -5305,14 +5317,15 @@ const ParentView = {
     const el = document.getElementById('pv-screen-time');
     if (!el) return;
     const stb = this._data.screenTimeBank || this._data.gameState?.screenTimeBank || { earned: 0, redeemed: 0, todayEarned: 0, todayDate: null };
-    const avail = Math.max(0, Math.floor(stb.earned - stb.redeemed));
+    const availRaw = Math.max(0, stb.earned - stb.redeemed);
+    const avail = Math.round(availRaw * 10) / 10;
     const todayStr = new Date().toDateString();
     const todayEarned = stb.todayDate === todayStr ? Math.round(stb.todayEarned * 10) / 10 : 0;
 
     el.innerHTML =
       '<div class="pv-st-card">' +
         '<span class="pv-st-title">🕐 ' + T.get('stBankTitle') + '</span>' +
-        '<span class="pv-st-amount">' + avail + '</span>' +
+        '<span class="pv-st-amount">' + (avail % 1 === 0 ? avail : avail.toFixed(1)) + '</span>' +
         '<span class="pv-st-label">' + T.get('stMin') + ' ' + T.get('stAvailable') + '</span>' +
         (todayEarned > 0 ? '<span class="pv-st-today">(+' + todayEarned + ')</span>' : '') +
         (avail > 0 ? '<button class="pv-st-btn" id="pv-st-redeem">' + T.get('stRedeem') + '</button>' : '') +
