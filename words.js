@@ -270,6 +270,10 @@ const WordManager = {
     m.srsNextReview = now + (m.srsInterval * 86400000);
     this._saveMastery();
     const nowMastered = this.getWordConfidence(wordId).level === 'mastered';
+    if (nowMastered && correct) {
+      m.masteredCorrectCount = (m.masteredCorrectCount || 0) + 1;
+      this._saveMastery();
+    }
     m.justMastered = !wasMastered && nowMastered;
     return m;
   },
@@ -338,6 +342,7 @@ const WordManager = {
       m.masteredSince = Date.now();
     } else if (level !== 'mastered' && m.masteredSince) {
       m.masteredSince = null;
+      m.masteredCorrectCount = 0;
     }
 
     const pct = level === 'mastered' ? 100 : Math.round(Math.min((recentCorrect / 6) * 100, 99));
@@ -597,13 +602,15 @@ const WordManager = {
   },
 
   autoArchiveMastered() {
-    const DAYS_30 = 30 * 86400000;
+    const DAYS_4 = 4 * 86400000;
     const now = Date.now();
     const toArchive = [];
     this._words.forEach(w => {
       const m = this._mastery[w.id];
-      if (m && m.masteredSince && (now - m.masteredSince) >= DAYS_30) {
-        toArchive.push(w.id);
+      if (m && m.masteredSince) {
+        const timeReady = (now - m.masteredSince) >= DAYS_4;
+        const activityReady = (m.masteredCorrectCount || 0) >= 7;
+        if (timeReady || activityReady) toArchive.push(w.id);
       }
     });
     if (toArchive.length > 0) this.archiveMultiple(toArchive);
