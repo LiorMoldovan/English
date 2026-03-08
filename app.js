@@ -63,6 +63,7 @@ const T = {
     wordOfDay: 'Word of the Day',
     wotdHint: ' letters · Try using this word today!',
     learnNewWords: 'Learn New Words', learnNewDesc: '%d new words to learn',
+    learnReviewDesc: 'Review words that need work', learnAllDone: 'All words are in great shape!',
     quickPractice: 'Quick Practice', quickPracticeDesc: 'Focuses on your weakest words',
     qpNeedAttention: ' words need attention',
     qpReviewAll: 'Quick Practice · Review all words',
@@ -309,6 +310,7 @@ const T = {
     wordOfDay: 'מילת היום',
     wotdHint: ' אותיות · נסי להשתמש במילה היום!',
     learnNewWords: 'למדי מילים חדשות', learnNewDesc: '%d מילים חדשות ללמוד',
+    learnReviewDesc: 'חזרה על מילים שצריך לחזק', learnAllDone: '!כל המילים במצב מעולה',
     quickPractice: 'תרגול מהיר', quickPracticeDesc: 'מתמקד במילים שצריך לחזק',
     qpNeedAttention: ' מילים דורשות תשומת לב',
     qpReviewAll: 'תרגול מהיר · חזרו על הכל',
@@ -1099,7 +1101,7 @@ const SmartProgress = {
           </div>
         </div>
         <div class="sp-word-detail">
-          <span class="sp-detail-item"><span class="sp-detail-label">${T.get('spStreak')}:</span> ${confidence.streak}/5</span>
+          <span class="sp-detail-item"><span class="sp-detail-label">${T.get('spStreak')}:</span> ${confidence.streak}/6</span>
           <span class="sp-detail-item"><span class="sp-detail-label">${T.get('spModes')}:</span> ${confidence.modesCount}/2</span>
           <span class="sp-detail-item"><span class="sp-detail-label">${T.get('spAccuracy')}:</span> ${confidence.accuracy}%</span>
           ${modeNames ? `<div class="sp-detail-modes"><span class="sp-detail-label">${T.get('spPlayedIn')}</span> ${modeNames}</div>` : ''}
@@ -1541,13 +1543,16 @@ const UI = {
 
     const learnNewBtn = document.getElementById('btn-learn-new');
     if (learnNewBtn) {
-      const hasNew = counts.unseen > 0;
-      learnNewBtn.classList.toggle('hidden', !hasNew);
+      learnNewBtn.classList.remove('hidden');
       const row = learnNewBtn.parentElement;
-      if (row) row.style.gridTemplateColumns = hasNew ? '1fr 1fr' : '1fr 1fr 1fr';
-      if (hasNew) {
-        const countEl = document.getElementById('learn-new-count');
-        if (countEl) countEl.textContent = T.get('learnNewDesc').replace('%d', counts.unseen);
+      if (row) row.style.gridTemplateColumns = '1fr 1fr';
+      const countEl = document.getElementById('learn-new-count');
+      if (countEl) {
+        if (counts.unseen > 0) {
+          countEl.textContent = T.get('learnNewDesc').replace('%d', counts.unseen);
+        } else {
+          countEl.textContent = T.get('learnReviewDesc');
+        }
       }
     }
 
@@ -5923,8 +5928,19 @@ const App = {
     document.getElementById('btn-learn-new').addEventListener('click', () => {
       const words = WordManager.getAll();
       const newWords = words.filter(w => WordManager.getWordStrength(w.id).label === 'unseen');
-      if (newWords.length === 0) return;
-      FlashcardIntro.start(newWords);
+      if (newWords.length > 0) {
+        FlashcardIntro.start(newWords);
+        return;
+      }
+      const weak = words.filter(w => {
+        const c = WordManager.getWordConfidence(w.id);
+        return c.level === 'struggling' || c.level === 'learning' || c.level === 'almost';
+      });
+      if (weak.length > 0) {
+        FlashcardIntro.start(weak);
+      } else {
+        UI.showToast(T.get('learnAllDone'), 'teal');
+      }
     });
 
     document.getElementById('btn-quick-practice').addEventListener('click', () => {
