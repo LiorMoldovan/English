@@ -4618,7 +4618,7 @@ const Dashboard = {
       const k = w.label;
       if (groups[k]) groups[k].push(w.word.english);
     });
-    const colors = { mastered: '#a78bfa', good: '#22c55e', learning: '#fbbf24', struggling: '#ef4444' };
+    const colors = { mastered: '#22c55e', good: '#6ee7b7', learning: '#facc15', struggling: '#ef4444' };
     const labels = { mastered: T.get('dashMastered'), good: T.get('dashGood'), learning: T.get('dashLearning'), struggling: T.get('dashStruggling') };
     ['mastered', 'good', 'learning', 'struggling'].forEach(k => {
       if (groups[k].length === 0) return;
@@ -4639,21 +4639,22 @@ const Dashboard = {
     if (!el) return;
 
     const total = this._wordData.length;
-    const counts = { mastered: 0, good: 0, learning: 0, struggling: 0, unseen: 0 };
-    this._wordData.forEach(w => counts[w.label]++);
+    const counts = { mastered: 0, good: 0, learning: 0, struggling: 0, unseen: 0, archived: 0 };
+    this._wordData.forEach(w => { if (counts[w.label] !== undefined) counts[w.label]++; });
 
-    const colors = { mastered: '#a78bfa', good: '#22c55e', learning: '#fbbf24', struggling: '#ef4444', unseen: 'rgba(255,255,255,0.1)' };
-    const labels = { mastered: T.get('dashMastered'), good: T.get('dashGood'), learning: T.get('dashLearning'), struggling: T.get('dashStruggling'), unseen: T.get('dashUnseen') };
+    const colors = { mastered: '#22c55e', good: '#6ee7b7', learning: '#facc15', struggling: '#ef4444', unseen: 'rgba(255,255,255,0.1)', archived: '#6b7280' };
+    const labels = { mastered: T.get('dashMastered'), good: T.get('dashGood'), learning: T.get('dashLearning'), struggling: T.get('dashStruggling'), unseen: T.get('dashUnseen'), archived: T.get('dashArchived') };
+    const order = ['mastered', 'good', 'learning', 'struggling', 'unseen', 'archived'];
 
     let bar = '<div class="rpt-mastery-bar">';
-    ['mastered', 'good', 'learning', 'struggling', 'unseen'].forEach(k => {
+    order.forEach(k => {
       const pct = total > 0 ? (counts[k] / total) * 100 : 0;
       if (pct > 0) bar += '<div class="rpt-mastery-seg" style="width:' + pct + '%;background:' + colors[k] + '"></div>';
     });
     bar += '</div>';
 
     let legend = '<div class="rpt-mastery-legend">';
-    ['mastered', 'good', 'learning', 'struggling', 'unseen'].forEach(k => {
+    order.forEach(k => {
       legend += '<div class="rpt-legend-item">' +
         '<span class="rpt-legend-dot" style="background:' + colors[k] + '"></span>' +
         '<span>' + labels[k] + '</span>' +
@@ -5286,20 +5287,21 @@ const ParentView = {
   _renderMastery() {
     const el = document.getElementById('pv-mastery');
     const total = this._wordData.length;
-    const counts = { mastered: 0, good: 0, learning: 0, struggling: 0, unseen: 0 };
-    this._wordData.forEach(w => counts[w.label]++);
-    const colors = { mastered: '#a78bfa', good: '#22c55e', learning: '#fbbf24', struggling: '#ef4444', unseen: 'rgba(255,255,255,0.1)' };
-    const labels = { mastered: T.get('dashMastered'), good: T.get('dashGood'), learning: T.get('dashLearning'), struggling: T.get('dashStruggling'), unseen: T.get('dashUnseen') };
+    const counts = { mastered: 0, good: 0, learning: 0, struggling: 0, unseen: 0, archived: 0 };
+    this._wordData.forEach(w => { if (counts[w.label] !== undefined) counts[w.label]++; });
+    const colors = { mastered: '#22c55e', good: '#6ee7b7', learning: '#facc15', struggling: '#ef4444', unseen: 'rgba(255,255,255,0.1)', archived: '#6b7280' };
+    const labels = { mastered: T.get('dashMastered'), good: T.get('dashGood'), learning: T.get('dashLearning'), struggling: T.get('dashStruggling'), unseen: T.get('dashUnseen'), archived: T.get('dashArchived') };
+    const order = ['mastered', 'good', 'learning', 'struggling', 'unseen', 'archived'];
 
     let bar = '<div class="rpt-mastery-bar">';
-    ['mastered', 'good', 'learning', 'struggling', 'unseen'].forEach(k => {
+    order.forEach(k => {
       const pct = total > 0 ? (counts[k] / total) * 100 : 0;
       if (pct > 0) bar += '<div class="rpt-mastery-seg" style="width:' + pct + '%;background:' + colors[k] + '"></div>';
     });
     bar += '</div>';
 
     let legend = '<div class="rpt-mastery-legend">';
-    ['mastered', 'good', 'learning', 'struggling', 'unseen'].forEach(k => {
+    order.forEach(k => {
       legend += '<div class="rpt-legend-item"><span class="rpt-legend-dot" style="background:' + colors[k] + '"></span><span>' + labels[k] + '</span><span class="rpt-legend-count">' + counts[k] + '</span></div>';
     });
     legend += '</div>';
