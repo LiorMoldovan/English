@@ -204,13 +204,13 @@ const T = {
     legMastered: 'Mastered', legGood: 'Good', legLearning: 'Learning',
     legStruggling: 'Struggling', legUnseen: 'Unseen',
     reportTimes: 'times',
-    lvlTitle1: 'Beginner', lvlTitle2: 'Explorer', lvlTitle3: 'Learner',
-    lvlTitle4: 'Adventurer', lvlTitle5: 'Silver Scholar',
-    lvlTitle6: 'Word Warrior', lvlTitle7: 'Smart Cookie',
-    lvlTitle8: 'Knowledge Seeker', lvlTitle9: 'Rising Star',
-    lvlTitle10: 'Gold Master', lvlTitle11: 'Word Wizard',
-    lvlTitle12: 'Brain Power', lvlTitle13: 'Superstar',
-    lvlTitle14: 'Language Hero', lvlTitle15: 'Diamond Legend',
+    lvlTitle1: 'Beginner', lvlTitle2: 'Learner', lvlTitle3: 'Explorer',
+    lvlTitle4: 'Rising Star', lvlTitle5: 'Expert',
+    lvlTitle6: 'Champion', lvlTitle7: 'Superstar',
+    lvlTitle8: 'Word Wizard', lvlTitle9: 'Genius',
+    lvlTitle10: 'Gold Master', lvlTitle11: 'Word Hero',
+    lvlTitle12: 'Diamond Star', lvlTitle13: 'Language Hero',
+    lvlTitle14: 'Legend', lvlTitle15: 'Word Queen',
     spTitle: 'Word Progress', spMastered: 'mastered',
     spSummary: '%m / %t words mastered',
     spReadyMsg: 'All words mastered! Ready for new words!',
@@ -451,13 +451,13 @@ const T = {
     legMastered: 'שולטת', legGood: 'יודעת', legLearning: 'לומדת',
     legStruggling: 'מתקשה', legUnseen: 'לא נראו',
     reportTimes: 'פעמים',
-    lvlTitle1: 'מתחילה', lvlTitle2: 'חוקרת', lvlTitle3: 'לומדת',
-    lvlTitle4: 'הרפתקנית', lvlTitle5: 'מלגאית כסף',
-    lvlTitle6: 'לוחמת מילים', lvlTitle7: 'חכמולוגית',
-    lvlTitle8: 'מחפשת ידע', lvlTitle9: 'כוכב עולה',
-    lvlTitle10: 'אלופת זהב', lvlTitle11: 'קוסמת מילים',
-    lvlTitle12: 'כוח מוחי', lvlTitle13: 'סופרסטאר',
-    lvlTitle14: 'גיבורת שפה', lvlTitle15: 'אגדת יהלום',
+    lvlTitle1: 'מתחילה', lvlTitle2: 'לומדת', lvlTitle3: 'חוקרת',
+    lvlTitle4: 'כוכב עולה', lvlTitle5: 'מומחית',
+    lvlTitle6: 'אלופה', lvlTitle7: 'סופרסטאר',
+    lvlTitle8: 'קוסמת מילים', lvlTitle9: 'גאונית',
+    lvlTitle10: 'אלופת זהב', lvlTitle11: 'גיבורת מילים',
+    lvlTitle12: 'כוכב יהלום', lvlTitle13: 'גיבורת שפה',
+    lvlTitle14: 'אגדה', lvlTitle15: 'מלכת המילים',
     spTitle: 'התקדמות מילים', spMastered: 'שולטת',
     spSummary: '%m מתוך %t מילים שולטת',
     spReadyMsg: '!כל המילים נשלטו! מוכנה למילים חדשות',
@@ -1633,7 +1633,6 @@ const UI = {
     }
 
     this._renderQuickPractice();
-    this._renderSmartBadge();
     this._renderGameModeHint();
 
     if (GameState.data.firstTime) {
@@ -5312,10 +5311,10 @@ const ParentView = {
 
     el.innerHTML =
       '<div class="pv-st-card">' +
-        '<div class="pv-st-title">🕐 ' + T.get('stBankTitle') + '</div>' +
-        '<div class="pv-st-amount">' + avail + '</div>' +
-        '<div class="pv-st-label">' + T.get('stMin') + ' ' + T.get('stAvailable') + '</div>' +
-        (todayEarned > 0 ? '<div class="pv-st-today">+' + todayEarned + ' ' + T.get('stMin') + ' today</div>' : '') +
+        '<span class="pv-st-title">🕐 ' + T.get('stBankTitle') + '</span>' +
+        '<span class="pv-st-amount">' + avail + '</span>' +
+        '<span class="pv-st-label">' + T.get('stMin') + ' ' + T.get('stAvailable') + '</span>' +
+        (todayEarned > 0 ? '<span class="pv-st-today">(+' + todayEarned + ')</span>' : '') +
         (avail > 0 ? '<button class="pv-st-btn" id="pv-st-redeem">' + T.get('stRedeem') + '</button>' : '') +
       '</div>';
 
@@ -5799,13 +5798,6 @@ const App = {
       WordMapping.start(pool);
     });
 
-    const spBadge = document.getElementById('sp-badge');
-    if (spBadge) {
-      spBadge.addEventListener('click', () => {
-        UI.showScreen('smart-progress');
-        SmartProgress.render();
-      });
-    }
 
     document.getElementById('test-retry-btn').addEventListener('click', () => {
       WordTest.retryMistakes();

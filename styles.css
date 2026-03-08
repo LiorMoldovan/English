@@ -2258,10 +2258,16 @@ body.rtl .memory-card-front { transform: rotateY(-180deg); }
   max-height: 400px; overflow-y: auto;
 }
 .dash-word-row {
-  display: flex; align-items: center; gap: 6px;
-  padding: 8px 10px; background: var(--bg-card);
-  border-radius: 8px; font-size: 0.78rem;
+  display: grid;
+  grid-template-columns: 20px 3fr 2fr 90px;
+  align-items: center;
+  column-gap: 6px;
+  padding: 8px 10px;
+  background: var(--bg-card);
+  border-radius: 8px;
+  font-size: 0.82rem;
   border-inline-start: 3px solid transparent;
+  min-height: 38px;
 }
 .dash-word-row.dash-wlabel-struggling { border-inline-start-color: #ef4444; }
 .dash-word-row.dash-wlabel-learning { border-inline-start-color: #facc15; }
@@ -2270,11 +2276,15 @@ body.rtl .memory-card-front { transform: rotateY(-180deg); }
 .dash-word-row.dash-wlabel-unseen { border-inline-start-color: rgba(255,255,255,0.1); }
 .dash-word-row.dash-wlabel-archived { border-inline-start-color: #6b7280; }
 
-.dash-w-status { font-size: 0.75rem; flex-shrink: 0; width: 18px; text-align: center; }
-.dash-w-eng { font-weight: 700; min-width: 75px; flex: 1; }
-.dash-w-heb { font-size: 0.78rem; color: var(--text-secondary); min-width: 65px; text-align: end; }
-.dash-w-stats { font-size: 0.68rem; color: var(--text-dim); min-width: 70px; text-align: center; white-space: nowrap; }
-.dash-w-seen { font-size: 0.65rem; color: var(--text-dim); min-width: 45px; text-align: center; }
+.dash-w-status { font-size: 0.8rem; text-align: center; line-height: 1; }
+.dash-w-eng { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dash-w-heb { color: var(--text-secondary); text-align: end; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dash-w-stats { font-size: 0.72rem; color: var(--text-dim); white-space: nowrap; text-align: end; }
+.dash-w-seen { font-size: 0.68rem; color: var(--text-dim); white-space: nowrap; text-align: end; display: none; }
+@media (min-width: 520px) {
+  .dash-word-row { grid-template-columns: 20px 3fr 2fr 100px 65px; }
+  .dash-w-seen { display: block; }
+}
 
 /* ===== OVERLAYS ===== */
 .overlay {
@@ -2518,7 +2528,6 @@ body.rtl .memory-card-front { transform: rotateY(-180deg); }
 }
 .word-row .speak-btn { width: 30px; height: 30px; font-size: 0.85rem; }
 .test-word-row .speak-btn { width: 32px; height: 32px; font-size: 0.9rem; margin-inline-start: auto; }
-.dash-word-row .speak-btn { width: 28px; height: 28px; font-size: 0.8rem; }
 
 /* ===== UTILITY ===== */
 /* ===== PARENT LINK ===== */
@@ -2651,33 +2660,32 @@ body.rtl .memory-card-front { transform: rotateY(-180deg); }
 .pv-st-card {
   background: linear-gradient(135deg, rgba(245,158,11,0.12), rgba(217,119,6,0.08));
   border: 1px solid rgba(245,158,11,0.25);
-  border-radius: var(--radius); padding: 10px 14px; margin-bottom: 10px;
-  display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px;
+  border-radius: var(--radius); padding: 6px 12px;
+  display: flex; align-items: center; gap: 8px;
 }
 .pv-st-title {
-  font-size: 0.75rem; font-weight: 800; color: #f59e0b;
-  display: flex; align-items: center; gap: 5px; margin: 0;
-  width: 100%;
+  font-size: 0.72rem; font-weight: 800; color: #f59e0b;
+  margin: 0; white-space: nowrap;
 }
 .pv-st-amount {
-  font-size: 1.4rem; font-weight: 900; color: #fbbf24;
+  font-size: 1rem; font-weight: 900; color: #fbbf24;
   margin: 0;
 }
 .pv-st-label {
-  font-size: 0.65rem; color: rgba(251,191,36,0.6);
-  text-transform: uppercase; letter-spacing: 0.5px;
+  font-size: 0.62rem; color: rgba(251,191,36,0.6);
+  white-space: nowrap;
 }
 .pv-st-btn {
   margin-inline-start: auto;
-  padding: 6px 14px; font-size: 0.72rem; font-weight: 800;
+  padding: 4px 10px; font-size: 0.68rem; font-weight: 800;
   background: linear-gradient(135deg, #f59e0b, #d97706);
   color: #fff; border: none; border-radius: var(--radius-sm);
-  cursor: pointer; transition: opacity 0.2s;
+  cursor: pointer; transition: opacity 0.2s; white-space: nowrap;
 }
 .pv-st-btn:hover { opacity: 0.85; }
 .pv-st-today {
-  font-size: 0.62rem; color: var(--text-dim);
-  width: 100%; text-align: center; margin-top: 2px;
+  font-size: 0.6rem; color: var(--text-dim);
+  margin-inline-start: 4px;
 }
 
 @media (max-width: 480px) {
