@@ -343,11 +343,8 @@ body.rtl .back-btn { transform: scaleX(-1); }
 
 /* ===== HOME ACTIONS ROW ===== */
 .home-actions-row {
-  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  display: grid; grid-template-columns: 1fr 1fr;
   gap: 5px; margin-bottom: 8px;
-}
-.home-actions-row:has(.action-learn:not(.hidden)) {
-  grid-template-columns: 1fr 1fr;
 }
 .home-action-btn {
   min-width: 0;
@@ -648,16 +645,16 @@ body.rtl .progress-card:hover .pc-arrow { transform: scaleX(-1) translateX(-3px)
   background: rgba(255,255,255,0.06);
 }
 .pc-bar-seg { height: 100%; transition: width 0.6s ease; min-width: 0; }
-.pc-seg-mastered { background: linear-gradient(90deg, #eab308, #f59e0b); }
-.pc-seg-good { background: linear-gradient(90deg, #22c55e, #10b981); }
-.pc-seg-learning { background: linear-gradient(90deg, #f97316, #fb923c); }
+.pc-seg-mastered { background: linear-gradient(90deg, #16a34a, #22c55e); }
+.pc-seg-good { background: linear-gradient(90deg, #a7f3d0, #6ee7b7); }
+.pc-seg-learning { background: linear-gradient(90deg, #facc15, #fde047); }
 .pc-seg-struggling { background: linear-gradient(90deg, #ef4444, #f87171); }
 .pc-legend { display: flex; gap: 10px; margin-top: 6px; flex-wrap: wrap; }
 .pc-leg-item { display: flex; align-items: center; gap: 3px; font-size: 0.6rem; color: var(--text-secondary); }
 .pc-leg-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-.pc-leg-dot.mastered { background: #eab308; }
-.pc-leg-dot.good { background: #22c55e; }
-.pc-leg-dot.learning { background: #f97316; }
+.pc-leg-dot.mastered { background: #22c55e; }
+.pc-leg-dot.good { background: #6ee7b7; }
+.pc-leg-dot.learning { background: #facc15; }
 .pc-leg-dot.struggling { background: #ef4444; }
 .pc-leg-dot.unseen { background: rgba(255,255,255,0.15); }
 
@@ -2397,8 +2394,7 @@ body.rtl .memory-card-front { transform: rotateY(-180deg); }
   .action-icon { font-size: 1rem; }
   .action-label { font-size: 0.68rem; }
   .action-desc { font-size: 0.52rem; }
-  .home-actions-row { grid-template-columns: 1fr 1fr 1fr; }
-  .home-actions-row:has(.action-learn:not(.hidden)) { grid-template-columns: 1fr 1fr; }
+  .home-actions-row { grid-template-columns: 1fr 1fr; }
 
   /* --- Home: Game Grid --- */
   .game-grid { grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 8px; }

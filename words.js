@@ -248,6 +248,7 @@ const WordManager = {
       m.srsInterval = 1;
       m.recentAnswers.push(false);
       if (m.recentAnswers.length > 10) m.recentAnswers.shift();
+      this._syncMasteryLevel(m);
     } else {
       const lastMistake = this._recentMistakes[wordId] || 0;
       const isFreebie = (now - lastMistake) < 30000;
@@ -261,7 +262,7 @@ const WordManager = {
         if (!m.gameModesCorrect.includes(gameMode)) {
           m.gameModesCorrect.push(gameMode);
         }
-        this._checkMasteryLevelUp(m);
+        this._syncMasteryLevel(m);
         m.srsInterval = Math.min((m.srsInterval || 1) * 2, 30);
       }
     }
@@ -273,14 +274,23 @@ const WordManager = {
     return m;
   },
 
-  _checkMasteryLevelUp(m) {
+  _syncMasteryLevel(m) {
     const tc = m.timesCorrect;
     const modes = m.gameModesCorrect.length;
-    if (m.masteryLevel === 0 && tc >= 2) m.masteryLevel = 1;
-    else if (m.masteryLevel === 1 && tc >= 5) m.masteryLevel = 2;
-    else if (m.masteryLevel === 2 && tc >= 9) m.masteryLevel = 3;
-    else if (m.masteryLevel === 3 && tc >= 14 && modes >= 2) m.masteryLevel = 4;
-    else if (m.masteryLevel === 4 && tc >= 19 && modes >= 3) m.masteryLevel = 5;
+    const recent = (m.recentAnswers || []).slice(-6);
+    const recentCorrect = recent.filter(Boolean).length;
+
+    let level = 0;
+    if (tc >= 19 && modes >= 3) level = 5;
+    else if (tc >= 14 && modes >= 2) level = 4;
+    else if (tc >= 9) level = 3;
+    else if (tc >= 5) level = 2;
+    else if (tc >= 2) level = 1;
+
+    if (recent.length >= 4 && recentCorrect <= 1) level = Math.min(level, 1);
+    else if (recent.length >= 4 && recentCorrect <= 2) level = Math.min(level, 2);
+
+    m.masteryLevel = level;
   },
 
   getActiveCount() {
@@ -685,13 +695,13 @@ const WordManager = {
   recordMappingResult(wordId, correct) {
     const m = this.getMastery(wordId);
     if (correct) {
-      m.timesCorrect = 6;
-      m.recentAnswers = [true, true, true, true, true, true];
-      m.masteryLevel = 2;
-      m.gameModesCorrect = [...new Set([...m.gameModesCorrect, 'mapping', 'quiz'])];
+      m.timesCorrect = 4;
+      m.recentAnswers = [true, true, true, true];
+      m.gameModesCorrect = [...new Set([...m.gameModesCorrect, 'mapping'])];
       m.lastSeen = Date.now();
-      m.srsInterval = 4;
-      m.srsNextReview = Date.now() + (4 * 86400000);
+      m.srsInterval = 2;
+      m.srsNextReview = Date.now() + (2 * 86400000);
+      this._syncMasteryLevel(m);
     } else {
       m.lastSeen = Date.now();
     }
